@@ -1,0 +1,37 @@
+{
+	"db": {
+		"db_host": "172.17.160.191",
+		"db_user": "root",
+		"db_pass": "123456",
+		"db_name":"riil_test",
+		"db_limit":10
+	},
+	"role": [{
+		"role_id": "developer",
+		"role_name": "开发工程师",
+		"role_style": "0"
+	}, {
+		"role_id": "stuff",
+		"role_name": "维护工程师",
+		"role_style": "1"
+	}],
+    "sql":{
+        "t_moni_res_type.select":"select c_id as modelId, c_tree_node_id as id, c_tree_node_id as pId, c_name as name, c_icon as icon from t_moni_res_type",
+        "t_moni_model_base.select":"select c_id as modelId, null as id, c_tree_node_id as pId, c_name as name, null as icon from t_moni_model_base where c_is_main = '1'",
+        "t_moni_model_base.select_by_mainmodelid":"select c_id as modelId, null as id, null as pId, c_name as name, null as icon from t_moni_model_base where c_main_model_id = ?",
+        "t_moni_metric_base.select":"SELECT metric.c_id AS metricId,metric.c_name AS metricName,metric.c_unit AS metricUnit,metric.c_data_type AS dataType,metric.c_metric_type AS metricType,metric.c_desc AS metricDesc,metric.c_is_custom AS isCustom,metric.c_user_id as metricUser,grouprel.c_metric_group_id AS groupRelId,grouprel.c_metric_id AS metricId,mgroup.c_name AS groupName,mgroup.c_id AS groupId FROM t_moni_metric_base AS metric,t_moni_metric_group_rel AS grouprel,t_moni_metric_group AS mgroup WHERE  metric.c_id = grouprel.c_metric_id AND mgroup.c_id = grouprel.c_metric_group_id ;",
+        "t_moni_metric_base.insert":"INSERT INTO t_moni_metric_base(c_id,c_name,c_desc,c_metric_type,c_unit,c_data_type,c_is_custom,c_user_id) VALUES(:metric_id,:metric_name,:metric_desc,:metric_type,:metric_unit,:metric_datatype,:metric_iscustom,:userid) ",
+        "t_moni_metric_base.update":"UPDATE t_moni_metric_base SET c_name=:metric_name,c_desc=:metric_desc,c_metric_type=:metric_type,c_unit=:metric_unit,c_data_type=:metric_datatype,c_is_custom=:metric_iscustom,c_user_id=:metric_userid WHERE c_id =:metric_id",
+        "t_moni_metric_group_rel.insert":"INSERT INTO t_moni_metric_group_rel(c_metric_group_id,c_metric_id) VALUES(:groupid,:metricid)",
+        "t_moni_metric_group_rel.delete":"DELETE FROM t_moni_metric_group_rel where c_metric_id in (:metric_ids)",
+        "t_moni_metric_base.delete":"DELETE FROM t_moni_metric_base WHERE c_id in (:ids)",
+        "t_moni_metric_base.select_by_condation":"SELECT metric.c_id AS metricName,metric.c_name AS metricType,metric.c_unit AS metricUnit,metric.c_data_type AS dataType,metric.c_desc AS metricDesc,metric.c_is_custom AS isCustom,metric.c_user_id as metricUser,grouprel.c_metric_group_id AS groupRelId,grouprel.c_metric_id AS metricId,mgroup.c_name AS groupName,mgroup.c_id AS groupId FROM t_moni_metric_base AS metric,t_moni_metric_group_rel AS grouprel,t_moni_metric_group AS mgroup WHERE  metric.c_id = grouprel.c_metric_id AND mgroup.c_id = grouprel.c_metric_group_id  and metric.c_name=? and metric.c_metric_type=? and metric.c_id=?",
+        "t_moni_metric_base.selectMetricName":"SELECT distinct c_name FROM t_moni_metric_base",
+        "t_moni_metric_base.selectMetricType":"SELECT distinct c_metric_type FROM t_moni_metric_base",
+        "t_moni_metric_group.select":"SELECT c_id as groupId,c_name as groupName,c_desc as groupDesc FROM t_moni_metric_group",
+        "t_moni_metric_group.insert":"INSERT INTO t_moni_metric_group(c_id,c_name,c_desc) VALUES(:groupId,:groupName,:groupDesc)",
+        "t_moni_metric_group.update":"UPDATE t_moni_metric_group SET c_id=:groupId,c_name=:groupName,c_desc=:groupDesc WHERE c_id=:groupId",
+        "t_moni_metric_group.delete":"DELETE FROM t_moni_metric_group WHERE c_id in (:groupIds)",
+        "t_moni_metric_group.selectById":"SELECT c_id as groupId,c_name as groupName,c_desc as groupDesc FROM t_moni_metric_group WHERE c_id=?"
+    }
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>背板管理</title>
+<link href="/css/comm.css" rel="stylesheet" type="text/css" />
+<link href="/css/pop.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/js/common/jquery-1.9.0.js"></script>
+<script type="text/javascript" src="/js/common/common.js"></script>
+<script type="text/javascript" src="/js/common/prompt.js"></script>
+<script type="text/javascript" src="/static/resource/apply.js"></script>
+<script type="text/javascript" src="/static/common/err_msg.js"></script>
+<script type="text/javascript" src="/js/common/jquery.dataTables.min.js"></script>
+<% include baseInfo.html %>
+</head>
+<body>
+	<div id="form_div">
+		<form id="form1">
+			<div id="tabDiv" style="padding: 0px">
+				<div id="tabsHead">
+					<a class="curtab" id="tabs1"
+						href="javascript:showTab('tabs1','tabContent1')">背板管理</a>
+				</div>
+				<div id="tabContent2" style="display: block;">
+					<div class="btn_top">
+						<a class="btn" id="delete_button">删除</a>
+						<a class="btn" target="_blank" id="add_button">添加</a>
+					</div>
+					<div class="con_t" style="margin: 0px 10px 10px 10px; border: 0px;">
+						<ul>
+							<li>
+								<table id="backgroudTable" cellspacing="0" cellpadding="0" class="t_td table">
+									<thead>
+									<tr bgcolor="#ecf1f9">
+										<td width="20px"><input name="ckall" id="all"
+											type="checkbox" /></td>
+										<td>项目名称</td>
+										<td>厂商</td>
+										<td>设备型号</td>
+										<td>上传日期</td>
+										<td>添加人</td>
+										<td>描述</td>
+										<td>操作</td>
+									</tr>
+									<thead>
+								</table>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

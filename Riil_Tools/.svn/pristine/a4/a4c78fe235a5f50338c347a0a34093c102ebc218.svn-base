@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>系统管理</title>
+<link href="../css/comm.css" rel="stylesheet" type="text/css" />
+ <% include baseInfo.html %>  
+</head>
+<body>
+
+	<div class="logo">
+		<div
+			style="font-size: 15px; color: #fff; font-weight: bold;display:inline;">
+			<img src="../images/imageServer.png" width="69" height="30"
+				align="absmiddle" />模型管理系统
+		</div>
+		<div style="float: right;">&nbsp;</div>
+		<div style="float: right;">
+			<a style="color: #fff; font-weight: bold;" href="/resmodel/login/logout/<%=userId%>">注销</a>&nbsp;
+		</div>
+		<div style="float: right;">&nbsp;</div>
+		<div style="float: right;">
+			<a style="color: #fff; font-weight: bold;"  href="/resmodel/login">模型管理</a>&nbsp;
+		</div>
+		<div style="float: right;">&nbsp;</div>
+		<div style="float: right; color: #fff; font-weight: bold;"><%=user%>&nbsp;您好！&nbsp;</div>
+	</div>
+	<div class="sidebar" style="height: 100%;">
+		<div class="nav">
+			<span class="ico f_left"></span><a onclick="userHome.userManage()">用户管理</a>
+		</div>
+		<div class="nav">
+			<span class="ico f_left"></span><a onclick="userHome.roleManage()">角色管理</a>  
+		</div>
+		<div id="display_data"></div>
+	</div>
+</body>
+</html>

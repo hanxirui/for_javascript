@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Insert title here</title>
+<link href="/css/pop.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+	<div class="pop" style="width: 598px; height: 187px; padding-top:0;background-color: #fff;">
+		<form id="addapplyform" method="post" action="/resmodel/file-upload/updataBackboard" enctype="multipart/form-data" target='updateFrameFile'>
+			<div class="pop_content">
+				<div class="pop_group">
+					<ul>
+						<li class="m_14">
+							<table width="598px" cellspacing="0" cellpadding="0" class="t_td">
+								<input type="hidden" name="backPlaneId" value="<%= c_id%>"/>
+								<tr>
+									<td width="100" height="26">项目名称：</td>
+									<td><input name="m_projectname" type="text"
+										value="<%= c_project_name%>" id="m_projectname" size="50"
+										class="f_left" />&nbsp;&nbsp;<span
+										style="color: red">*</span></td>
+								</tr>
+								<tr>
+									<td height="26">厂商名称：</td>
+									<td><input name="m_ventor" type="text" id="m_ventor"
+										size="50" class="f_left" value="<%=c_ventor%>" /></td>
+								</tr>
+								<tr>
+									<td height="26">设备型号：</td>
+									<td><input name="m_equipmenttype" type="text"
+										id="m_equipmenttype" size="50" class="f_left"
+										value="<%=c_equipment_type%>" /></td>
+								</tr>
+								<tr>
+									<td height="26">上传资料：</td>
+									<td><input type="text"  value="<%=c_backplane_name%>"
+										style="list-style-type: lower-roman; width: 300px; height: 20px;"
+										id="fileText" disabled="disabled" /> 
+										<input id="file"  value="<%=c_backplane_name%>" type="file" name="m_applyfileupload" onchange="checkfile(this)"
+										style="height: 24px; width: 70px; margin-bottom: 10px; margin-left: -5px; *margin-left: -50px; filter: alpha(opacity =0); opacity: 0; -moz-opacity: 0; position: absolute; cursor: pointer;" />
+										<input type="button" value="浏览···"
+										style="width: 50px; height: 23px;" /></td>
+								</tr>
+								<tr>
+									<td height="26">描述</td>
+									<td>
+										<textarea name="desc" cols="60" row = "5" class="f_left" ><%=c_desc%></textarea>
+									</td>
+								</tr>
+							</table>
+
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="bg_gray con_b">
+				<a class="btn" onclick="closeAlert('alert')">取消</a> <a class="btn"
+					onclick="javascript:applyupdate();">确定</a>
+			</div>
+		</form>
+		<iframe id='updateFrameFile' name='updateFrameFile' style='display: none;' onload='submitUpdateLoad()'></iframe>s
+	</div>
+</body>
+</html>

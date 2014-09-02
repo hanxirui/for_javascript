@@ -1,0 +1,20 @@
+.pop{ overflow:hidden; background:#eeeeee; border:1px solid #b8b8b8;}
+.pop_tab a{ display:block; height:39px; line-height:45px; text-align:center; float:left; margin:0px; width:118px;}
+.pop_content{ margin:10px;}
+.pop_group{ border:1px solid #cacaca; background:#f5f5f5;}
+.pop_group_tit{ background:#d6d7dc; border-bottom:1px solid #ffffff; padding-left:12px; text-align:left; height:26px; line-height:26px;}
+.pop_group_con{ border-top:1px solid #d7d7d7; border-bottom: 1px solid #B2C9D3;padding:8px; overflow:hidden; padding-left:30px;}
+.pop_group_con01{ border-top:1px solid #d7d7d7; padding:8px 30px; overflow:hidden;}
+.pop_btn{ background:#dfdfdf; height:32px; line-height:32px;}
+.pop_btn a{ margin:4px 10px 0px 0px;}
+
+.li_txt_pop{ line-height:19px; margin:0px 12px; overflow:hidden; margin:2px 0px; color:#727273;}
+.li_txt_pop span{ display:block; height:27px; line-height:19px; text-align:left; float:left; margin-top:2px;}
+
+.li_txt_pop01{ line-height:26px; margin:0px 12px; margin:2px 0px; color:#727273;}
+.li_txt_pop01 span{ display:block; height:25px; line-height:28px; text-align:left; float:left; margin-top:2px;}
+
+.li_txt_pop02{ line-height:26px; margin:0px 12px; overflow:hidden; margin:2px 0px; color:#727273;}
+.li_txt_pop02 span{ display:block; height:70px; line-height:28px; text-align:left; float:left; margin-top:2px;}
+
+

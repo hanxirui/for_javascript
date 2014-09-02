@@ -1,0 +1,46 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head runat="server">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>指标组管理</title>
+    <% include baseInfo.html %>  
+    <link href="/css/comm.css" rel="stylesheet" type="text/css">
+    <link href="/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+      table tbody tr td:first-child{
+        text-align: center;
+      }
+    </style>
+    <script type="text/javascript" src="/js/common/jquery.js"></script>
+    <script type="text/javascript" src="/js/common/prompt.js"></script>
+    <script type="text/javascript" src="/js/common/common.js"></script>
+    <script type="text/javascript" src="/js/common/jquery.dataTables.min.js"></script>
+    </head>
+
+    <body>
+    <form id="form1" runat="server">
+      <div id="tabDiv" style="padding:0px;"> 
+        <!--tab头-->
+        <div id="tabsHead"> <a class="curtab" id="tabs1" href="javascript:showTab('tabs1','tabContent1')">指标信息</a></div>
+        <div id="tabContent2" style="display:block;">
+          <div class="btn_top"><a class="btn" onclick="metricGroupManager.delMetricGroupMsg();">删除</a><a class="btn" onclick="metricGroupManager.popMetricAddPage()">添加</a></div>
+          <div class="con_t" style="margin:0px 10px 10px 10px; border:0px;">
+            <ul>
+              <li>
+                <table id="metricGroupTable" width="100%" cellspacing="0" cellpadding="0" class="t_td table">
+                  <thead>
+                    <tr bgcolor="#ecf1f9">
+                      <th><input type="checkbox" id="all" ></th>
+                      <td>ID</td>
+                      <td>名称</td>
+                      <td>描述</td>
+                    </tr>
+                </thead></table>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </form>
+</body>
+<script type="text/javascript" src="/static/metricGroup/metric_group_list.js"></script>
+</html>

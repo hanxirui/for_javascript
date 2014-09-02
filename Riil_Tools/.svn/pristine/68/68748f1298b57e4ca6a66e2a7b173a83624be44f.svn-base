@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <% include baseInfo.html %>  
+<link rel="stylesheet" href="/css/ui-lightness/jquery-ui-1.9.2.custom.css" type="text/css">
+<link rel="stylesheet" href="/css/zTreeStyle.css" type="text/css">
+<link rel="stylesheet" href="/css/comm.css" type="text/css">
+<link rel="stylesheet" href="/css/pop.css" type="text/css">
+<link rel="stylesheet" href="/css/style.css" type="text/css">
+<link rel="stylesheet" href="/css/prompt.css" type="text/css">
+	
+<script type="text/javascript" src="/js/common/jquery-1.9.0.js"></script>
+<script type="text/javascript" src="/js/common/jquery-ui-1.9.2.custom.js"></script>
+<script type="text/javascript" src="/js/common/jquery.ztree.core-3.5.js"></script>
+<script type="text/javascript" src="/js/resourcemodel/refresh_tree.js"></script>
+<script type="text/javascript" src="/js/common/prompt.js"></script>
+<script type="text/javascript" src="/js/common/common.js"></script>
+<script type="text/javascript" src="/js/tabs.js"></script>
+<script type="text/javascript" src="/static/resource_model_info.js"></script>
+<title>Insert title here</title>
+</head>
+<body>
+	<!--tab控件-->
+
+	<div id="tabDiv" style="padding: 0px;">
+		<!--tab头-->
+		<div id="tabsHead">
+			<a class="curtab" id="tabs1"
+				href="javascript:showTab('tabs1','tabContent1')">模型基础信息</a> <!-- <a
+				class="tabs" id="tabs2"
+				href="javascript:showTab('tabs2','tabContent2')">指标</a> <a
+				class="tabs" id="tabs3"
+				href="javascript:showTab('tabs3','tabContent3')">默认策略</a> -->
+		</div>
+		<!-- 模型基础信息 -->
+		<div id="tabContent1" style="display: block; padding-bottom: 40px;"
+			class="pos_real">
+			<div class="pos_obso btn_bg">
+				<a class="btn" onclick="closeWin()">取消</a> <a class="btn"
+					onclick="submitModelInfo()">确定</a>
+			</div>
+			<div class="con_t">
+				<input type="hidden" id="ParentTreeId" value="${pId}"> 
+				<input type="hidden" id="OperatorCode" value="${user}">
+				<input type="hidden" id="userId" value="${userId}">
+				<input type="hidden" id="userName" value="${userName}">
+				<input type="hidden" id="roleType" value="${roleType}">
+
+				<ul>
+					<li class="bg_gray con_b">基础信息</li>
+					<li class="m_14">
+						<table width="80%" cellspacing="0" cellpadding="0" class="t_td">
+							<tr>
+								<td width="100" height="26">模型ID：</td>
+								<td><input name="ModelId" type="text" id=ModelId size="60" onblur="checkModelId()"style="width:503px"/>
+								&nbsp;&nbsp;<span style="color: red">ID必须以RIIL_RMM_开头</span>
+								</td>
+							</tr>
+							<tr>
+								<td height="26">模型名称：</td>
+								<td><label for="textfield"></label> <input name="ModelName" style="width:503px"
+									id="ModelName" type="text" id="textfield" size="60" /></td>
+							</tr>
+							<tr>
+								<td height="26">模型英文名称：</td>
+								<td><label for="select"></label> <input name="ModelNameEn"style="width:503px"
+									id="ModelNameEn" type="text" size="60" /></td>
+							</tr>
+							<tr>
+								<td height="26">描述：</td>
+								<td><textarea name="ModelDesc" id="ModelDesc" cols="60"style="width:503px"
+										rows="5"></textarea></td>
+							</tr>
+							<tr>
+								<td height="26">资源类型：</td>
+								<td><input name="ModelType" id="ModelType" type="text"style="width:503px"
+									size="60" /></td>
+							</tr>
+							<tr>
+								<td height="26">是否SNMP模型：</td>
+								<td><input type="radio" name="IsSnmpModel" id="IsSnmpModel"
+									value="1" /><label for="radio"></label>
+									是&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <input
+									type="radio" name="IsSnmpModel" id="IsSnmpModel" value="-1" checked="checked"/>
+									<label for="radio2"></label> 否</td>
+							</tr>
+							<tr>
+								<td height="26">是否主模型：</td>
+								<td><input type="radio" name="IsMainModel" id="IsMainModel"
+									value="1" /> <label for="radio3"></label>
+									是&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <input
+									type="radio" name="IsMainModel" id="IsMainModel" value="-1" checked="checked"/>
+									<label for="radio4"></label> 否</td>
+							</tr>
+							<tr>
+								<td height="26">所属主模型：</td>
+								<!-- <td><input name="MainModel" type="text" id="MainModel"
+									size="60" /></td> -->
+								<td>
+								<span class="w_160 f_left"> 
+								<input id="citySel"	name="citySel" type="text" readonly style="width: 120px;" />&nbsp;
+										 <a id="menuBtn" href="#"onclick="showMenu(); return false;">选择</a>
+								</span>
+								</td>
+							</tr>
+							<tr>
+								<td height="26">取值插件：</td>
+								<td><input name="ValuePlugin" type="text" id="ValuePlugin"style="width:503px"
+									size="60" /></td>
+							</tr>
+							<tr>
+								<td height="26">版本：</td>
+								<td><input name="ModelVersion" type="text"style="width:503px"
+									id="ModelVersion" size="60" /></td>
+							</tr>
+						</table>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<!-- 指标 -->
+<!-- 		<div id="tabContent2"
+			style="display: none; padding-bottom: 40px; overflow: hidden; heigth: 500px;"
+			class="pos_real">
+			<input type="hidden" id="modelId">
+			<iframe frameborder="0" width="100%" height="710px" scrolling="yes"
+				name="content" marginheight="0" marginwidth="0" id="model_param"
+				src="${ctx}/resourceModelCotroller/modelParam?pageNow=1"> </iframe>
+		</div> --！>
+		<!-- 默认策略 -->
+<!-- 		<div id="tabContent3" style="display: none; padding-bottom: 20px;"
+			class="pos_real">
+			<div class="pos_obso btn_bg">
+				<a class="btn">取消</a><a class="btn">确定</a>
+			</div>
+			<div class="con_t">
+				<ul>
+					<li class="bg_gray con_b"><span>基础信息</span><a class="f_right btn" onclick="submintModelPolicy()">保存</a></li>
+					<li class="m_14">
+						<table width="80%" cellspacing="0" cellpadding="0" class="t_td">
+							<tr>
+								<td width="70" height="26">名称：</td>
+								<td><label for="textfield"></label>
+								 <input name="model_policy_name" id="model_policy_name" type="text" id="textfield" size="60" /></td>
+							</tr>
+							<tr>
+								<td height="26">描述：</td>
+								<td><label for="textfield"></label> 
+								<input name="model_policy_desc" id="model_policy_desc"type="text" id="textfield" size="60" />
+								</td>
+							</tr>
+							<tr>
+								<td height="26">策略类型：</td>
+								<td><label for="select"></label> 
+								<select name="model_policy_type" id="model_policy_type">
+										<option>资源</option>
+										<option>链路</option>
+										<option>业务</option>
+								</select>
+								</td>
+							</tr>
+						</table>
+					</li>
+				</ul>
+			</div>
+			<div class="con_t">
+			 <iframe frameborder="0" width="100%" height="250px" scrolling="no"
+				name="content" marginheight="0" marginwidth="0" id="model_metric_management"
+				src=""></iframe>
+				
+			</div>
+			
+			<div class="con_t">
+			<iframe frameborder="0" width="100%" height="250px" scrolling="no"
+				name="content" marginheight="0" marginwidth="0" id="model_event_management"
+				src=""></iframe>
+			</div>
+		</div> -->
+	</div>
+<div id="menuContent" class="menuContent"
+		style="display: none; position: absolute;">
+		<ul id="treeDemo" class="ztree" style="margin-top: 0; width: 160px;"></ul>
+	</div>
+	<!--tb控件结束-->
+</body>
+</html>

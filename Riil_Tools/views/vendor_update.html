@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>修改厂商型号信息</title>
+<% include baseInfo.html %>  
+<link href="/css/comm.css" rel="stylesheet" type="text/css" />
+<link href="/css/user_add.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/js/common/jquery-1.9.0.js"></script>
+<script type="text/javascript" src="/js/common/prompt.js"></script>
+<script type="text/javascript" src="/js/common/common.js"></script>
+<script type="text/javascript">
+	var manufId = '<%-data.c_vendor_id%>';
+	var modelId = '<%-data.c_model_type%>';
+	var devId = '<%-data.c_dev_type%>';
+</script>
+<body>
+ <div  class="pop" style="width:600px;">
+ <div class="pop_content">
+ <div class="pop_group">
+		<ul>
+			<li class="pop_group_tit"><b>厂商型号信息</b></li>
+		</ul>
+		<ul class="pop_group_con">
+			<li class="li_txt_pop" >
+			    <span class=" w_80">Sysoid：</span>
+			    <span class="w_160"> 
+			        <input id="sysoid" type="text" class=" w_160" value="<%=: data.c_vendor_oid|isNull%>" onblur="checkIdRepeat();" />
+			        <input id="cId" type="hidden" value="<%=: data.c_id|isNull%>" />
+			    </span>
+			    <span class=" m_l10r4 txt_red">*</span>
+			    <span class="m_l10r4 txt_red" id="sysoid_msg"></span>
+			</li>
+			<li class="li_txt_pop">
+			    <span class=" w_80">型号：</span>
+			    <span class="w_160"> 
+			        <input type="text" class=" w_160" id="vendor_name" value="<%=: data.c_model_number|isNull%>" onblur="checkNameRepeat();" />
+			    </span>
+			    <span class=" m_l10r4 txt_red" style="">*</span>
+			    <span class="m_l10r4 txt_red" id="vendor_name_msg"></span>
+			</li>
+			<li class="li_txt_pop">
+			    <span class=" w_80">系列：</span>
+			    <span class="w_160"> 
+			        <input type="text" class=" w_160" id="series" value="<%=: data.c_series|isNull%>" />
+			    </span>
+			</li>
+			<li class="li_txt_pop">
+			    <span class=" w_80">厂商：</span>
+			    <span class="w_160"> 
+			        <select name="manuf_select" id="manuf_select" style="width:160px" value="<%=: data.c_vendor_id|isNull%>" class="ml_20">
+              		</select>
+			    </span>
+			</li>
+			<li class="li_txt_pop">
+			    <span class=" w_80">对应模型：</span>
+			    <span class="w_160"> 
+			        <select name="model_select" id="model_select" style="width:160px" class="ml_20">
+              		</select>
+			    </span>
+			</li>
+			<li class="li_txt_pop">
+			    <span class=" w_80">设备类型：</span>
+			    <span class="w_160"> 
+			        <select name="device_select" id="device_select" style="width:160px" class="ml_20">
+              		</select>
+			    </span>
+			</li>
+	</div>
+</div>
+<div>
+    <ul>
+        <li class="bg_gray con_b">
+            <a class="btn" onclick="closeWin()">取消</a>
+            <a class="btn" onclick="submitMsg()">确定</a>
+        </li>
+    </ul>
+</div>
+</div>
+</body>
+<script type="text/javascript" src="/static/vendor/vendor_common.js"></script>
+<script type="text/javascript" src="/static/vendor/vendor_update.js"></script>
+<script type="text/javascript" src="/static/common/err_msg.js"></script>
+</html>

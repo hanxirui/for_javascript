@@ -1,0 +1,54 @@
+{
+  "name": "nobatis",
+  "version": "0.0.7",
+  "description": "simple mybatis-like dao for nodejs",
+  "author": {
+    "name": "Dongsu Jang",
+    "email": "iolothebard@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://git@github.com/iolo/node-nobatis.git"
+  },
+  "license": "MIT",
+  "engine": {
+    "node": ">=0.8"
+  },
+  "dependencies": {
+    "mariasql": ">=0.1.12",
+    "underscore": ">=1.4.3",
+    "q": ">=0.8.12"
+  },
+  "devDependencies": {
+    "nodeunit": ">=0.7.4"
+  },
+  "directories": {
+    "lib": "./lib"
+  },
+  "main": "./libs/nobatis",
+  "readme": "nobatis\n=======\n\n*This is extremely experimental stuff*\n\nThis is a simple \"mybatis-like\" dao for nodejs.\n\nFeatures\n--------\n\n* TBW ...\n\nInstall\n-------\n\n```\nnpm install nobatis\n```\n\nor\n\n```\nnpm install git@github.com:iolo/node-nobatis.git\n```\n\nHow to Get DataSource\n----------------------------------------------\n\n1. prepare configurations:\n<pre><code class=\"javascript\">\nvar config = {\n  \"dataSource\": {\n    \"driver\": \"mariasql\",\n    \"host\": \"localhost\",\n    \"port\": 3306,\n    \"user\": \"root\",\n    \"password\": \"\",\n    \"db\": \"test\"\n  },\n  \"queries\": {\n    \"test1.selectAll\": \"SELECT * FROM test1\",\n    \"test1.select\": \"SELECT * FROM test1 WHERE id=?\",\n    \"test1.insert\": \"INSERT INTO test1(name) VALUES(:name)\",\n    \"test1.update\": \"UPDATE test1 SET name=:name WHERE id=:id\",\n    \"test1.delete\": \"DELETE FROM test1 WHERE id=?\"\n  }\n};\n</pre></code>\n**or** you can write configurations to a file(json module).\n3. import nobatis module\n<pre><code class=\"javascript\">\nvar nobatis = require('nobatis');\n</pre></code>\n4. create ```DataSource``` with configutaion:\n<pre><code class=\"javascript\">\nvar dataSource = nobatis.createDataSource(config);\n</pre></code>\n**or** create one with a configuration file(json module):\n<pre><code class=\"javascript\">\nvar dataSource = nobatis.createDataSource(require('./config'));\n</pre></code>\n**or** get the default one:\n<pre><code class=\"javascript\">\nvar dataSource = nobatis.createDataSource();\n</pre></code>\n4. now ```openSession()```:\n<pre><code class=\"javascript\">\nvar session = null;\ntry {\n  session = dataSource.openSession();\n  // use session here …\n} finally {\n  session && session.close();\n}\n</pre></code>\n*or* ```withSession()```:\n<pre><code class=\"javascript\">\ndataSource.withSession(function (session) {\n  // use session here ...\n});\n</pre></code>\n\nHow to Execute Queries\n----------------------\n\n* select multiple rows\n<pre><code class=\"javascript\">\nsession.select('test1.selectAll', [])\n.then(function(rows) {\n  ...\n}).fail(function(err) {\n  ...\n});\n</pre></code>\n\n* select rows with row bounds\n<pre><code class=\"javascript\">\nsession.select('test1.selectAll', [], {offset:2, limit:2})\n.then(function(rows) {\n  ...\n})\n.fail(function(err) {\n  ...\n});\n</pre></code>\n\n* select a single row\n<pre><code class=\"javascript\">\nsession.selectOne('test1.select', \\[1])\n.then(function(row) {\n  ...\n.fail(function(err) {\n  ...\n});\n</pre></code>\n\n* insert new row\n<pre><code class=\"javascript\">\nsession.insert('test1.insert', {name:'a'})\n.then(function(insertId) {\n  ...\n.fail(function(err) {\n  ...\n});\n</pre></code>\n\n* update row(s)\n<pre><code class=\"javascript\">\nsession.update('test1.update', {id:1, name:'a'})\n.then(function(affectedRows) {\n  ...\n.fail(function(err) {\n  ...\n});\n</pre></code>\n\n* delete row(s)\n<pre><code class=\"javascript\">\nsession.destroy('test1.delete', \\[1])\n.then(function(affectedRows) {\n  ...\n.fail(function(err) {\n  ...\n});\n</pre></code>\n\nHow to Create DAO\n-----------------\n\n* prepare dao object\n<pre><code class=\"javascript\">\nvar nobatis = require('nobatis');\nvar dataSource = require('nobatis').createDataSource(config);\nvar dao = nobatis.createDao(dataSource, {\n  table: 'test1',\n  primaryKey: 'id',\n  primaryKeyGenerated: true,\n  defaults: function () {\n    return {\n      id: 0,\n      name: '',\n      created: new Date()\n    };\n  }\n});\n</pre></code>\n\n* create new object with default attributes\n<pre><code class=\"javascript\">\nvar obj = dao.createNew();\n</pre></code>\n\n* create new object with custom attributes\n<pre><code class=\"javascript\">\nvar obj = dao.createNew({name:'foo'});\n</pre></code>\n\n* check the object is saved or not\n<pre><code class=\"javascript\">\ndao.isNew(obj);\n</pre></code>\n\n* select an object by primary key\n<pre><code class=\"javascript\">\ndao.load(pk)\n.then(function (obj) {\n  ...\n.fail(function(err) {\n  ...\n});\n</pre></code>\n\n* insert/update an object\n<pre><code class=\"javascript\">\ndao.save(obj)\n.then(function (affectedRow-or-insertId) {\n  ...\n.fail(function(err) {\n  ...\n});\n</pre></code>\n\n* insert/update an object and reload it\n<pre><code class=\"javascript\">\ndao.save(obj, true)\n.then(function (obj) {\n  ...\n.fail(function(err) {\n  ...\n});\n</pre></code>\n\n* delete an object by primary key\n<pre><code class=\"javascript\">\ndao.destroy(pk)\n.then(function (success_or_not) {\n  ...\n.fail(function(err) {\n  ...\n});\n</pre></code>\n\n* select all rows\n<pre><code class=\"javascript\">\ndao.all()\n.then(function (rows) {\n  ...\n.progress(function (row) {\n  ...\n.fail(function(err) {\n  ...\n});\n</pre></code>\n\n* select all rows with bounds\n<pre><code class=\"javascript\">\ndao.all({offset:10, limit:10})\n.then(function (rows, numRows) {\n  ...\n.progress(function (row) {\n  ...\n.fail(function(err) {\n  ...\n});\n</pre></code>\n\n* see also [https://github.com/kriskowal/q]\n\n* TBW\n",
+  "readmeFilename": "README.md",
+  "_id": "nobatis@0.0.7",
+  "dist": {
+    "shasum": "eb36d1c4004e7e916e74a194463cfc3181215da5",
+    "tarball": "http://registry.npmjs.org/nobatis/-/nobatis-0.0.7.tgz"
+  },
+  "_from": "nobatis@",
+  "_npmVersion": "1.2.11",
+  "_npmUser": {
+    "name": "iolo",
+    "email": "iolothebard@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "iolo",
+      "email": "iolothebard@gmail.com"
+    }
+  ],
+  "_shasum": "eb36d1c4004e7e916e74a194463cfc3181215da5",
+  "_resolved": "https://registry.npmjs.org/nobatis/-/nobatis-0.0.7.tgz",
+  "bugs": {
+    "url": "https://github.com/iolo/node-nobatis/issues"
+  },
+  "homepage": "https://github.com/iolo/node-nobatis"
+}

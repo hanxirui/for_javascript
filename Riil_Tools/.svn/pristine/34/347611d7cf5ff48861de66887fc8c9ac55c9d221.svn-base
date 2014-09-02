@@ -1,0 +1,57 @@
+{
+  "name": "mybatisnodejs",
+  "description": "MyBatisNodeJs is a port from the The MyBatis Java data mapper framework for Node.Js.",
+  "version": "0.0.17",
+  "dependencies": {
+    "string": "*",
+    "moment": "*",
+    "xmldom": "*"
+  },
+  "main": "src/No.js",
+  "scripts": {
+    "test": "for f in tests/*; do echo \"$f\"; node \"$f\"; done; echo 'passed!'; exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fibonacci-Solucoes-Ageis/MyBatisNodeJs.git"
+  },
+  "keywords": [
+    "mybatis",
+    "mybatis-port",
+    "orm",
+    "mysql",
+    "potstresql",
+    "java",
+    "nodejs",
+    "\"object",
+    "relational",
+    "mapper\""
+  ],
+  "author": {
+    "name": "Fibonacci Soluções Ágeis LTDA"
+  },
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/Fibonacci-Solucoes-Ageis/MyBatisNodeJs/issues"
+  },
+  "_id": "mybatisnodejs@0.0.17",
+  "dist": {
+    "shasum": "229a42958b7cb176dc6d77665033de5558d1f450",
+    "tarball": "http://registry.npmjs.org/mybatisnodejs/-/mybatisnodejs-0.0.17.tgz"
+  },
+  "_from": "mybatisnodejs@",
+  "_npmVersion": "1.3.10",
+  "_npmUser": {
+    "name": "fibonacci-solucoes-ageis",
+    "email": "marcio.fibonacci@solucoesageis.com.br"
+  },
+  "maintainers": [
+    {
+      "name": "fibonacci-solucoes-ageis",
+      "email": "marcio.fibonacci@solucoesageis.com.br"
+    }
+  ],
+  "directories": {},
+  "_shasum": "229a42958b7cb176dc6d77665033de5558d1f450",
+  "_resolved": "https://registry.npmjs.org/mybatisnodejs/-/mybatisnodejs-0.0.17.tgz"
+}

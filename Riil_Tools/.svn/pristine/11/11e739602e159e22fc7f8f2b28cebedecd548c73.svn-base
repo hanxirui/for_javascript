@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>系统管理<%=user%></title>
+<link href="/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+<link href="/css/comm.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+.div_hidden{
+    display:none;
+}
+</style>
+<script type="text/javascript" src="/js/common/jquery.js"></script>
+<script type="text/javascript" src="/js/common/prompt.js"></script>
+<script type="text/javascript" src="/js/common/common.js"></script>
+<script type="text/javascript" src="/js/common/jquery.dataTables.min.js"></script>
+  <% include baseInfo.html %>  
+</head>
+<body>
+      <% include baseInfo.html %>  
+      <!--tab控件-->
+      <div id="tabDiv" style="padding:0px;height:660px;"> 
+        <!--tab头-->
+        <div id="tabsHead"> <a class="curtab" id="tabs1" >用户信息</a></div>
+        <div id="tabContent2" style="display:block;height:648px;">
+          <div class="btn_top"><a class="btn" onclick="userRight.delUserMsg()">删除</a>
+            <a class="btn" onclick="userRight.popUserAddPage()">添加</a></div>
+          
+          <div class="con_t" style="margin:0px 10px 10px 10px; border:0px;">
+            <ul>
+              <li>
+                <table cellpadding="0" cellspacing="0" border="0" class="display" id="dataTable">
+                  <thead>
+                        <tr>
+                              <th><input type="checkbox"   id="all" >选择</th>
+                              <th>账号</th>
+                              <th>用户名</th>
+                              <th>邮箱</th>
+                              <th>电话</th>
+                              <th>部门</th>
+                              
+                          </tr>
+                      </thead>
+                
+
+                </table>
+              </li>
+            </ul>
+          </div>
+        </div>
+ 
+      <!--tb控件结束-->
+</body>
+ 
+<script type="text/javascript" src="/static/admin/user_right.js"></script>
+</html>
