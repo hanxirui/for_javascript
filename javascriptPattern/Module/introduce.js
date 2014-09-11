@@ -33,9 +33,11 @@ var myModule = {
 // 在Javascript中，Module模式用于进一步模拟类的概念，通过这种方式，能够使一个单独的对象拥有公有/私有方法和变量，
 // 从而屏蔽来自全局作用域的特殊部分。产生的结果是：函数名与在页面上其他脚本定义的函数冲突的可能性降低。
 // 样例：
-var myNamespace = (function(){
+var testModule = (function(){
 	var counter =0;
 	return{
+      myPublicVar:"foo",
+      // 公有方法
 		incrementCounter: function(){
 			return ++counter;
 		},
@@ -52,3 +54,4 @@ testModule.incrementCounter();
 testModule.resetCounter();
 
 // 
+
