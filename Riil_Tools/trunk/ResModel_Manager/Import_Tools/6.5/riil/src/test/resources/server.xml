@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<server>
+
+	<serverVersion>6.0</serverVersion>
+
+	<!-- Standard/Enterprise -->
+	<deployType>Standard</deployType>
+
+	<serverType>StandardServer</serverType>
+
+	<serverPush ip="172.17.160.174" port="8090" />
+
+	<rcs ip="172.17.160.174" port="18006" />
+
+	<localServer ip="172.17.160.174" port="18002" protocol="http" startup="true" />
+	
+	<collectors>
+		<resCollector collector="20" coreThread="4" maxThread="8" waitingQueue="2000"/>	
+	</collectors>
+	
+	<remoteServers>
+		<server ip="172.17.160.174" port="18005" type="LogServer" protocol="https" manager="false" />
+		<server ip="172.17.160.174" port="18001" type="DisServer" protocol="https" manager="false" />
+		<server ip="172.17.160.174" port="18007" type="NFAServer" protocol="https" manager="false" />
+	</remoteServers>
+	
+	<cluster port="18999"></cluster>
+	
+	<workSpace>/home/alexhu/deve/model/model6.5</workSpace>
+<!-- 	<workSpace>L:\workspace</workSpace> -->
+<!-- 	<workSpace>L:\Devoloper_Env\IDE\eclipse-ruijie\workspace\RIIL_Common_Doc</workSpace> -->
+<!-- 	<workSpace>/home/yangm1203/IDE/eclipse-3.6/workspace/RIIL_Common_Doc/resmodel/zh</workSpace>   -->
+</server>

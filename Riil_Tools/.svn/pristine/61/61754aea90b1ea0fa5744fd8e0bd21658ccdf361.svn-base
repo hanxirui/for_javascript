@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.base.resconf.dao.MoniUserConfigDao">
+
+	<resultMap id="moniUserConfigResultMap" type="com.riil.base.resconf.pojo.MoniUserConfigPojo">
+		<result property="config" column="C_CONFIG" javaType="string"
+			jdbcType="LONGVARCHAR" />
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="leftPortletIds" column="C_LEFT_PORTLET_IDS"
+			javaType="string" jdbcType="VARCHAR" />
+		<result property="modelId" column="C_MODEL_ID" javaType="string"
+			jdbcType="VARCHAR" />
+		<result property="resId" column="C_RES_ID" javaType="string"
+			jdbcType="VARCHAR" />
+		<result property="rightPortletIds" column="C_RIGHT_PORTLET_IDS"
+			javaType="string" jdbcType="VARCHAR" />
+		<result property="type" column="C_TYPE" javaType="string"
+			jdbcType="VARCHAR" />
+		<result property="userId" column="C_USER_ID" javaType="string"
+			jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Query_Where_Clause">
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+		</trim>
+	</sql>
+
+	<!-- Insert POJO object -->
+	<insert id="insert" parameterType="com.riil.base.resconf.pojo.MoniUserConfigPojo">
+		INSERT INTO t_res_moni_user_config ( C_CONFIG, C_ID, C_LEFT_PORTLET_IDS,
+		C_MODEL_ID, C_RES_ID, C_RIGHT_PORTLET_IDS, C_TYPE, C_USER_ID )
+		VALUES( #{config ,jdbcType=LONGVARCHAR}, #{id ,jdbcType=VARCHAR}, #{leftPortletIds ,jdbcType=VARCHAR}, #{modelId ,jdbcType=VARCHAR}, #{resId ,jdbcType=VARCHAR},
+		#{rightPortletIds ,jdbcType=VARCHAR}, #{type ,jdbcType=VARCHAR}, #{userId ,jdbcType=VARCHAR} )
+    </insert>
+
+	<insert id="batch_insert" parameterType="list">
+		INSERT INTO t_res_moni_user_config ( C_CONFIG, C_ID,
+		C_LEFT_PORTLET_IDS, C_MODEL_ID, C_RES_ID, C_RIGHT_PORTLET_IDS, C_TYPE,
+		C_USER_ID )
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			(
+			#{item.config}, #{item.id}, #{item.leftPortletIds}, #{item.modelId},
+			#{item.resId}, #{item.rightPortletIds}, #{item.type}, #{item.userId}
+			)
+		</foreach>
+	</insert>
+	<!-- Update POJO object by ID -->
+	<update id="update_by_id" parameterType="com.riil.base.resconf.pojo.MoniUserConfigPojo">
+		UPDATE t_res_moni_user_config
+		SET C_CONFIG = #{config ,jdbcType=LONGVARCHAR},
+		C_ID = #{id ,jdbcType=VARCHAR},
+		C_LEFT_PORTLET_IDS = #{leftPortletIds ,jdbcType=VARCHAR},
+		C_MODEL_ID = #{modelId ,jdbcType=VARCHAR},
+		C_RES_ID = #{resId ,jdbcType=VARCHAR},
+		C_RIGHT_PORTLET_IDS = #{rightPortletIds ,jdbcType=VARCHAR},
+		C_TYPE = #{type ,jdbcType=VARCHAR},
+		C_USER_ID = #{userId ,jdbcType=VARCHAR}
+		WHERE C_ID = #{id ,jdbcType=VARCHAR}
+    </update>
+
+	<!-- Delete POJO object by ID -->
+	<delete id="delete_by_id" parameterType="string">
+		DELETE FROM t_res_moni_user_config WHERE C_ID = #{id ,jdbcType=VARCHAR}
+    </delete>
+
+	<!-- Delete all POJO object -->
+	<delete id="delete_all">
+		DELETE FROM t_res_moni_user_config
+    </delete>
+
+	<!-- Delete POJO object by query -->
+	<delete id="delete_by_query" parameterType="com.riil.base.resconf.pojo.MoniUserConfigPojo">
+		DELETE FROM t_res_moni_user_config 
+	    </delete>
+
+	<!-- Select POJO object by ID -->
+	<select id="select_by_id" parameterType="string"
+		resultMap="moniUserConfigResultMap">
+		SELECT C_CONFIG, C_ID, C_LEFT_PORTLET_IDS, C_MODEL_ID, C_RES_ID,
+		C_RIGHT_PORTLET_IDS, C_TYPE, C_USER_ID
+		FROM t_res_moni_user_config
+		WHERE C_ID = #{id ,jdbcType=VARCHAR}
+    </select>
+
+
+	<!-- Select All POJO object -->
+	<select id="select_all" parameterType="com.riil.base.resconf.pojo.MoniUserConfigPojo"
+		resultMap="moniUserConfigResultMap">
+		SELECT C_CONFIG, C_ID, C_LEFT_PORTLET_IDS, C_MODEL_ID, C_RES_ID,
+		C_RIGHT_PORTLET_IDS, C_TYPE, C_USER_ID
+		FROM t_res_moni_user_config
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+	</select>
+
+	<!-- Select POJO object list by query -->
+	<select id="select_list_by_query" parameterType="com.riil.base.resconf.pojo.MoniUserConfigPojo"
+		resultMap="moniUserConfigResultMap">
+		SELECT C_CONFIG, C_ID, C_LEFT_PORTLET_IDS, C_MODEL_ID, C_RES_ID,
+		C_RIGHT_PORTLET_IDS, C_TYPE, C_USER_ID
+		FROM t_res_moni_user_config
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+	</select>
+
+	<!-- Select POJO object collection for page by query -->
+	<select id="select_pagelist_by_query" parameterType="com.riil.base.resconf.pojo.MoniUserConfigPojo"
+		resultMap="moniUserConfigResultMap">
+		<include refid="page_head"/>
+		SELECT C_CONFIG, C_ID, C_LEFT_PORTLET_IDS, C_MODEL_ID, C_RES_ID,
+		C_RIGHT_PORTLET_IDS, C_TYPE, C_USER_ID
+		FROM t_res_moni_user_config
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+		<include refid="page_foot"/>
+	</select>
+</mapper>

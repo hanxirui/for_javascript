@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.base.resmodel.impl.db.dao.CmdFilterDao">
+
+	<resultMap id="collectCmdsConnResultMap" type="com.riil.base.binding.pojo.CmdFilter">
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="cmdId" column="C_CMD_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="dependecy" column="C_DEPENDECY" javaType="string" jdbcType="VARCHAR" />
+		<result property="row" column="C_ROW" javaType="string" jdbcType="VARCHAR" />
+		<result property="column" column="C_COLUMN" javaType="string" jdbcType="VARCHAR" />
+		<result property="cmdParameterName" column="C_CMDPARAMETERNAME" javaType="string" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<insert id="batchInsert"  parameterType="list" >
+		INSERT INTO t_moni_cmd_filters (  C_ID, C_CMD_ID,C_DEPENDECY,C_ROW,C_COLUMN,C_CMDPARAMETERNAME)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			( 
+			#{item.id ,jdbcType=VARCHAR},#{item.cmdId ,jdbcType=VARCHAR},#{item.dependecy ,jdbcType=VARCHAR},#{item.row ,jdbcType=VARCHAR},#{item.column ,jdbcType=VARCHAR},#{item.cmdParameterName ,jdbcType=VARCHAR}
+			)
+		</foreach>
+	</insert>
+	
+</mapper>

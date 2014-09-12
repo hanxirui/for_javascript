@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Insert title here</title>
+<link href="/css/comm.css" rel="stylesheet" type="text/css" />
+<link href="/css/pop.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript" src="/js/common/jquery-1.9.0.js"></script>
+<script type="text/javascript" src="/js/common/common.js"></script>
+<script type="text/javascript" src="/js/common/prompt.js"></script>
+<script type="text/javascript" src="/js/common/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="/static/resource/paramlibrary.js"></script>
+<% include baseInfo.html %>
+</head>
+<body>
+	<div id="form_div">
+		<form id="form1" method="post" action="">
+			<!--tab控件-->
+			<div id="tabDiv" style="padding: 0px;">
+				<!--tab头-->
+				<div id="tabsHead">
+					<a class="curtab" id="tabs1"
+						href="javascript:showTab('tabs1','tabContent1')">指标信息</a>
+				</div>
+				<div id="tabContent2" style="display: block;">
+					<div class="btn_top">
+						<a class="btn"
+							onclick="deleteMetric();">删除</a><a class="btn"
+							target="_blank" onclick="pop()">添加</a>
+					</div>
+					<div class="con_t" style="margin: 0px 10px 10px 10px; border: 0px;">
+						<ul>
+							<li>
+								<table width="100%" cellspacing="0" cellpadding="0" id="libraryData" class="t_td table">
+									<thead>
+										<tr bgcolor="#ecf1f9">
+											<td width="5%"><input id="all" name="all" type="checkbox" onclick="checkAll()" /></td>
+											<td width="15%">名称</td>
+											<td width="15%">类型</td>
+											<td width="15%">分组</td>
+											<td width="15%">单位</td>
+											<td width="10%">数据类型</td>
+											<td width="15%">描述</td>
+											<td width="10%">添加人</td>
+										</tr>
+									</thead>
+								</table>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

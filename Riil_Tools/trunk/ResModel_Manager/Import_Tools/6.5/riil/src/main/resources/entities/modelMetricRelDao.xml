@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.base.resmodel.impl.db.dao.ModelMetricRelDao">
+
+	<resultMap id="modelMetricRelResultMap" type="com.riil.base.resmodel.pojo.base.ModelMetricRelPojo">
+		<result property="metricId" column="C_METRIC_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="modelId" column="C_MODEL_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="resTypeId" column="C_RES_TYPE_ID" javaType="string" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Query_Where_Clause">
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="modelId != null and modelId != ''">
+				AND C_MODEL_ID = #{modelId ,jdbcType=VARCHAR}
+            </if>
+            <if test="metricId != null and metricId != ''">
+				AND C_METRIC_ID = #{metricId ,jdbcType=VARCHAR}
+            </if>
+		</trim>
+	</sql>
+
+	<!-- Insert POJO object -->
+	<insert id="insert" parameterType="com.riil.base.resmodel.pojo.base.ModelMetricRelPojo">
+		INSERT INTO t_moni_model_metric_rel ( C_METRIC_ID, C_MODEL_ID
+		,C_RES_TYPE_ID)
+		VALUES( #{metricId ,jdbcType=VARCHAR}, #{modelId ,jdbcType=VARCHAR} ,#{resTypeId ,jdbcType=VARCHAR})
+    </insert>
+
+	<!--batch Insert POJO object -->
+	<insert id="batchInsert" parameterType="list">
+		INSERT INTO t_moni_model_metric_rel ( C_METRIC_ID, C_MODEL_ID
+		,C_RES_TYPE_ID )
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			( #{item.metricId}, #{item.modelId} ,#{item.resTypeId})
+		</foreach>
+	</insert>
+
+	<!-- Update POJO object by ID -->
+	<update id="update_by_id" parameterType="com.riil.base.resmodel.pojo.base.ModelMetricRelPojo">
+		UPDATE t_moni_model_metric_rel
+		SET C_METRIC_ID = #{metricId ,jdbcType=VARCHAR},
+		C_MODEL_ID = #{modelId ,jdbcType=VARCHAR},
+		C_RES_TYPE_ID= #{resTypeId ,jdbcType=VARCHAR}
+		WHERE C_ID = #{id}
+    </update>
+
+	<!-- Delete POJO object by ID -->
+	<delete id="delete_by_id" parameterType="string">
+		DELETE FROM t_moni_model_metric_rel WHERE C_ID = #{id}
+    </delete>
+    
+    <!-- Delete POJO object by ID -->
+	<delete id="delete_by_model_id" parameterType="string">
+		DELETE FROM t_moni_model_metric_rel WHERE C_MODEL_ID = #{modelId ,jdbcType=VARCHAR}
+    </delete>
+
+	<!-- Delete all POJO object -->
+	<delete id="delete_all">
+		DELETE FROM t_moni_model_metric_rel
+    </delete>
+
+	<!-- Delete POJO object by query -->
+	<delete id="delete_by_query" parameterType="com.riil.base.resmodel.pojo.base.ModelMetricRelPojo">
+		DELETE FROM t_moni_model_metric_rel 
+	    </delete>
+
+	<!-- Select POJO object by ID -->
+	<select id="select_by_id" parameterType="string" resultMap="modelMetricRelResultMap">
+		SELECT C_METRIC_ID, C_MODEL_ID ,C_RES_TYPE_ID
+		FROM
+		t_moni_model_metric_rel
+		WHERE C_ID = #{id}
+    </select>
+
+
+	<!-- Select All POJO object -->
+	<select id="select_all" parameterType="com.riil.base.resmodel.pojo.base.ModelMetricRelPojo" resultMap="modelMetricRelResultMap">
+		SELECT C_METRIC_ID, C_MODEL_ID ,C_RES_TYPE_ID
+		FROM t_moni_model_metric_rel
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+	</select>
+
+	<!-- Select POJO object list by query -->
+	<select id="select_list_by_query" parameterType="com.riil.base.resmodel.pojo.base.ModelMetricRelPojo" resultMap="modelMetricRelResultMap">
+		SELECT C_METRIC_ID, C_MODEL_ID ,C_RES_TYPE_ID
+		FROM t_moni_model_metric_rel
+		<include refid="Query_Where_Clause"/>
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+	</select>
+
+	<!-- Select POJO object collection for page by query -->
+	<select id="select_pagelist_by_query" parameterType="com.riil.base.resmodel.pojo.base.ModelMetricRelPojo"
+		resultMap="modelMetricRelResultMap">
+		<include refid="page_head"/>
+		SELECT C_METRIC_ID, C_MODEL_ID ,C_RES_TYPE_ID
+		FROM t_moni_model_metric_rel
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+		<include refid="page_foot"/>
+	</select>
+</mapper>

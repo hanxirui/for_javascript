@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.base.policy.impl.dao.PolicyMetricDAO">
+
+	<resultMap id="PolicyMetricResultMap" type="com.riil.base.resmodel.pojo.policy.PolicyMetricPojo">
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="companyId" column="C_COMPANY_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="metricId" column="C_METRIC_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="name" column="C_NAME" javaType="string" jdbcType="VARCHAR" />
+		<result property="policyId" column="C_POLICY_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="frequencyId" column="C_FREQUENCY_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="flapping" column="C_FLAPPING" javaType="_int" jdbcType="SMALLINT" />
+		<result property="inUse" column="C_IN_USE" javaType="byte" jdbcType="TINYINT" />
+		<result property="retryTimes" column="C_RETRY_TIMES" javaType="_int" jdbcType="SMALLINT" />
+		<result property="timeout" column="C_TIME_OUT" javaType="_int" jdbcType="SMALLINT" />
+		<result property="defaultGenEvent" column="C_GEN_EVENT" javaType="byte" jdbcType="TINYINT" />
+		<result property="tag1" column="C_TAG1" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag2" column="C_TAG2" javaType="string" jdbcType="VARCHAR" />
+	</resultMap>
+<!-- 	<sql id="v_model_metric"> -->
+<!-- 		( -->
+<!-- 			SELECT -->
+<!-- 				r.c_model_id AS c_model_id, -->
+<!-- 				metric.c_id AS c_id, -->
+<!-- 				metric.c_moni_temp_id AS c_moni_temp_id, -->
+<!-- 				metric.c_metric_group_id AS c_metric_group_id, -->
+<!-- 				metric.c_metric_group_name AS c_metric_group_name, -->
+<!-- 				metric.c_metric_id AS c_metric_id, -->
+<!-- 				metric.c_name AS c_name, -->
+<!-- 				metric.c_name_en AS c_name_en, -->
+<!-- 				metric.c_metric_type AS c_metric_type, -->
+<!-- 				metric.c_data_type AS c_data_type, -->
+<!-- 				metric.c_unit AS c_unit, -->
+<!-- 				metric.c_desc AS c_desc, -->
+<!-- 				metric.c_desc_en AS c_desc_en, -->
+<!-- 				metric.c_must_monitor AS c_must_monitor, -->
+<!-- 				metric.c_is_important AS c_is_important, -->
+<!-- 				metric.c_is_display AS c_is_display, -->
+<!-- 				metric.c_tag1 AS c_tag1, -->
+<!-- 				metric.c_tag2 AS c_tag2 -->
+<!-- 			FROM -->
+<!-- 				t_moni_metric_base metric -->
+<!-- 			INNER JOIN t_moni_model_metric_rel r ON r.c_moni_temp_id = metric.c_moni_temp_id -->
+<!-- 			AND r.c_metric_id = metric.c_metric_id			 -->
+<!--         ) -->
+<!-- 	</sql> -->
+	<sql id="Query_Where_Conditon">
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="policyId != null and policyId !=''">
+				AND C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+	        </if>
+			<if test="name != null and name !=''">
+				AND C_NAME = #{name ,jdbcType=VARCHAR}
+	        </if>
+			<if test="metricId != null and metricId !=''">
+				AND C_METRIC_ID != #{metricId ,jdbcType=VARCHAR}
+	        </if>
+		</trim>
+	</sql>
+	<!-- Insert POJO object -->
+	<insert id="insert" parameterType="com.riil.base.resmodel.pojo.policy.PolicyMetricPojo">
+		INSERT INTO t_moni_policy_metric ( C_ID, C_NAME, C_COMPANY_ID, C_METRIC_ID,
+		C_POLICY_ID, C_TAG1, C_TAG2, C_FREQUENCY_ID, C_FLAPPING, C_IN_USE, C_RETRY_TIMES, C_TIME_OUT
+		, C_GEN_EVENT 
+		)
+		VALUES
+		( #{id ,jdbcType=VARCHAR}, #{name ,jdbcType=VARCHAR}, #{companyId ,jdbcType=VARCHAR}, #{metricId ,jdbcType=VARCHAR}, #{policyId ,jdbcType=VARCHAR},
+		#{tag1 ,jdbcType=VARCHAR},
+		#{tag2 ,jdbcType=VARCHAR}, #{frequencyId ,jdbcType=VARCHAR}, #{flapping ,jdbcType=SMALLINT}, #{inUse ,jdbcType=TINYINT}, #{retryTimes ,jdbcType=SMALLINT}, #{timeout ,jdbcType=SMALLINT}
+		, #{defaultGenEvent ,jdbcType=TINYINT}
+		)
+    </insert>
+
+	<!-- Insert POJO object -->
+	<insert id="batchInsertMetrics" parameterType="java.util.List">
+		INSERT INTO t_moni_policy_metric ( C_ID, C_NAME, C_COMPANY_ID, C_METRIC_ID,
+		C_POLICY_ID, C_TAG1, C_TAG2, C_FREQUENCY_ID,
+		C_FLAPPING, C_IN_USE, C_RETRY_TIMES, C_TIME_OUT 
+		, C_GEN_EVENT
+		)
+		VALUES
+		<foreach collection="list" item="metric" separator=",">
+			( #{metric.id}, #{metric.name}, #{metric.companyId},
+			#{metric.metricId},
+			#{metric.policyId}, #{metric.tag1},
+			#{metric.tag2}, #{metric.frequencyId}, #{metric.flapping},
+			#{metric.inUse}, #{metric.retryTimes}, #{metric.timeout}  
+			, #{metric.defaultGenEvent}
+			)
+		</foreach>
+	</insert>
+	<!-- Update POJO object by ID -->
+	<update id="update_by_policyIdAndMetricId" parameterType="com.riil.base.resmodel.pojo.policy.PolicyMetricPojo">
+		UPDATE t_moni_policy_metric
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="frequencyId != null and frequencyId != ''">
+				C_FREQUENCY_ID = #{frequencyId ,jdbcType=VARCHAR},
+            </if>
+			<if test="inUse != 0">
+				C_IN_USE = #{inUse ,jdbcType=TINYINT},
+            </if>
+			<if test="flapping != 0">
+				C_FLAPPING = #{flapping ,jdbcType=SMALLINT},
+            </if>
+			<if test="tag1 != null and tag1 != ''">
+				C_TAG1 = #{tag1 ,jdbcType=VARCHAR},
+            </if>
+			<if test="tag2 != null and tag2 != ''">
+				C_TAG2 = #{tag2 ,jdbcType=VARCHAR},
+            </if>
+            <if test="retryTimes >= 0">
+				C_RETRY_TIMES = #{retryTimes ,jdbcType=SMALLINT},
+            </if>
+            <if test="timeout != 0">
+				C_TIME_OUT = #{timeout ,jdbcType=SMALLINT},
+            </if>
+            <if test="defaultGenEvent != 0">
+				C_GEN_EVENT = #{defaultGenEvent ,jdbcType=TINYINT},
+            </if>
+		</trim>
+		WHERE C_POLICY_ID = #{policyId ,jdbcType=VARCHAR} AND C_METRIC_ID = #{metricId ,jdbcType=VARCHAR}
+	</update>
+
+	<!-- Update POJO object by ID -->
+	<update id="update_newPolicyId_by_oriPolicyId" parameterType="java.util.Map">
+		UPDATE t_moni_policy_metric
+		SET C_POLICY_ID =
+		#{oriPolicyId}
+		WHERE C_POLICY_ID = #{newPolicyId}
+    </update>
+
+	<!-- Delete POJO object by ID -->
+	<delete id="delete_by_policyId" parameterType="string">
+		DELETE FROM t_moni_policy_metric WHERE C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+	</delete>
+
+	<!-- Delete POJO object by ID -->
+	<delete id="delete_by_policyId_batch" parameterType="java.util.List">
+		DELETE FROM t_moni_policy_metric WHERE C_POLICY_ID IN
+		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+			#{item}
+        </foreach>
+	</delete>
+	<select id="select_by_name" parameterType="com.riil.base.resmodel.pojo.policy.PolicyMetricPojo" resultType="int">
+		select
+		count(0)
+		from t_moni_policy_metric
+		<include refid="Query_Where_Conditon" />
+	</select>
+	<!-- Select POJO object by ID -->
+	<select id="select_by_policyId" parameterType="string" resultMap="PolicyMetricResultMap">
+		SELECT C_FREQUENCY_ID, C_IN_USE, C_COMPANY_ID,
+		C_METRIC_ID, C_POLICY_ID,
+		C_FLAPPING, C_TAG1, C_TAG2, C_RETRY_TIMES, C_TIME_OUT, C_GEN_EVENT
+		FROM t_moni_policy_metric
+		WHERE C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+    </select>
+
+	<resultMap id="metricBaseResultMap" type="com.riil.base.resmodel.pojo.base.MetricBasePojo">
+		<result property="dataType" column="C_DATA_TYPE" javaType="string" jdbcType="VARCHAR" />
+		<result property="desc" column="C_DESC" javaType="string" jdbcType="VARCHAR" />
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="metricId" column="C_METRIC_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="metricType" column="C_METRIC_TYPE" javaType="string" jdbcType="VARCHAR" />
+		<result property="name" column="C_NAME" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag1" column="C_TAG1" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag2" column="C_TAG2" javaType="string" jdbcType="VARCHAR" />
+		<result property="unit" column="C_UNIT" javaType="string" jdbcType="VARCHAR" />
+		<result property="sortId" column="C_SORT_ID" javaType="_int" jdbcType="INTEGER" />
+		
+		<result property="isCustom" column="C_IS_CUSTOM" javaType="_byte" jdbcType="TINYINT" />
+	</resultMap>
+
+	<!-- Select POJO object by ID -->
+	<select id="select_sub_metric_by_metrictype" parameterType="map" resultMap="metricBaseResultMap">
+		SELECT DISTINCT
+		MB.C_ID, PIF.C_MODEL_ID, MB.C_ID, MB.C_NAME, MB.C_METRIC_TYPE,
+		MB.C_DATA_TYPE, MB.C_UNIT,MB.C_SORT_ID, MB.C_DESC, MB.C_TAG1, MB.C_TAG2,MB.C_IS_CUSTOM
+		FROM
+		T_MONI_POLICY_INFO PIF, T_MONI_POLICY_RES_REL PR, T_MONI_POLICY_METRIC PM, T_MONI_METRIC_BASE MB
+		WHERE PR.C_INST_ID = #{mainInstId}
+		AND PIF.C_MAIN_POLICY_ID = PR.C_POLICY_ID
+		AND PIF.C_MODEL_ID = #{subModelId}
+		AND PIF.C_ID = PM.C_POLICY_ID
+		AND PM.C_METRIC_ID = MB.C_ID
+		<if test="metricTypes != null">
+			AND MB.C_METRIC_TYPE IN
+			<foreach collection="metricTypes" item="metricType" open="(" separator="," close=")">
+				#{metricType ,jdbcType=VARCHAR}
+	        </foreach>
+		</if>
+		order by MB.C_SORT_ID
+	</select>
+
+	<!-- Select POJO object by ID -->
+	<select id="select_sub_metric_inmonitor" parameterType="map" resultMap="metricBaseResultMap">
+		SELECT DISTINCT
+		MB.C_ID, PIF.C_MODEL_ID,  MB.C_ID, MB.C_NAME, MB.C_METRIC_TYPE,
+		MB.C_DATA_TYPE, MB.C_UNIT,MB.C_SORT_ID, MB.C_DESC,  MB.C_TAG1, MB.C_TAG2,MB.C_IS_CUSTOM
+		FROM
+		T_MONI_POLICY_INFO PIF, T_MONI_POLICY_RES_REL PR, T_MONI_POLICY_METRIC PM, T_MONI_METRIC_BASE MB
+		WHERE
+		PR.C_INST_ID = #{mainInstId}
+		AND PR.C_POLICY_ID = PIF.C_ID
+		AND PIF.C_RES_TYPE_ID = #{subTempId}
+		AND PM.C_POLICY_ID = PIF.C_ID
+		AND PM.C_IN_USE = #{monitorState}
+		AND PM.C_METRIC_ID = MB.C_ID
+		order by MB.C_SORT_ID
+    </select>
+	<select id="select_sub_metric_inmonitor_by_sub_inst_id" parameterType="map" resultMap="metricBaseResultMap">
+		SELECT
+		MB.C_ID, PIF.C_MODEL_ID, MB.C_ID, MB.C_NAME, MB.C_METRIC_TYPE,
+		MB.C_DATA_TYPE, MB.C_UNIT,MB.C_SORT_ID, MB.C_DESC,  MB.C_TAG1, MB.C_TAG2,MB.C_IS_CUSTOM
+		FROM
+		T_MONI_POLICY_INFO PIF, T_MONI_POLICY_RES_REL PR, T_MONI_POLICY_METRIC PM, T_MONI_METRIC_BASE MB
+		WHERE
+		PR.C_SUB_INST_ID = #{subInstId}
+		AND PR.C_POLICY_ID = PIF.C_ID
+		AND PM.C_POLICY_ID = PIF.C_ID
+		AND PM.C_IN_USE = #{monitorState}
+		AND PM.C_METRIC_ID = MB.C_ID
+		order by MB.C_SORT_ID
+    </select>
+	<!-- Select POJO object by ID -->
+	<select id="select_main_metric_inmonitor" parameterType="map" resultMap="metricBaseResultMap">
+		SELECT DISTINCT
+		MB.C_ID, PIF.C_MODEL_ID, MB.C_ID, MB.C_NAME, MB.C_METRIC_TYPE,
+		MB.C_DATA_TYPE, MB.C_UNIT,MB.C_SORT_ID, MB.C_DESC,  MB.C_TAG1, MB.C_TAG2,MB.C_IS_CUSTOM
+		FROM
+		T_MONI_POLICY_INFO PIF, T_MONI_POLICY_RES_REL PR, T_MONI_POLICY_METRIC PM, T_MONI_METRIC_BASE MB
+		WHERE
+		PR.C_INST_ID = #{mainInstId}
+		AND PR.C_POLICY_ID = PIF.C_ID
+		AND PM.C_POLICY_ID = PIF.C_ID
+		AND PM.C_IN_USE = #{monitorState}
+		AND PM.C_METRIC_ID = MB.C_ID
+		AND PR.c_is_main=1 
+		order by MB.C_SORT_ID
+    </select>
+
+	<!-- Select POJO object by ID -->
+	<select id="select_main_metric_inmonitor_metrictype" parameterType="map" resultMap="metricBaseResultMap">
+		SELECT DISTINCT
+		MB.C_ID, PIF.C_MODEL_ID,  MB.C_ID, MB.C_NAME, MB.C_METRIC_TYPE,
+		MB.C_DATA_TYPE, MB.C_UNIT,MB.C_SORT_ID, MB.C_DESC,  MB.C_TAG1, MB.C_TAG2,MB.C_IS_CUSTOM
+		FROM
+		T_MONI_POLICY_INFO PIF, T_MONI_POLICY_RES_REL PR, T_MONI_POLICY_METRIC PM, T_MONI_METRIC_BASE MB
+		WHERE PR.C_INST_ID = #{mainInstId}
+		AND PR.C_POLICY_ID = PIF.C_ID
+		AND PM.C_POLICY_ID = PIF.C_ID
+		AND	PM.C_IN_USE = #{monitorState}
+		AND PM.C_METRIC_ID = MB.C_ID
+		AND PR.c_is_main=1
+		AND MB.C_METRIC_TYPE = #{metricTypeId}
+		order by MB.C_SORT_ID
+    </select>
+	<select id="select_metric_type_4in_use" parameterType="map" resultMap="metricBaseResultMap">
+		SELECT
+			MB.c_metric_type,
+		IF (COUNT(0) > 0, 1 ,- 1) c_is_display
+		FROM
+			T_MONI_POLICY_METRIC PM,
+			T_MONI_METRIC_BASE MB
+		WHERE
+		AND PM.C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+		AND PM.C_IN_USE = 1
+		AND PM.C_METRIC_ID = MB.C_ID
+		GROUP BY
+			MB.c_metric_type
+    </select>
+
+	<resultMap id="PolicyThresholdResultMap" type="com.riil.base.resmodel.pojo.policy.PolicyThresholdPojo">
+		<result property="exp1" column="C_EXP1" javaType="string" jdbcType="VARCHAR" />
+		<result property="exp2" column="C_EXP2" javaType="string" jdbcType="VARCHAR" />
+		<result property="exp3" column="C_EXP3" javaType="string" jdbcType="VARCHAR" />
+		<result property="expDesc1" column="C_EXP_DESC1" javaType="string" jdbcType="VARCHAR" />
+		<result property="expDesc2" column="C_EXP_DESC2" javaType="string" jdbcType="VARCHAR" />
+		<result property="expDesc3" column="C_EXP_DESC3" javaType="string" jdbcType="VARCHAR" />
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="metricId" column="C_METRIC_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="policyId" column="C_POLICY_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag1" column="C_TAG1" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag2" column="C_TAG2" javaType="string" jdbcType="VARCHAR" />
+		<result property="dayOrWeek" column="C_DAY_OR_WEEK" javaType="string" jdbcType="VARCHAR" />
+		<result property="weeks" column="C_WEEKS" javaType="string" jdbcType="VARCHAR" />
+		<result property="startTime" column="C_START_TIME" javaType="string" jdbcType="VARCHAR" />
+		<result property="endTime" column="C_END_TIME" javaType="string" jdbcType="VARCHAR" />
+		<!-- <result property="timeExp" column="C_TIME_EXP" javaType="string" jdbcType="VARCHAR" /> -->
+	</resultMap>
+
+	<!-- Insert POJO object -->
+	<insert id="insertThresholds" parameterType="com.riil.base.resmodel.pojo.policy.PolicyThresholdPojo">
+		INSERT INTO t_moni_policy_threshold ( C_DAY_OR_WEEK, C_END_TIME, C_EXP1,
+		C_EXP2, C_EXP3, C_EXP_DESC1, C_EXP_DESC2, C_EXP_DESC3, C_ID,
+		C_METRIC_ID, C_POLICY_ID, C_START_TIME, C_TAG1, C_TAG2,
+		C_WEEKS )
+		VALUES( #{dayOrWeek ,jdbcType=VARCHAR}, #{endTime ,jdbcType=VARCHAR}, #{exp1 ,jdbcType=VARCHAR}, #{exp2 ,jdbcType=VARCHAR}, #{exp3 ,jdbcType=VARCHAR},
+		#{expDesc1 ,jdbcType=VARCHAR}, #{expDesc2 ,jdbcType=VARCHAR}, #{expDesc3 ,jdbcType=VARCHAR}, #{id ,jdbcType=VARCHAR},
+		#{metricId ,jdbcType=VARCHAR},
+		#{policyId ,jdbcType=VARCHAR}, #{startTime ,jdbcType=VARCHAR}, #{tag1 ,jdbcType=VARCHAR}, #{tag2 ,jdbcType=VARCHAR}, #{weeks ,jdbcType=VARCHAR} )
+	</insert>
+	
+	<insert id="batchInsertThresholds" parameterType="java.util.List">
+		INSERT INTO t_moni_policy_threshold ( C_EXP1, C_EXP2, C_EXP3,
+		C_EXP_DESC1, C_EXP_DESC2, C_EXP_DESC3, C_ID, C_METRIC_ID,
+		C_POLICY_ID, C_TAG1, C_TAG2, C_DAY_OR_WEEK, C_WEEKS, C_START_TIME,
+		C_END_TIME )
+		VALUES
+		<foreach collection="list" item="threshold" separator=",">
+			( #{threshold.exp1}, #{threshold.exp2},
+			#{threshold.exp3},
+			#{threshold.expDesc1}, #{threshold.expDesc2}, #{threshold.expDesc3},
+			#{threshold.id}, #{threshold.metricId},
+			#{threshold.policyId}, #{threshold.tag1},
+			#{threshold.tag2}, #{threshold.dayOrWeek}, #{threshold.weeks},
+			#{threshold.startTime},
+			#{threshold.endTime} )
+        </foreach>
+	</insert>
+	
+	<!-- Update POJO object by ID -->
+	<update id="updateThreshold_newPolicyId_by_oriPolicyId" parameterType="java.util.Map">
+		UPDATE t_moni_policy_threshold
+		SET
+		C_POLICY_ID = #{oriPolicyId}
+		WHERE C_POLICY_ID = #{newPolicyId}
+    </update>
+
+	<!-- Delete POJO object by ID -->
+	<delete id="deleteThreshold_by_policyId_metricId" parameterType="java.util.Map">
+		DELETE FROM t_moni_policy_threshold WHERE
+		C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+		AND C_METRIC_ID = #{metricId ,jdbcType=VARCHAR}
+    </delete>
+
+	<!-- Delete POJO object by ID -->
+	<delete id="deleteThreshold_by_policyId" parameterType="string">
+		DELETE FROM t_moni_policy_threshold WHERE C_POLICY_ID =
+		#{policyId ,jdbcType=VARCHAR}
+    </delete>
+
+	<!-- Delete POJO object by ID -->
+	<delete id="deleteThreshold_by_policyId_batch" parameterType="java.util.List">
+		DELETE FROM t_moni_policy_threshold WHERE C_POLICY_ID IN
+		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+			#{item}
+        </foreach>
+	</delete>
+
+	<!-- Select POJO object by ID -->
+	<select id="selectThreshold_by_policyId_metricId" parameterType="java.util.Map" resultMap="PolicyThresholdResultMap">
+		SELECT C_EXP1, C_EXP2,
+		C_EXP3,
+		C_EXP_DESC1, C_EXP_DESC2, C_EXP_DESC3, C_METRIC_ID,
+		C_POLICY_ID, C_TAG1, C_TAG2, C_DAY_OR_WEEK, C_WEEKS,
+		C_START_TIME,
+		C_END_TIME
+		FROM t_moni_policy_threshold
+		WHERE C_POLICY_ID = #{policyId ,jdbcType=VARCHAR} AND C_METRIC_ID = #{metricId ,jdbcType=VARCHAR}
+	</select>
+	<!-- Select POJO object by ID -->
+	<select id="selectThreshold_by_policyId" parameterType="string" resultMap="PolicyThresholdResultMap">
+		SELECT C_EXP1, C_EXP2,
+		C_EXP3,
+		C_EXP_DESC1, C_EXP_DESC2, C_EXP_DESC3, C_METRIC_ID,
+		C_POLICY_ID, C_TAG1, C_TAG2, C_DAY_OR_WEEK, C_WEEKS,
+		C_START_TIME,
+		C_END_TIME
+		FROM t_moni_policy_threshold
+		WHERE C_POLICY_ID = #{policyId ,jdbcType=VARCHAR} 
+	</select>
+	<!-- 推荐阈值 -->
+	<select id="select_recommend_threshold" parameterType="java.util.Map" resultType="double">
+		SELECT
+		avg(d.c_data_value)
+		FROM
+		<choose>
+			<when test="startTime == null or startTime == ''">
+				t_data_metric_1d d
+			</when>
+			<otherwise>
+				t_data_metric_1h d
+			</otherwise>
+		</choose>
+		WHERE 
+		<if test="threshold != null and threshold != '' ">
+			d.c_data_value ${threshold} AND 
+        </if>		 
+		d.c_policy_id = #{policyId ,jdbcType=VARCHAR}
+		AND d.c_metric_id=#{metricId ,jdbcType=VARCHAR}
+		AND d.c_task_time><include refid="before_today_7d"/>
+		<if test="startTime != null and startTime != ''  and endTime != null and endTime != '' ">
+			AND <include refid="time_format_1"/>c_task_time<include refid="time_format_2"/> BETWEEN #{startTime ,jdbcType=VARCHAR} AND
+			#{endTime ,jdbcType=VARCHAR}
+            </if>
+	</select>
+	<!--  AND	d.c_metric_status=#{metricStatus} -->
+</mapper>

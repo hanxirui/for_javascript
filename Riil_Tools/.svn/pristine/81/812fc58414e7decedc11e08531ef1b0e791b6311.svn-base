@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.base.sys.dao.SysServerDao">
+
+
+	<resultMap id="sysServerResultMap" type="com.riil.base.pojo.sys.SysServerPojo">
+		<result property="companyId" column="C_COMPANY_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="domainId" column="C_DOMAIN_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="inUse" column="C_IN_USE" javaType="_byte" jdbcType="TINYINT" />
+		<result property="ipAddr" column="C_IP_ADDR" javaType="string" jdbcType="VARCHAR" />
+		<result property="managerId" column="C_MANAGER_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="name" column="C_NAME" javaType="string" jdbcType="VARCHAR" />
+		<result property="serverType" column="C_SERVER_TYPE" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag1" column="C_TAG1" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag2" column="C_TAG2" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag3" column="C_TAG3" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag4" column="C_TAG4" javaType="string" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Query_Where_Clause">
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+		</trim>
+	</sql>
+ 
+	<!-- Insert POJO object -->
+	<insert id="insert" parameterType="com.riil.base.pojo.sys.SysServerPojo">
+		INSERT INTO t_sys_server ( C_COMPANY_ID, C_DOMAIN_ID, C_ID, C_IN_USE,
+		C_IP_ADDR, C_MANAGER_ID, C_NAME, C_SERVER_TYPE, C_TAG1, C_TAG2,
+		C_TAG3, C_TAG4 )
+		VALUES( #{companyId ,jdbcType=VARCHAR}, #{domainId ,jdbcType=VARCHAR},
+		#{id ,jdbcType=VARCHAR}, #{inUse ,jdbcType=TINYINT}, #{ipAddr ,jdbcType=VARCHAR}, #{managerId ,jdbcType=VARCHAR},
+		#{name ,jdbcType=VARCHAR}, #{serverType ,jdbcType=VARCHAR}, #{tag1 ,jdbcType=VARCHAR}, #{tag2 ,jdbcType=VARCHAR}, #{tag3 ,jdbcType=VARCHAR}, #{tag4 ,jdbcType=VARCHAR} )
+    </insert>
+
+	<!-- Update POJO object by ID -->
+	<update id="update_by_sysserver_id" parameterType="com.riil.base.pojo.sys.SysServerPojo">
+		UPDATE t_sys_server
+		SET C_COMPANY_ID = #{companyId ,jdbcType=VARCHAR},
+		C_DOMAIN_ID =
+		#{domainId ,jdbcType=VARCHAR},
+		C_ID = #{id ,jdbcType=VARCHAR},
+		C_IN_USE = #{inUse ,jdbcType=TINYINT},
+		C_IP_ADDR = #{ipAddr ,jdbcType=VARCHAR},
+		C_MANAGER_ID = #{managerId ,jdbcType=VARCHAR},
+		C_NAME = #{name ,jdbcType=VARCHAR},
+		C_SERVER_TYPE = #{serverType ,jdbcType=VARCHAR},
+		C_TAG1 = #{tag1 ,jdbcType=VARCHAR},
+		C_TAG2 = #{tag2 ,jdbcType=VARCHAR},
+		C_TAG3 = #{tag3 ,jdbcType=VARCHAR},
+		C_TAG4 = #{tag4 ,jdbcType=VARCHAR}
+		WHERE C_ID = #{id ,jdbcType=VARCHAR}
+	</update>
+	<update id="update_by_server_type_ipaddr" parameterType="com.riil.base.pojo.sys.SysServerPojo">
+		UPDATE t_sys_server
+		SET C_COMPANY_ID = #{companyId ,jdbcType=VARCHAR},
+		C_ID = #{id ,jdbcType=VARCHAR},
+		C_DOMAIN_ID = #{domainId ,jdbcType=VARCHAR},
+		C_IN_USE = #{inUse ,jdbcType=TINYINT},
+		C_IP_ADDR = #{ipAddr ,jdbcType=VARCHAR},
+		C_MANAGER_ID = #{managerId ,jdbcType=VARCHAR},
+		C_NAME = #{name ,jdbcType=VARCHAR},
+		C_SERVER_TYPE = #{serverType ,jdbcType=VARCHAR},
+		C_TAG1 = #{tag1 ,jdbcType=VARCHAR},
+		C_TAG2 = #{tag2 ,jdbcType=VARCHAR},
+		C_TAG3 = #{tag3 ,jdbcType=VARCHAR},
+		C_TAG4 = #{tag4 ,jdbcType=VARCHAR}
+		WHERE C_SERVER_TYPE =
+		#{serverType ,jdbcType=VARCHAR} and C_IP_ADDR = #{ipAddr ,jdbcType=VARCHAR}
+    </update>
+	<!-- Delete POJO object by ID -->
+	<delete id="delete_by_id" parameterType="string">
+		DELETE FROM t_sys_server WHERE C_ID = #{id ,jdbcType=VARCHAR}
+    </delete>
+
+	<!-- Delete all POJO object -->
+	<delete id="delete_all">
+		DELETE FROM t_sys_server
+    </delete>
+
+	<!-- Delete POJO object by query -->
+	<delete id="delete_by_query" parameterType="com.riil.base.pojo.sys.SysServerPojo">
+		DELETE FROM t_sys_server 
+	    </delete>
+
+	<!-- Select POJO object by ID -->
+	<select id="select_by_id" parameterType="string" resultMap="sysServerResultMap">
+		SELECT C_COMPANY_ID, C_DOMAIN_ID, C_ID, C_IN_USE,
+		C_IP_ADDR,
+		C_MANAGER_ID, C_NAME, C_SERVER_TYPE, C_TAG1, C_TAG2, C_TAG3, C_TAG4
+		FROM t_sys_server
+		WHERE C_ID = #{id ,jdbcType=VARCHAR}
+	</select>
+
+
+	<!-- Select All POJO object -->
+	<select id="select_all" parameterType="com.riil.base.pojo.sys.SysServerPojo" resultMap="sysServerResultMap">
+		SELECT C_COMPANY_ID, C_DOMAIN_ID, C_ID, C_IN_USE, C_IP_ADDR,
+		C_MANAGER_ID, C_NAME, C_SERVER_TYPE, C_TAG1, C_TAG2,
+		C_TAG3, C_TAG4
+		FROM t_sys_server
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+	</select>
+
+	<!-- Select POJO object list by query -->
+	<select id="select_list_by_query" parameterType="com.riil.base.pojo.sys.SysServerPojo" resultMap="sysServerResultMap">
+		SELECT C_COMPANY_ID, C_DOMAIN_ID, C_ID, C_IN_USE, C_IP_ADDR,
+		C_MANAGER_ID, C_NAME, C_SERVER_TYPE, C_TAG1, C_TAG2,
+		C_TAG3, C_TAG4
+		FROM t_sys_server
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+	</select>
+
+	<!-- Select POJO object collection for page by query -->
+	<select id="select_pagelist_by_query" parameterType="com.riil.base.pojo.sys.SysServerPojo" resultMap="sysServerResultMap">
+		<include refid="page_head"/>
+		SELECT C_COMPANY_ID, C_DOMAIN_ID, C_ID, C_IN_USE, C_IP_ADDR,
+		C_MANAGER_ID, C_NAME, C_SERVER_TYPE, C_TAG1, C_TAG2,
+		C_TAG3, C_TAG4
+		FROM t_sys_server
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+		<include refid="page_foot"/>
+	</select>
+
+	<!-- Select All POJO object -->
+	<select id="select_by_type" parameterType="string" resultMap="sysServerResultMap">
+		SELECT C_COMPANY_ID, C_DOMAIN_ID, C_ID, C_IN_USE,
+		C_IP_ADDR,
+		C_MANAGER_ID, C_NAME, C_SERVER_TYPE, C_TAG1, C_TAG2, C_TAG3, C_TAG4
+		FROM t_sys_server
+		where C_IN_USE=1 AND
+		C_SERVER_TYPE=#{id ,jdbcType=VARCHAR}
+	</select>
+</mapper>

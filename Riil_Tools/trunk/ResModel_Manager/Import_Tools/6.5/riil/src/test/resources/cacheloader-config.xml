@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<cacheloaders>
+	<cacheloader class="com.riil.base.resmodel.cacheloader.ModelMetricCacheLoader" region="com.riil.base.resmodel.pojo.mmodel.ModelMetricBindingPojo"/>
+	
+<!-- 	<cacheloader class="com.riil.base.resmodel.cacheloader.PolicyActionCacheLoader" region="com.riil.base.resmodel.pojo.policy.PolicyActionPojo"/> -->
+<!-- 	<cacheloader class="com.riil.base.resmodel.cacheloader.PolicyEventCacheLoader" region="com.riil.base.resmodel.pojo.policy.PolicyEventPojo"/> -->
+<!-- 	<cacheloader class="com.riil.base.resmodel.cacheloader.PolicyMetricCacheLoader" region="com.riil.base.resmodel.pojo.policy.PolicyMetricPojo"/> -->
+<!-- 	<cacheloader class="com.riil.base.resmodel.cacheloader.PolicyResourceCacheLoader" region="com.riil.base.resmodel.pojo.policy.PolicyResRelPojo"/> -->
+<!-- 	<cacheloader class="com.riil.base.resmodel.cacheloader.PolicyScriptMetricCacheLoader" region="com.riil.base.resmodel.pojo.policy.PolicyScriptMetricPojo"/> -->
+<!-- 	<cacheloader class="com.riil.base.resmodel.cacheloader.PolicyScriptResCacheLoader" region="com.riil.base.resmodel.pojo.policy.PolicyScriptResPojo"/> -->
+<!-- 	<cacheloader class="com.riil.base.resmodel.cacheloader.PolicyTaskGroupFrequencyCacheLoader" region="PolicyTaskGroupFrequency"/> -->
+</cacheloaders>

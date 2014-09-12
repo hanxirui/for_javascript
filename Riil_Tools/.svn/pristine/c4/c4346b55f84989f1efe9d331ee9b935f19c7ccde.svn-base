@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.base.policy.impl.dao.PolicyResAvailRuleGroupDAO">
+
+	<resultMap id="PolicyResAvailRuleGroupResultMap" type="com.riil.base.resmodel.pojo.policy.ResAvailRuleGroup">
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="policyId" column="C_POLICY_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="frequencyId" column="C_FREQUENCY_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="flapping" column="C_FLAPPING" javaType="_int" jdbcType="SMALLINT" />
+		<result property="xml" column="C_XML" javaType="string" jdbcType="VARCHAR" />
+		<result property="xml2" column="C_XML2" javaType="string" jdbcType="VARCHAR" />
+		<result property="xml3" column="C_XML3" javaType="string" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Query_Where_Conditon">
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="policyId != null and policyId !=''">
+				AND C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+	        </if>
+			<if test="id != null and id !=''">
+				AND C_ID != #{id ,jdbcType=VARCHAR}
+	        </if>
+		</trim>
+	</sql>
+	<!-- Insert POJO object -->
+	<insert id="insert" parameterType="com.riil.base.resmodel.pojo.policy.PolicyActionPojo">
+		INSERT INTO
+		t_moni_policy_res_avail_rule (C_ID, C_POLICY_ID, C_FREQUENCY_ID, C_FLAPPING,
+		C_XML, C_XML2, C_XML3 )
+		VALUES(
+		#{id ,jdbcType=VARCHAR}, #{policyId ,jdbcType=VARCHAR}, #{frequencyId ,jdbcType=VARCHAR}, #{flapping ,jdbcType=SMALLINT},
+		#{xml ,jdbcType=VARCHAR}, #{xml2 ,jdbcType=VARCHAR}, #{xml3 ,jdbcType=VARCHAR} )
+    </insert>
+
+	<!-- Update POJO object by ID -->
+	<update id="update_by_id" parameterType="com.riil.base.resmodel.pojo.policy.PolicyActionPojo">
+		UPDATE
+		t_moni_policy_res_avail_rule
+		SET
+		C_POLICY_ID = #{policyId ,jdbcType=VARCHAR},
+		C_FREQUENCY_ID = #{frequencyId ,jdbcType=VARCHAR},
+		C_FLAPPING = #{flapping ,jdbcType=SMALLINT},
+		C_XML = #{xml ,jdbcType=VARCHAR},
+		C_XML2 = #{xml2 ,jdbcType=VARCHAR},
+		C_XML3 = #{xml3 ,jdbcType=VARCHAR}
+		WHERE C_ID = #{id ,jdbcType=VARCHAR}
+    </update>
+
+	<!-- Delete POJO object by ID -->
+	<delete id="delete_by_id" parameterType="string">
+		DELETE FROM
+		t_moni_policy_res_avail_rule WHERE C_ID in (#{id ,jdbcType=VARCHAR})
+    </delete>
+
+	<delete id="delete_by_policy_id" parameterType="string">
+		DELETE FROM
+		t_moni_policy_res_avail_rule WHERE C_POLICY_ID in (#{id ,jdbcType=VARCHAR})
+	</delete>
+
+
+	<delete id="batch_delete_by_policy_ids" parameterType="java.util.List">
+		DELETE FROM t_moni_policy_res_avail_rule WHERE C_POLICY_ID in
+		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+			#{item}
+        </foreach>
+	</delete>
+
+
+	<!-- Select POJO object by ID -->
+	<select id="select_by_id" parameterType="string" resultMap="PolicyResAvailRuleGroupResultMap">
+		SELECT C_ID, C_POLICY_ID, C_FREQUENCY_ID, C_FLAPPING,
+		C_XML, C_XML2, C_XML3
+		FROM
+		t_moni_policy_res_avail_rule
+		WHERE C_ID =
+		#{id ,jdbcType=VARCHAR}
+    </select>
+	
+	<!-- Select POJO object by ID -->
+	<select id="select_by_policyId" parameterType="string" resultMap="PolicyResAvailRuleGroupResultMap">
+		SELECT C_ID, C_POLICY_ID, C_FREQUENCY_ID, C_FLAPPING,
+		C_XML, C_XML2, C_XML3
+		FROM
+		t_moni_policy_res_avail_rule
+		WHERE C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+    </select>
+    
+	<!-- Update POJO object policyId by oriPolicyId -->
+	<update id="update_newPolicyId_by_oriPolicyId" parameterType="java.util.Map">
+		UPDATE t_moni_policy_res_avail_rule
+		SET C_POLICY_ID =	#{oriPolicyId}
+		WHERE C_POLICY_ID = #{newPolicyId}
+    </update>
+
+</mapper>

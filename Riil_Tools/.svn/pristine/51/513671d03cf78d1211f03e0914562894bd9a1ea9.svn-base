@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ehcache 2.5 configuration. Not release now. <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false" monitoring="autodetect" 
+	dynamicConfig="true" maxBytesLocalOnHeap="1g" maxBytesLocalOffHeap="4g" maxBytesLocalDisk="100g"> -->
+<ehcache> 
+  <diskStore path="java.io.tmpdir/cache"/>  
+  <!-- Replicated Caching using JGroups -->  
+  <!-- As a rule of thumb UDP is used as transport for LANs, whereas TCP is 
+		used for WANs. -->  
+  <!-- UDP -->  
+  <!-- <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory" 
+		properties="connect=UDP(mcast_addr=228.10.10.10;mcast_port=45566;):PING:MERGE2:FD_SOCK:VERIFY_SUSPECT:pbcast.NAKACK:UNICAST:pbcast.STABLE:FRAG:pbcast.GMS" 
+		propertySeparator="::" /> -->  
+  <!-- TCP -->  
+  <!-- <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory" 
+		properties="connect=TCP(bind_port=7801): TCPPING(initial_hosts=localhost[7800];port_range=10;timeout=3000;num_initial_members=3): 
+		VERIFY_SUSPECT(timeout=1500): pbcast.NAKACK(gc_lag=100;retransmit_timeout=3000): 
+		pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;shun=false;print_local_addr=false)" 
+		propertySeparator="::" /> -->  
+<!--   <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory" properties="peerDiscovery=manual,         rmiUrls=//127.0.0.1:40001/REMOTE_CACHE_TYPES"/>   -->
+<!--   <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory" properties="hostName=127.0.0.1, port=40001,         socketTimeoutMillis=2000"/>   -->
+<!--   <defaultCache maxElementsInMemory="10000" eternal="true" overflowToDisk="false" timeToIdleSeconds="300" timeToLiveSeconds="300" diskPersistent="false" diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LRU"/>   -->
+<!--   <cache name="testCache" eternal="false" maxElementsInMemory="1000" timeToIdleSeconds="1000" timeToLiveSeconds="1000" overflowToDisk="false"/>   -->
+<!--   <cache name="REMOTE_CACHE_TYPES" eternal="false" maxElementsInMemory="1000" overflowToDisk="true">  -->
+<!--     <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory" properties="replicateAsynchronously=true,                          replicatePuts=true,                          replicateUpdates=true,                         replicateUpdatesViaCopy=true,                          replicateRemovals=true,                         asynchronousReplicationIntervalMillis=2000"/>   -->
+<!--     <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory" properties="bootstrapAsynchronously=true, maximumChunkSizeBytes=20971520"/>  -->
+<!--   </cache>   -->
+	<cache name="com.riil.base.resmodel.pojo.mmodel.ModelMetricBindingPojo" eternal="false" maxElementsInMemory="1000" timeToIdleSeconds="3600" timeToLiveSeconds="3600" overflowToDisk="false"/>
+	
+<!-- 	<cache name="com.riil.base.resmodel.pojo.policy.PolicyActionPojo" eternal="false" maxElementsInMemory="1000" timeToIdleSeconds="3600" timeToLiveSeconds="3600" overflowToDisk="false"/> -->
+<!-- 	<cache name="com.riil.base.resmodel.pojo.policy.PolicyEventPojo" eternal="false" maxElementsInMemory="1000" timeToIdleSeconds="3600" timeToLiveSeconds="3600" overflowToDisk="false"/> -->
+<!-- 	<cache name="com.riil.base.resmodel.pojo.policy.PolicyMetricPojo" eternal="false" maxElementsInMemory="1000" timeToIdleSeconds="3600" timeToLiveSeconds="3600" overflowToDisk="false"/> -->
+<!-- 	<cache name="com.riil.base.resmodel.pojo.policy.PolicyResRelPojo" eternal="false" maxElementsInMemory="1000" timeToIdleSeconds="3600" timeToLiveSeconds="3600" overflowToDisk="false"/> -->
+<!-- 	<cache name="com.riil.base.resmodel.pojo.policy.PolicyScriptMetricPojo" eternal="false" maxElementsInMemory="1000" timeToIdleSeconds="3600" timeToLiveSeconds="3600" overflowToDisk="false"/> -->
+<!-- 	<cache name="com.riil.base.resmodel.pojo.policy.PolicyScriptResPojo" eternal="false" maxElementsInMemory="1000" timeToIdleSeconds="3600" timeToLiveSeconds="3600" overflowToDisk="false"/> -->
+<!-- 	<cache name="PolicyTaskGroupFrequency" eternal="false" maxElementsInMemory="1000" timeToIdleSeconds="3600" timeToLiveSeconds="3600" overflowToDisk="false"/> -->
+</ehcache>

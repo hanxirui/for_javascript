@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.base.resmodel.impl.db.dao.CmdPropertieDao">
+
+	<resultMap id="collectCmdsConnResultMap" type="com.riil.base.binding.pojo.CmdPropertie">
+		<result property="cmdId" column="C_CMD_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="name" column="C_NAME" javaType="string" jdbcType="VARCHAR" />
+		<result property="value" column="C_VALUE" javaType="string" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<insert id="batchInsert"  parameterType="list" >
+		INSERT INTO t_moni_cmd_properties (  C_CMD_ID, C_NAME,C_VALUE)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			( 
+			#{item.cmdId ,jdbcType=VARCHAR},#{item.name ,jdbcType=VARCHAR},#{item.value ,jdbcType=VARCHAR}
+			)
+		</foreach>
+	</insert>
+	
+</mapper>

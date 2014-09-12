@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.base.resmodel.impl.db.dao.ModelBaseDao">
+
+	<resultMap id="modelBaseResultMap" type="com.riil.base.resmodel.pojo.base.ModelBasePojo">
+		<result property="connectInfoDesc" column="C_CONNECT_INFO_DESC" javaType="string" jdbcType="VARCHAR" />
+		<result property="desc" column="C_DESC" javaType="string" jdbcType="VARCHAR" />
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="isMain" column="C_IS_MAIN" javaType="_byte" jdbcType="TINYINT" />
+		<result property="isSnmp" column="C_IS_SNMP" javaType="_byte" jdbcType="TINYINT" />
+		<result property="resTypeId" column="C_RES_TYPE_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="name" column="C_NAME" javaType="string" jdbcType="VARCHAR" />
+		<result property="path" column="C_PATH" javaType="string" jdbcType="VARCHAR" />
+		<result property="pluginId" column="C_PLUGIN_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="precondition" column="C_PRECONDITION" javaType="string" jdbcType="VARCHAR" />
+		<result property="preconditionEn" column="C_PRECONDITION_EN" javaType="string" jdbcType="VARCHAR" />
+		<result property="mainModelId" column="C_MAIN_MODEL_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag1" column="C_TAG1" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag2" column="C_TAG2" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag3" column="C_TAG3" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag4" column="C_TAG4" javaType="string" jdbcType="VARCHAR" />
+		<result property="treeNodeId" column="C_TREE_NODE_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="vendorId" column="C_VENDOR_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="vendorName" column="C_VENDOR_NAME" javaType="string" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Query_Where_Clause">
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="isMain != null and isMain!=0 ">
+				AND C_IS_MAIN = #{isMain ,jdbcType=TINYINT}
+            </if>
+
+			<if test="isSnmp != null and isSnmp!=0 ">
+				AND C_IS_SNMP = #{isSnmp ,jdbcType=TINYINT}
+            </if>
+
+			<if test="resTypeId != null and resTypeId != ''">
+				AND C_RES_TYPE_ID = #{resTypeId ,jdbcType=VARCHAR}
+            </if>
+
+			<if test="treeNodeId != null and treeNodeId != ''">
+				AND C_TREE_NODE_ID like <include refid="func_concat_1" /> #{treeNodeId ,jdbcType=VARCHAR}<include refid="func_concat_2" />  
+            </if>
+
+			<if test="name != null and name != ''">
+				AND C_NAME = #{name ,jdbcType=VARCHAR}
+            </if>
+
+			<if test="vendorName != null and vendorName != ''">
+				AND C_VENDOR_NAME = #{vendorName ,jdbcType=VARCHAR}
+            </if>
+            
+            <if test="mainModelId != null and mainModelId != ''">
+				AND C_MAIN_MODEL_ID = #{mainModelId ,jdbcType=VARCHAR}
+            </if>
+            
+			<if test=" tag4 != null and tag4 == 'hasRes'">
+				AND C_ID IN (SELECT DISTINCT c_model_id FROM t_res_instance_info)
+            </if>
+		</trim>
+	</sql>
+
+	<!-- Insert POJO object -->
+	<insert id="insert" parameterType="com.riil.base.resmodel.pojo.base.ModelBasePojo">
+		INSERT INTO t_moni_model_base ( C_CONNECT_INFO_DESC, 
+		C_DESC, C_ID, C_IS_MAIN, C_IS_SNMP, C_RES_TYPE_ID, C_NAME,
+		C_PLUGIN_ID, C_PRECONDITION,
+		C_MAIN_MODEL_ID, 
+		C_TAG1, C_TAG2, C_TAG3, C_TAG4, C_TREE_NODE_ID,
+		C_VENDOR_ID, C_VENDOR_NAME )
+		VALUES(
+		#{connectInfoDesc ,jdbcType=VARCHAR},  #{desc ,jdbcType=VARCHAR},  #{id ,jdbcType=VARCHAR},
+		#{isMain ,jdbcType=TINYINT}, #{isSnmp ,jdbcType=TINYINT}, #{resTypeId ,jdbcType=VARCHAR}, #{name ,jdbcType=VARCHAR},
+		#{pluginId ,jdbcType=VARCHAR}, #{precondition ,jdbcType=VARCHAR}
+		, #{mainModelId ,jdbcType=VARCHAR},
+		#{tag1 ,jdbcType=VARCHAR}, #{tag2 ,jdbcType=VARCHAR}, #{tag3 ,jdbcType=VARCHAR}, #{tag4 ,jdbcType=VARCHAR},
+		#{treeNodeId ,jdbcType=VARCHAR}, #{vendorId ,jdbcType=VARCHAR},
+		#{vendorName ,jdbcType=VARCHAR} )
+    </insert>
+	<!--batch Insert POJO object -->
+	<insert id="batchInsert" parameterType="list">
+		INSERT INTO t_moni_model_base (  C_CONNECT_INFO_DESC, 
+		C_DESC, C_ID, C_IS_MAIN, C_IS_SNMP, C_RES_TYPE_ID, C_NAME,
+		C_PLUGIN_ID, C_PRECONDITION,
+		C_MAIN_MODEL_ID, 
+		C_TAG1, C_TAG2, C_TAG3, C_TAG4, C_TREE_NODE_ID,
+		C_VENDOR_ID, C_VENDOR_NAME )
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			( 
+		#{item.connectInfoDesc ,jdbcType=VARCHAR},  #{item.desc ,jdbcType=VARCHAR},  #{item.id ,jdbcType=VARCHAR},
+		#{item.isMain ,jdbcType=TINYINT}, #{item.isSnmp ,jdbcType=TINYINT}, #{item.resTypeId ,jdbcType=VARCHAR}, #{item.name ,jdbcType=VARCHAR},
+		#{item.pluginId ,jdbcType=VARCHAR}, #{item.precondition ,jdbcType=VARCHAR}
+		, #{item.mainModelId ,jdbcType=VARCHAR},
+		#{item.tag1 ,jdbcType=VARCHAR}, #{item.tag2 ,jdbcType=VARCHAR}, #{item.tag3 ,jdbcType=VARCHAR}, #{item.tag4 ,jdbcType=VARCHAR},
+		#{item.treeNodeId ,jdbcType=VARCHAR}, #{item.vendorId ,jdbcType=VARCHAR},
+		#{item.vendorName ,jdbcType=VARCHAR} )
+		</foreach>
+	</insert>
+	<!-- Update POJO object by ID -->
+	<update id="update_by_id" parameterType="com.riil.base.resmodel.pojo.base.ModelBasePojo">
+		UPDATE t_moni_model_base
+		SET C_CONNECT_INFO_DESC = #{connectInfoDesc ,jdbcType=VARCHAR},
+		C_DESC = #{desc ,jdbcType=VARCHAR},
+		C_ID = #{id ,jdbcType=VARCHAR},
+		C_IS_MAIN =
+		#{isMain ,jdbcType=TINYINT},
+		C_IS_SNMP = #{isSnmp ,jdbcType=TINYINT},
+		C_RES_TYPE_ID = #{resTypeId ,jdbcType=VARCHAR},
+		C_NAME = #{name ,jdbcType=VARCHAR},
+		C_PLUGIN_ID = #{pluginIds},
+		C_PRECONDITION = #{precondition ,jdbcType=VARCHAR},
+		C_MAIN_MODEL_ID = #{mainModelId ,jdbcType=VARCHAR},
+		C_TAG1 = #{tag1 ,jdbcType=VARCHAR},
+		C_TAG2 = #{tag2 ,jdbcType=VARCHAR},
+		C_TAG3 = #{tag3 ,jdbcType=VARCHAR},
+		C_TAG4 = #{tag4 ,jdbcType=VARCHAR},
+		C_TREE_NODE_ID =
+		#{treeNodeId ,jdbcType=VARCHAR},
+		C_VENDOR_ID = #{vendorId ,jdbcType=VARCHAR},
+		C_VENDOR_NAME = #{vendorName ,jdbcType=VARCHAR}
+		WHERE C_ID = #{id ,jdbcType=VARCHAR}
+    </update>
+
+	<!-- Delete POJO object by ID -->
+	<delete id="delete_by_id" parameterType="string">
+		DELETE FROM t_moni_model_base WHERE C_ID = #{id ,jdbcType=VARCHAR}
+    </delete>
+
+	<!-- Delete all POJO object -->
+	<delete id="delete_all">
+		DELETE FROM t_moni_model_base
+    </delete>
+
+	<!-- Delete POJO object by query -->
+	<delete id="delete_by_query" parameterType="com.riil.base.resmodel.pojo.base.ModelBasePojo">
+		DELETE FROM t_moni_model_base 
+	    </delete>
+
+	<!-- Select POJO object by ID -->
+	<select id="select_by_id" parameterType="string" resultMap="modelBaseResultMap">
+		SELECT C_CONNECT_INFO_DESC,  
+		C_DESC,  
+		C_ID, C_IS_MAIN, C_IS_SNMP, C_RES_TYPE_ID, C_NAME,  
+		C_PLUGIN_ID, C_PRECONDITION,
+		C_MAIN_MODEL_ID,
+		C_TAG1,
+		C_TAG2, C_TAG3, C_TAG4, C_TREE_NODE_ID, C_VENDOR_ID, C_VENDOR_NAME
+		FROM
+		t_moni_model_base
+		WHERE C_ID = #{id ,jdbcType=VARCHAR}
+    </select>
+
+
+	<!-- Select All POJO object -->
+	<select id="select_all" parameterType="com.riil.base.resmodel.pojo.base.ModelBasePojo" resultMap="modelBaseResultMap">
+		SELECT C_CONNECT_INFO_DESC,   C_DESC,  
+		C_ID, C_IS_MAIN, C_IS_SNMP, C_RES_TYPE_ID,
+		C_NAME,  
+		C_PLUGIN_ID, C_PRECONDITION,  C_MAIN_MODEL_ID,
+		C_TAG1,
+		C_TAG2, C_TAG3,
+		C_TAG4, C_TREE_NODE_ID, C_VENDOR_ID, C_VENDOR_NAME
+		FROM t_moni_model_base
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+	</select>
+
+	<!-- Select POJO object list by query -->
+	<select id="select_list_by_query" parameterType="com.riil.base.resmodel.pojo.base.ModelBasePojo" resultMap="modelBaseResultMap">
+		SELECT C_CONNECT_INFO_DESC,   C_DESC,  
+		C_ID, C_IS_MAIN, C_IS_SNMP, C_RES_TYPE_ID,
+		C_NAME,  
+		C_PLUGIN_ID, C_PRECONDITION, C_MAIN_MODEL_ID, C_TAG1,
+		C_TAG2, C_TAG3,
+		C_TAG4, C_TREE_NODE_ID, C_VENDOR_ID, C_VENDOR_NAME
+		FROM t_moni_model_base
+		<include refid="Query_Where_Clause" />
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			</if>
+		</trim>
+	</select>
+
+	<!-- Select POJO object collection for page by query -->
+	<select id="select_pagelist_by_query" parameterType="com.riil.base.resmodel.pojo.base.ModelBasePojo" resultMap="modelBaseResultMap">
+		<include refid="page_head"/>
+		SELECT C_CONNECT_INFO_DESC,   C_DESC,  
+		C_ID, C_IS_MAIN, C_IS_SNMP, C_RES_TYPE_ID,
+		C_NAME,  
+		C_PLUGIN_ID, C_PRECONDITION, C_MAIN_MODEL_ID, C_TAG1,
+		C_TAG2, C_TAG3,
+		C_TAG4, C_TREE_NODE_ID, C_VENDOR_ID, C_VENDOR_NAME
+		FROM t_moni_model_base
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+		<include refid="page_foot"/>
+	</select>
+
+	<!-- Select POJO object list by query -->
+<!-- 	<select id="select_list_by_models" parameterType="com.riil.base.resmodel.pojo.base.ModelBasePojo" resultMap="modelBaseResultMap">
+		SELECT C_CONNECT_INFO_DESC,   C_DESC,   C_ID,
+		C_IS_MAIN, C_IS_SNMP, C_RES_TYPE_ID,
+		C_NAME,  
+		C_PLUGIN_ID, C_PRECONDITION, C_MAIN_MODEL_ID, C_TAG1,
+		C_TAG2, C_TAG3,
+		C_TAG4, C_TREE_NODE_ID, C_VENDOR_ID, C_VENDOR_NAME
+		FROM t_moni_model_base WHERE C_ID IN (${subModels})
+        <trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			</if>
+		</trim>     
+    </select> -->
+</mapper>

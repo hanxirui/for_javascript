@@ -1,0 +1,89 @@
+<script type="text/javascript">
+      var id = '<%- data.c_id%>';
+      var parentId = '';
+</script>
+<div class="pos_obso btn_bg"><a class="btn" onclick="submitClick();">确定</a></div>
+<div class="con_t">
+<ul>
+<li class="bg_gray con_b">基础信息</li>
+<li class="m_14">
+  <table width="80%" cellspacing="0" cellpadding="0" class="t_td">
+    <tbody><tr>
+      <td width="100" height="26">模型ID：</td>
+      <td><input name="modelId" type="text" id="modelId" size="60" value="<%=: data.c_id|isNull%>" onblur="checkIdRepeat();">
+      <span class="txt_red" id="modelId_msg">&nbsp;ID必须以RIIL_RMT开头</span></td>
+    </tr>
+    <tr>
+      <td height="26">模型名称：</td>
+      <td><label for="textfield"></label>
+      <input name="modelName" type="text" id="modelName" size="60" value="<%=: data.c_name|isNull%>"></td>
+    </tr>
+    <tr>
+      <td height="26">模型英文名称：</td>
+      <td><label for="select"></label>
+      <input name="modelNameEn" type="text" id="modelNameEn" size="60"></td>
+    </tr>
+    <tr>
+      <td height="26">描述：</td>
+      <td><textarea name="detail" cols="60" rows="5" id="detail" style="width:375px;"><%=data.c_desc%></textarea></td>
+    </tr>
+    <tr>
+      <td height="26">资源类型：</td>
+      <td><input id="resType" name="resType" type="text" readonly="" style="width: 200px;">&nbsp;<a id="menuBtn" href="#" onclick="showMenu(); return false;">选择</a></td>
+    </tr>
+    <tr>
+      <td height="26">是否SNMP模型：</td>
+      <td><input type="radio" name="isSNMPModel" id="isSNMP" value="1">
+      <label for="radio"></label>
+      是&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="radio" name="isSNMPModel" id="notSNMP" value="0" checked="checked">
+      <label for="radio2"></label>
+      否</td>
+    </tr>
+    <tr>
+      <td height="26">所属主模型：</td>
+      <td><input id="mainModelType" name="mainModelType" type="text" readonly="" style="width: 200px;">&nbsp;<a id="mainModelMenuBtn" href="#" onclick="showMainModelMenu(); return false;">选择</a></td>
+    </tr>
+    <tr>
+      <td height="26">取值插件：</td>
+      <td><select name="pluginSelect" id="pluginSelect" style="width:375px">
+      </select></td>
+    </tr>
+    <tr>
+      <td height="26">版本：</td>
+      <td><input name="version" type="text" id="version" size="60"></td>
+    </tr>
+  </tbody></table>
+</li>
+</ul>
+</div>
+<div id="resTypeContent" class="menuContent" style="position: absolute; left: 142px; top: 230px; display: none;">
+  <ul id="resTypeTree" class="ztree" style="margin-top: 0; width: 185px;"></ul>
+</div>
+<div id="mainModelContent" class="mainModelContent" style="position: absolute; left: 142px; top: 230px; display: none;">
+  <ul id="mainModelTree" class="ztree" style="margin-top: 0; width: 185px;"></ul>
+</div>
+<script type="text/javascript">
+  var isSnmp = '<%- data.c_is_snmp%>';
+  var pluginId = '<%- data.c_plugin_id%>';
+  $('#modelId_msg').text('ID必须以RIIL_RMM开头');
+  $("#modelNameEn").val($("#modelName").val());
+  if(isSnmp !== ''){
+    if(isSnmp === '1'){
+      $("#isSNMP").attr('checked', 'checked');
+    }else{
+      $("#notSNMP").attr('checked', 'checked');
+    }
+  }
+  /**插件下拉列表*/
+  $.get(ctx + '/resmodel/resModelCotroll/getAllPlugins', function(pluginInfos) {
+    $("#pluginSelect").prepend("<option value=''>请选择</option>");
+        for(var i = 0; i < pluginInfos.data.length; i++){
+            $("#pluginSelect").append('<option value='+ pluginInfos.data[i].c_plugin_id +'>'+ pluginInfos.data[i].c_plugin_id +'</option>');
+        }
+        if(typeof(pluginId) !== 'undefined'){
+          $("#pluginSelect").val(pluginId);
+        }
+  });
+</script>
+<script type="text/javascript" src="/static/resModel/resmodel_baseInfo.js"></script>

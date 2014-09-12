@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.base.policy.impl.dao.PolicyEventDAO">
+
+	<resultMap id="PolicyEventResultMap" type="com.riil.base.resmodel.pojo.policy.PolicyEventPojo">
+		<result property="desc" column="C_DESC" javaType="string" jdbcType="VARCHAR" />
+		<result property="eventId" column="C_EVENT_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="inUse" column="C_IN_USE" javaType="byte" jdbcType="TINYINT" />
+		<result property="level" column="C_LEVEL" javaType="string" jdbcType="VARCHAR" />
+		<result property="name" column="C_NAME" javaType="string" jdbcType="VARCHAR" />
+		<result property="policyId" column="C_POLICY_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="type" column="C_TYPE" javaType="string" jdbcType="VARCHAR" />
+		<result property="matchType" column="C_MATCH_TYPE" javaType="string" jdbcType="VARCHAR" />
+	</resultMap>
+ 
+	<sql id="Query_Where_Conditon">
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="policyId != null and policyId !=''">
+				AND C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+	        </if>
+			<if test="name != null and name !=''">
+				AND C_NAME = #{name ,jdbcType=VARCHAR}
+	        </if>
+			<if test="eventId != null and eventId !=''">
+				AND C_EVENT_ID != #{eventId ,jdbcType=VARCHAR}
+	        </if>
+		</trim>
+	</sql>
+	<sql id="foreachId">
+		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+			#{item}
+        </foreach>
+	</sql>
+
+	<!-- Insert POJO object -->
+	<insert id="insert" parameterType="com.riil.base.resmodel.pojo.policy.PolicyEventPojo">
+		INSERT INTO
+		t_moni_policy_event ( C_DESC, C_EVENT_ID, C_ID,
+		C_IN_USE,
+		C_LEVEL, C_NAME, C_POLICY_ID, C_TYPE, C_MATCH_TYPE )
+		VALUES( #{desc ,jdbcType=VARCHAR},  #{eventId ,jdbcType=VARCHAR}, #{id ,jdbcType=VARCHAR},
+		#{inUse ,jdbcType=TINYINT}, #{level ,jdbcType=VARCHAR},
+		#{name ,jdbcType=VARCHAR}, #{policyId ,jdbcType=VARCHAR}, #{type ,jdbcType=VARCHAR}, #{matchType ,jdbcType=VARCHAR} )
+    </insert>
+
+	<!-- batch Insert POJO object -->
+	<insert id="batchInsertEvent" parameterType="java.util.Map">
+		INSERT INTO t_moni_policy_event ( C_DESC,  C_EVENT_ID, C_ID,
+		C_IN_USE, C_LEVEL, C_NAME, 
+		C_POLICY_ID, C_TYPE,
+		C_MATCH_TYPE )
+		VALUES
+		<foreach collection="events" item="event" separator=",">
+			( #{event.desc}, #{event.eventId},
+			#{event.id},
+			#{event.inUse}, #{event.level},
+			#{event.name}, #{policyId ,jdbcType=VARCHAR}, #{event.type},
+			#{event.matchType} )
+		</foreach>
+	</insert>
+	<insert id="batchInsertEvents" parameterType="list">
+		INSERT INTO t_moni_policy_event ( C_DESC,  C_EVENT_ID, C_ID,
+		C_IN_USE, C_LEVEL, C_NAME, 
+		C_POLICY_ID, C_TYPE,
+		C_MATCH_TYPE )
+		VALUES
+		<foreach collection="list" item="event" separator=",">
+			( #{event.desc}, #{event.eventId},
+			#{event.id},
+			#{event.inUse}, #{event.level},
+			#{event.name}, #{event.policyId}, #{event.type},
+			#{event.matchType} )
+		</foreach>
+	</insert>
+	<!-- Update POJO object by ID -->
+	<update id="update_by_eventIdAndpolicyId" parameterType="com.riil.base.resmodel.pojo.policy.PolicyEventPojo">
+		UPDATE t_moni_policy_event
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="desc != null and desc != ''">
+				C_DESC = #{desc ,jdbcType=VARCHAR},
+            </if>
+			<if test="inUse != 0">
+				C_IN_USE = #{inUse ,jdbcType=TINYINT},
+            </if>
+			<if test="level != null and level != ''">
+				C_LEVEL = #{level ,jdbcType=VARCHAR},
+            </if>
+			<if test="name != null and name != ''">
+				C_NAME = #{name ,jdbcType=VARCHAR},
+            </if>
+			<if test="policyId != null and policyId != ''">
+				C_POLICY_ID = #{policyId ,jdbcType=VARCHAR},
+            </if>
+			<if test="type != null and type != ''">
+				C_TYPE = #{type ,jdbcType=VARCHAR},
+            </if>
+			<if test="matchType != null and matchType != ''">
+				C_MATCH_TYPE = #{matchType ,jdbcType=VARCHAR}
+            </if>
+		</trim>
+		WHERE C_EVENT_ID = #{eventId ,jdbcType=VARCHAR} AND C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+	</update>
+
+	<!-- Update POJO object by ID -->
+	<update id="updateEvent_newPolicyId_by_oriPolicyId" parameterType="java.util.Map">
+		UPDATE t_moni_policy_event
+		SET C_POLICY_ID =
+		#{oriPolicyId}
+		WHERE C_POLICY_ID = #{newPolicyId}
+    </update>
+
+	<!-- Delete POJO object by eventIDs -->
+	<delete id="delete_by_policyIdAndEventId_batch" parameterType="java.util.Map">
+		DELETE FROM t_moni_policy_event WHERE C_POLICY_ID = #{policyId ,jdbcType=VARCHAR} AND
+		C_EVENT_ID IN
+		<foreach item="item" index="index" collection="eventIds" open="(" separator="," close=")">
+			#{item}
+        </foreach>
+	</delete>
+
+	<!-- Delete POJO object by policyID -->
+	<delete id="delete_by_policyId" parameterType="string">
+		DELETE FROM
+		t_moni_policy_event WHERE C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+	</delete>
+
+	<!-- Delete POJO object by policyIDs -->
+	<delete id="delete_by_policyIds_batch" parameterType="java.util.List">
+		DELETE FROM t_moni_policy_event WHERE C_POLICY_ID IN
+		<include refid="foreachId" />
+	</delete>
+
+	<!-- Select POJO object by eventID -->
+	<select id="select_by_policyIdAndEventId" parameterType="java.util.Map" resultMap="PolicyEventResultMap">
+		SELECT C_DESC, 
+		C_EVENT_ID, C_IN_USE, C_LEVEL,
+		C_NAME, C_POLICY_ID, C_TYPE, C_MATCH_TYPE
+		FROM
+		t_moni_policy_event
+		WHERE
+		C_POLICY_ID = #{policyId ,jdbcType=VARCHAR} AND C_EVENT_ID =
+		#{eventId ,jdbcType=VARCHAR}
+    </select>
+	<select id="select_by_name" parameterType="com.riil.base.resmodel.pojo.policy.PolicyEventPojo" resultType="int">
+		select
+		count(0)
+		from t_moni_policy_event
+		<include refid="Query_Where_Conditon" />
+	</select>
+	<!-- Select POJO object by policyID -->
+	<select id="select_by_policyId" parameterType="string" resultMap="PolicyEventResultMap">
+		SELECT C_DESC,  C_EVENT_ID, C_IN_USE,
+		C_LEVEL,
+		C_NAME,  C_POLICY_ID, C_TYPE, C_MATCH_TYPE
+		FROM
+		t_moni_policy_event
+		WHERE C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+	</select>
+
+	<sql id="pageCondition">
+		<where>
+			<if test="policyId !=null and policyId!=''">
+				AND event.C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+            </if>
+			<if test="type !=null and type!=''">
+				AND event.C_TYPE = #{type ,jdbcType=VARCHAR}
+            </if>
+			<if test="level !=null and level!=''">
+				AND event.C_LEVEL = #{level ,jdbcType=VARCHAR}
+            </if>
+			<if test="name !=null and name!=''">
+				AND event.C_NAME like CONCAT(CONCAT('%','${name}'),'%' )
+            </if>
+		</where>
+	</sql>
+	<!-- 事件多条件查询 -->
+	<select id="select_by_policyEvent" parameterType="com.riil.base.resmodel.pojo.policy.PolicyEventQueryParam"
+		resultMap="PolicyEventResultMap">
+		<include refid="page_head"/>
+		SELECT event.C_DESC,  event.C_EVENT_ID,
+		event.C_IN_USE, event.C_LEVEL,
+		event.C_NAME, 
+		event.C_POLICY_ID, event.C_TYPE, event.C_MATCH_TYPE
+		FROM t_moni_policy_event event left join t_moni_policy_event_rule
+		rule
+		on (event.C_EVENT_ID=rule.C_EVENT_ID and
+		event.C_policy_ID=rule.C_policy_ID)
+		<include refid="pageCondition" />
+		<include refid="page_foot"/>
+	</select>
+	<select id="select_by_policyEvent_count" parameterType="com.riil.base.resmodel.pojo.policy.PolicyEventQueryParam"
+		resultType="int">
+		SELECT count(*)
+		FROM t_moni_policy_event event left join t_moni_policy_event_rule rule on
+		(event.C_EVENT_ID=rule.C_EVENT_ID and
+		event.C_policy_ID=rule.C_policy_ID)
+		<include refid="pageCondition" />
+	</select>
+	<resultMap id="PolicyEventRuleResultMap" type="com.riil.base.resmodel.pojo.policy.PolicyEventRulePojo">
+		<result property="counts" column="C_COUNTS" javaType="_int" jdbcType="SMALLINT" />
+		<result property="eventId" column="C_EVENT_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="events" column="C_EVENTS" javaType="string" jdbcType="VARCHAR" />
+		<result property="expDesc" column="C_EXP_DESC" javaType="string" jdbcType="VARCHAR" />
+		<result property="expDescEn" column="C_EXP_DESC_EN" javaType="string" jdbcType="VARCHAR" />
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="inUse" column="C_IN_USE" javaType="byte" jdbcType="CHAR" />
+		<result property="keyExp" column="C_KEY_EXP" javaType="string" jdbcType="VARCHAR" />
+		<result property="logLevel" column="C_LOG_LEVEL" javaType="string" jdbcType="VARCHAR" />
+		<result property="policyId" column="C_POLICY_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="source" column="C_SOURCE" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag1" column="C_TAG1" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag2" column="C_TAG2" javaType="string" jdbcType="VARCHAR" />
+		<result property="time" column="C_TIME" javaType="_int" jdbcType="SMALLINT" />
+		<result property="trapType" column="C_TRAP_TYPE" javaType="string" jdbcType="VARCHAR" />
+		<result property="trapGroup" column="C_TRAP_GROUP" javaType="string" jdbcType="VARCHAR" />
+		<result property="trapEnterprise" column="C_TRAP_ENTERPRISE" javaType="string" jdbcType="VARCHAR" />
+		<result property="trapGeneral" column="C_TRAP_GENERAL" javaType="string" jdbcType="VARCHAR" />
+		<result property="trapSpecial" column="C_TRAP_SPECIAL" javaType="string" jdbcType="VARCHAR" />
+		<result property="trapTemplate" column="C_TRAP_TEMPLATE" javaType="string" jdbcType="VARCHAR" />
+		<result property="trapTemplateEn" column="C_TRAP_TEMPLATE_EN" javaType="string" jdbcType="VARCHAR" />
+		<result property="winEventId" column="C_WIN_EVENT_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="genRuleType" column="C_GEN_RULE_TYPE" javaType="string" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- Insert POJO object -->
+	<insert id="batchInsertEventRule" parameterType="java.util.Map">
+		INSERT INTO t_moni_policy_event_rule ( C_COUNTS, C_EVENT_ID, C_EVENTS,
+		C_EXP_DESC, C_ID, C_IN_USE,
+		C_KEY_EXP, C_LOG_LEVEL,
+		C_POLICY_ID, C_SOURCE, C_TAG1, C_TAG2, C_TIME,C_TRAP_TYPE,C_TRAP_GROUP,
+		C_TRAP_ENTERPRISE,
+		C_TRAP_GENERAL,
+		C_TRAP_SPECIAL, C_TRAP_TEMPLATE, C_TRAP_TEMPLATE_EN,
+		C_WIN_EVENT_ID ,C_GEN_RULE_TYPE)
+		VALUES
+		<foreach collection="eventrules" item="eventrule" separator=",">
+			( #{eventrule.counts}, #{eventId ,jdbcType=VARCHAR},
+			#{eventrule.events},
+			#{eventrule.expDesc},  #{eventrule.id},
+			#{eventrule.inUse},
+			#{eventrule.keyExp}, #{eventrule.logLevel},
+			#{policyId ,jdbcType=VARCHAR}, #{eventrule.source}, #{eventrule.tag1},
+			#{eventrule.tag2},
+			#{eventrule.time},#{eventrule.trapType},#{eventrule.trapGroup},
+			#{eventrule.trapEnterprise}, #{eventrule.trapGeneral},
+			#{eventrule.trapSpecial},
+			#{eventrule.trapTemplate}, #{eventrule.trapTemplateEn}, #{eventrule.winEventId}
+			,#{eventrule.genRuleType})
+        </foreach>
+	</insert>
+	<!-- Insert POJO object -->
+	<insert id="insertEventRule" parameterType="com.riil.base.resmodel.pojo.policy.PolicyEventRulePojo">
+		INSERT INTO t_moni_policy_event_rule ( C_COUNTS, C_EVENT_ID, C_EVENTS,
+		C_EXP_DESC,  C_ID, C_IN_USE,
+		C_KEY_EXP, C_LOG_LEVEL,
+		C_POLICY_ID, C_SOURCE, C_TAG1, C_TAG2, C_TIME,C_TRAP_TYPE,C_TRAP_GROUP,
+		C_TRAP_ENTERPRISE,
+		C_TRAP_GENERAL,
+		C_TRAP_SPECIAL, C_TRAP_TEMPLATE, C_TRAP_TEMPLATE_EN,
+		C_WIN_EVENT_ID ,C_GEN_RULE_TYPE)
+		VALUES
+			( #{counts, jdbcType=SMALLINT}, #{eventId, jdbcType=VARCHAR},
+			#{events, jdbcType=VARCHAR},
+			#{expDesc, jdbcType=VARCHAR},  #{id, jdbcType=VARCHAR},
+			#{inUse, jdbcType=CHAR},
+			#{keyExp, jdbcType=VARCHAR}, #{logLevel, jdbcType=VARCHAR},
+			#{policyId, jdbcType=VARCHAR}, #{source, jdbcType=VARCHAR}, #{tag1, jdbcType=VARCHAR},
+			#{tag2, jdbcType=VARCHAR},
+			#{time, jdbcType=SMALLINT},#{trapType, jdbcType=VARCHAR},#{trapGroup, jdbcType=VARCHAR},
+			#{trapEnterprise, jdbcType=VARCHAR}, #{trapGeneral, jdbcType=VARCHAR},
+			#{trapSpecial, jdbcType=VARCHAR},
+			#{trapTemplate, jdbcType=VARCHAR}, #{trapTemplateEn, jdbcType=VARCHAR}, #{winEventId, jdbcType=VARCHAR}
+			,#{genRuleType, jdbcType=VARCHAR} )
+	</insert>
+	<insert id="batchInsertEventRules" parameterType="list">
+		INSERT INTO t_moni_policy_event_rule ( C_COUNTS, C_EVENT_ID, C_EVENTS,
+		C_EXP_DESC,  C_ID, C_IN_USE,
+		C_KEY_EXP, C_LOG_LEVEL,
+		C_POLICY_ID, C_SOURCE, C_TAG1, C_TAG2, C_TIME,C_TRAP_TYPE,C_TRAP_GROUP,
+		C_TRAP_ENTERPRISE,
+		C_TRAP_GENERAL,
+		C_TRAP_SPECIAL, C_TRAP_TEMPLATE, C_TRAP_TEMPLATE_EN,
+		C_WIN_EVENT_ID ,C_GEN_RULE_TYPE)
+		VALUES
+		<foreach collection="list" item="eventrule" separator=",">
+			( #{eventrule.counts}, #{eventrule.eventId},
+			#{eventrule.events},
+			#{eventrule.expDesc},  #{eventrule.id},
+			#{eventrule.inUse},
+			#{eventrule.keyExp}, #{eventrule.logLevel},
+			#{eventrule.policyId}, #{eventrule.source}, #{eventrule.tag1},
+			#{eventrule.tag2},
+			#{eventrule.time},#{eventrule.trapType},#{eventrule.trapGroup},
+			#{eventrule.trapEnterprise}, #{eventrule.trapGeneral},
+			#{eventrule.trapSpecial},
+			#{eventrule.trapTemplate}, #{eventrule.trapTemplateEn}, #{eventrule.winEventId}
+			,#{eventrule.genRuleType} )
+        </foreach>
+	</insert>
+	<!-- Delete POJO object by eventID -->
+	<delete id="deleteEventRule_by_policyIdAndEventId_batch" parameterType="java.util.Map">
+		DELETE FROM t_moni_policy_event_rule WHERE C_POLICY_ID = #{policyId ,jdbcType=VARCHAR}
+		AND
+		C_EVENT_ID IN
+		<foreach item="item" index="index" collection="eventIds" open="(" separator="," close=")">
+			#{item}
+        </foreach>
+	</delete>
+
+	<!-- Delete POJO object by eventID -->
+	<delete id="deleteEventRule_by_policyIdAndEventId" parameterType="java.util.Map">
+		DELETE FROM t_moni_policy_event_rule WHERE
+		C_POLICY_ID = #{policyId ,jdbcType=VARCHAR} AND
+		C_EVENT_ID = #{eventId ,jdbcType=VARCHAR}
+    </delete>
+
+	<!-- Delete POJO object by policyID -->
+	<delete id="deleteEventRule_by_policyId" parameterType="string">
+		DELETE FROM t_moni_policy_event_rule WHERE C_POLICY_ID =
+		#{policyId ,jdbcType=VARCHAR}
+	</delete>
+
+	<!-- Delete POJO object by policyIDs -->
+	<delete id="deleteEventRule_by_policyId_batch" parameterType="java.util.List">
+		DELETE FROM t_moni_policy_event_rule WHERE C_POLICY_ID IN
+		<include refid="foreachId" />
+	</delete>
+
+	<!-- Select POJO object by eventID -->
+	<select id="selectEventRule_by_policyIdAndEventId" parameterType="java.util.Map" resultMap="PolicyEventRuleResultMap">
+		SELECT C_COUNTS, C_EVENT_ID, C_EVENTS, C_EXP_DESC, 
+		C_IN_USE, C_KEY_EXP, C_LOG_LEVEL, C_POLICY_ID,
+		C_SOURCE, C_TAG1,
+		C_TAG2, C_TIME,C_TRAP_TYPE,C_TRAP_GROUP,
+		C_TRAP_ENTERPRISE, C_TRAP_GENERAL,
+		C_TRAP_SPECIAL,
+		C_TRAP_TEMPLATE,
+		C_TRAP_TEMPLATE_EN, C_WIN_EVENT_ID,C_GEN_RULE_TYPE
+		FROM t_moni_policy_event_rule
+		<where>
+			C_POLICY_ID = #{policyId ,jdbcType=VARCHAR} AND C_EVENT_ID = #{eventId ,jdbcType=VARCHAR}
+        </where>
+
+	</select>
+	<!-- Select POJO object by eventID -->
+	<select id="selectEventRule_by_policyId" parameterType="string" resultMap="PolicyEventRuleResultMap">
+		SELECT C_COUNTS, C_EVENT_ID, C_EVENTS, C_EXP_DESC, 
+		C_IN_USE, C_KEY_EXP, C_LOG_LEVEL, C_POLICY_ID,
+		C_SOURCE, C_TAG1,
+		C_TAG2, C_TIME,C_TRAP_TYPE,C_TRAP_GROUP,
+		 C_TRAP_ENTERPRISE, C_TRAP_GENERAL,
+		C_TRAP_SPECIAL,
+		C_TRAP_TEMPLATE,
+		C_TRAP_TEMPLATE_EN, C_WIN_EVENT_ID,C_GEN_RULE_TYPE
+		FROM t_moni_policy_event_rule
+		<where>
+			C_POLICY_ID = #{policyId ,jdbcType=VARCHAR} 
+        </where>
+
+	</select>
+	<!-- Update POJO object by ID -->
+	<update id="updateEventRule_newPolicyId_by_oriPolicyId" parameterType="java.util.Map">
+		UPDATE t_moni_policy_event_rule
+		SET
+		C_POLICY_ID = #{oriPolicyId}
+		WHERE C_POLICY_ID = #{newPolicyId}
+    </update>
+</mapper>

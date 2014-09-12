@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.base.resmodel.impl.db.dao.EventBaseDao">
+
+	<resultMap id="eventBaseResultMap" type="com.riil.base.resmodel.pojo.base.EventBasePojo">
+	<result property="desc" column="C_DESC" javaType="string" jdbcType="VARCHAR" />
+		<result property="expId" column="C_EXP_ID" javaType="_byte" jdbcType="TINYINT" />
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="level" column="C_LEVEL" javaType="string" jdbcType="VARCHAR" />
+		<result property="name" column="C_NAME" javaType="string" jdbcType="VARCHAR" />
+		<result property="nameDisplay" column="C_NAME_DISPLAY" javaType="string" jdbcType="VARCHAR" />
+		<result property="isRecoveryEvent" column="C_IS_RECOVERY_EVENT" javaType="_byte" jdbcType="TINYINT" />
+		<result property="recoveryEventIds" column="C_RECOVERY_EVENT_IDS" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag1" column="C_TAG1" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag2" column="C_TAG2" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag3" column="C_TAG3" javaType="string" jdbcType="VARCHAR" />
+		<result property="tag4" column="C_TAG4" javaType="string" jdbcType="VARCHAR" />
+		<result property="type" column="C_TYPE" javaType="string" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Query_Where_Clause">
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+
+			<if test="type != null and type != ''">
+				AND C_TYPE = #{type ,jdbcType=VARCHAR}
+            </if>
+
+			<if test="id != null and id != ''">
+				AND C_ID = #{id ,jdbcType=VARCHAR}
+            </if>
+			<if test="name != null and name != ''">
+				AND C_NAME = #{name ,jdbcType=VARCHAR}
+            </if>
+
+		</trim>
+	</sql>
+
+	<!-- Insert POJO object -->
+	<insert id="insert" parameterType="com.riil.base.resmodel.pojo.base.EventBasePojo">
+		INSERT INTO t_moni_event_base ( C_DESC, C_EXP_ID,C_IS_RECOVERY_EVENT,C_RECOVERY_EVENT_IDS,
+		C_ID, C_NAME, C_TAG1, C_TAG2,
+		C_TAG3, C_TAG4, C_TYPE ,C_NAME_DISPLAY )
+		VALUES( #{desc ,jdbcType=VARCHAR},
+		#{expId ,jdbcType=TINYINT}, #{isRecoveryEvent ,jdbcType=TINYINT}, #{recoveryEventIds ,jdbcType=VARCHAR}, 
+		#{id ,jdbcType=VARCHAR}, 
+		#{name ,jdbcType=VARCHAR}, #{tag1 ,jdbcType=VARCHAR}, #{tag2 ,jdbcType=VARCHAR}, #{tag3 ,jdbcType=VARCHAR},
+		#{tag4 ,jdbcType=VARCHAR},
+		#{type ,jdbcType=VARCHAR} ,#{nameDisplay ,jdbcType=VARCHAR} )
+    </insert>
+	<!--batch Insert POJO object -->
+	<insert id="batchInsert" parameterType="list">
+		INSERT INTO t_moni_event_base (  C_DESC, C_EXP_ID,C_IS_RECOVERY_EVENT,C_RECOVERY_EVENT_IDS,
+		C_ID, C_NAME, C_TAG1, C_TAG2,
+		C_TAG3, C_TAG4, C_TYPE ,C_NAME_DISPLAY )
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			( #{item.desc ,jdbcType=VARCHAR},
+		#{item.expId ,jdbcType=TINYINT},#{item.isRecoveryEvent ,jdbcType=TINYINT}, #{item.recoveryEventIds ,jdbcType=VARCHAR},  #{item.id ,jdbcType=VARCHAR}, 
+		#{item.name ,jdbcType=VARCHAR}, #{item.tag1 ,jdbcType=VARCHAR}, #{item.tag2 ,jdbcType=VARCHAR}, #{item.tag3 ,jdbcType=VARCHAR},
+		#{item.tag4 ,jdbcType=VARCHAR},
+		#{item.type ,jdbcType=VARCHAR} ,#{item.nameDisplay ,jdbcType=VARCHAR} )
+        </foreach>
+	</insert>
+	<!-- Update POJO object by ID -->
+	<update id="update_by_id" parameterType="com.riil.base.resmodel.pojo.base.EventBasePojo">
+		UPDATE t_moni_event_base
+		SET C_DESC = #{desc ,jdbcType=VARCHAR},
+		C_EXP_ID = #{expId ,jdbcType=TINYINT},
+		C_IS_RECOVERY_EVENT = #{isRecoveryEvent ,jdbcType=TINYINT},
+		C_RECOVERY_EVENT_IDS = #{recoveryEventIds ,jdbcType=TINYINT},
+		C_ID = #{id ,jdbcType=VARCHAR},
+		C_NAME = #{name ,jdbcType=VARCHAR},
+		C_TAG1 = #{tag1 ,jdbcType=VARCHAR},
+		C_TAG2 = #{tag2 ,jdbcType=VARCHAR},
+		C_TAG3 = #{tag3 ,jdbcType=VARCHAR},
+		C_TAG4 = #{tag4 ,jdbcType=VARCHAR},
+		C_TYPE = #{type ,jdbcType=VARCHAR},
+		C_NAME_DISPLAY = #{nameDisplay ,jdbcType=VARCHAR}
+		WHERE C_ID = #{id ,jdbcType=VARCHAR}
+    </update>
+
+	<!-- Delete POJO object by ID -->
+	<delete id="delete_by_id" parameterType="string">
+		DELETE FROM t_moni_event_base WHERE C_ID = #{id ,jdbcType=VARCHAR}
+    </delete>
+
+	<!-- Delete all POJO object -->
+	<delete id="delete_all">
+		DELETE FROM t_moni_event_base
+    </delete>
+
+	<!-- Delete POJO object by query -->
+	<delete id="delete_by_query" parameterType="com.riil.base.resmodel.pojo.base.EventBasePojo">
+		DELETE FROM t_moni_event_base
+		<include refid="Query_Where_Clause" />
+	</delete>
+
+	<!-- Select POJO object by ID -->
+	<select id="select_by_id" parameterType="string" resultMap="eventBaseResultMap">
+		SELECT C_DESC, C_EXP_ID,C_IS_RECOVERY_EVENT,C_RECOVERY_EVENT_IDS,
+		C_ID, C_NAME, C_TAG1, C_TAG2,
+		C_TAG3, C_TAG4, C_TYPE ,C_NAME_DISPLAY
+		FROM t_moni_event_base
+		WHERE C_ID = #{id ,jdbcType=VARCHAR}
+    </select>
+
+
+	<!-- Select All POJO object -->
+	<select id="select_all" parameterType="com.riil.base.resmodel.pojo.base.EventBasePojo" resultMap="eventBaseResultMap">
+		SELECT C_DESC, C_EXP_ID,C_IS_RECOVERY_EVENT,C_RECOVERY_EVENT_IDS,
+		C_ID, C_NAME, C_TAG1, C_TAG2,
+		C_TAG3, C_TAG4, C_TYPE ,C_NAME_DISPLAY
+		FROM t_moni_event_base
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+	</select>
+
+	<!-- Select POJO object list by query -->
+	<select id="select_list_by_query" parameterType="com.riil.base.resmodel.pojo.base.EventBasePojo" resultMap="eventBaseResultMap">
+		SELECT C_DESC, C_EXP_ID,C_IS_RECOVERY_EVENT,C_RECOVERY_EVENT_IDS,
+		C_ID, C_NAME, C_TAG1, C_TAG2,
+		C_TAG3, C_TAG4, C_TYPE ,C_NAME_DISPLAY
+		FROM t_moni_event_base
+		<include refid="Query_Where_Clause" />
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+	</select>
+
+	<!-- Select POJO object collection for page by query -->
+	<select id="select_pagelist_by_query" parameterType="com.riil.base.resmodel.pojo.base.EventBasePojo" resultMap="eventBaseResultMap">
+		<include refid="page_head"/>
+		SELECT C_DESC, C_EXP_ID,C_IS_RECOVERY_EVENT,C_RECOVERY_EVENT_IDS,
+		C_ID, C_NAME, C_TAG1, C_TAG2,
+		C_TAG3, C_TAG4, C_TYPE ,C_NAME_DISPLAY
+		FROM t_moni_event_base
+		<trim prefix="ORDER BY">
+			<if test="orderBy != null and orderBy != ''">
+				${orderBy}
+			           </if>
+		</trim>
+		<include refid="page_foot"/>
+	</select>
+</mapper>
