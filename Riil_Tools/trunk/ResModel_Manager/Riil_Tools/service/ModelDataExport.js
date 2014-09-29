@@ -25,8 +25,13 @@ exports.ExecResourceModelExport = function() {
     var export_path = export_conf.modelPath,
         invoker_path = export_conf.batPath,
         bat_name = export_conf.batFileName;
+       var dbURL="jdbc:mysql://";
+           dbURL+=db_host+':3306';
+           dbURL+="/"+db_name;
+console.log(dbURL);
+           //"172.17.160.191:3306/riil_test"
    //调用bat脚本执行导出
-   var paramArray = new Array(db_host,db_name,db_user,db_password,export_path);
+   var paramArray = new Array(export_path,db_user,db_password,dbURL);
        helper.callbat(bat_name,invoker_path,paramArray,function (dataresult){
        var jsonStr = JSON.stringify(dataresult);
        var obj = JSON.parse(jsonStr);

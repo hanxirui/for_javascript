@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<settings>
+		<setting name="cacheEnabled" value="true" />
+		<setting name="lazyLoadingEnabled" value="false" />
+		<setting name="multipleResultSetsEnabled" value="true" />
+		<setting name="useColumnLabel" value="true" />
+		<setting name="useGeneratedKeys" value="false" />
+		<setting name="autoMappingBehavior" value="PARTIAL" />
+		<setting name="defaultExecutorType" value="SIMPLE" />
+		<setting name="defaultStatementTimeout" value="25000" />
+	</settings>
+    <mappers>
+    	<!-- model -->
+    	<mapper resource="modelBaseDao.xml" />
+    	<mapper resource="modelMetricRelDao.xml" />
+    	<mapper resource="metricBindingDao.xml" />
+    	<mapper resource="metricProcessParaDao.xml" />
+    	<mapper resource="collectCmdsDao.xml" />
+    	<mapper resource="collectCmdDao.xml" />
+    	<mapper resource="cmdFilterDao.xml" />
+    	<mapper resource="cmdPropertieDao.xml" />
+    	<mapper resource="collectCmdsConnProtocolDao.xml" />
+    	<mapper resource="collectCmdsProcessorDao.xml" />
+    	<mapper resource="collectCmdsProcessParaDao.xml" />
+    	<mapper resource="cmdsSupportDao.xml" />
+    	<!-- policy -->
+    	<mapper resource="policyActionDAO.xml" />
+    	<mapper resource="policyEventDAO.xml" />
+    	<mapper resource="policyMetricDao.xml" />
+    	<mapper resource="policyResAvailRuleGroupDAO.xml" />
+    	<mapper resource="policyResDAO.xml" />
+    	<mapper resource="policyResRelDAO.xml" />
+    	<mapper resource="policyThresholdDAO.xml" />
+    	<!-- resType -->
+    	<mapper resource="resTypeDao.xml" />
+    	<!--  metricBase -->
+    	<mapper resource="metricBaseDao.xml" />
+    	<!-- dict -->
+    	<mapper resource="dictCollFrequencyDao.xml" />
+    	<mapper resource="metricGroupDao.xml" />
+    	<mapper resource="modelSysoidDao.xml" />
+    	<mapper resource="vendorDao.xml" />
+    	<mapper resource="vendorModelDao.xml" />
+    	<mapper resource="eventBaseDao.xml" />
+    </mappers>
+</configuration>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.resmodel.dao.impl.MetridBindingDao">
+
+	<resultMap id="metricBindingResultMap" type="com.riil.base.binding.pojo.MetricBindingPojo">
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="modelId" column="C_MODEL_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="metricId" column="C_METRIC_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="method" column="C_METHOD" javaType="string" jdbcType="VARCHAR" />
+		<result property="className" column="C_CLASSNAME" javaType="string" jdbcType="VARCHAR" />
+		<result property="isDisplayName" column="C_IS_DISPLAYNAME" javaType="byte" jdbcType="TINYINT" />
+		<result property="isInitValue" column="C_IS_INITVALUE" javaType="byte" jdbcType="TINYINT" />
+		<result property="isInstance" column="C_IS_INSTANCE" javaType="byte" jdbcType="TINYINT" />
+	</resultMap>
+	
+	<select id="select_by_all"  resultMap="metricBindingResultMap">
+		SELECT C_ID,   C_MODEL_ID, C_METRIC_ID, C_METHOD, C_CLASSNAME,
+		C_IS_DISPLAYNAME,  C_IS_INITVALUE, C_IS_INSTANCE
+		FROM t_moni_metricbinding
+	</select>
+	
+	<select id="select_by_modelId_metricId" parameterType="java.util.Map" resultMap="metricBindingResultMap">
+		SELECT C_ID,   C_MODEL_ID, C_METRIC_ID, C_METHOD, C_CLASSNAME,
+		C_IS_DISPLAYNAME,  C_IS_INITVALUE, C_IS_INSTANCE
+		FROM t_moni_metricbinding
+		WHERE C_MODEL_ID = #{modelId ,jdbcType=VARCHAR} AND
+		C_METRIC_ID = #{metricId ,jdbcType=VARCHAR} 
+	</select>
+	
+</mapper>

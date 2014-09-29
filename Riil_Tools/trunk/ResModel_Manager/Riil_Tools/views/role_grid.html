@@ -3,7 +3,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>系统管理</title>
+ <% include baseInfo.html %>  
 <link href="/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="/css/table.css">
 <link href="/css/comm.css" rel="stylesheet" type="text/css" />
 <style type="text/css">
 .div_hidden{
@@ -14,9 +16,7 @@
 <script type="text/javascript" src="/js/common/prompt.js"></script>
 <script type="text/javascript" src="/js/common/common.js"></script>
 <script type="text/javascript" src="/js/common/jquery.dataTables.min.js"></script>
- 
- <% include baseInfo.html %>  
- </head>
+</head>
 <body>
        
       <!--tab控件-->
@@ -30,9 +30,9 @@
           <div class="con_t" style="margin:0px 10px 10px 10px; border:0px;">
             <ul>
               <li>
-                <table cellpadding="0" cellspacing="0" border="0" class="display" id="dataTable">
+                <table cellpadding="0" cellspacing="0" border="0" class="t_td table" id="dataTable">
                   <thead>
-                        <tr>  
+                        <tr bgcolor="#ecf1f9">  
                               <th><input type="checkbox"   id="all" >选择</th>
                               <th>角色</th>
                               <th>账号</th>

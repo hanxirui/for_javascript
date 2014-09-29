@@ -181,8 +181,10 @@ public class ImportFile2Db {
 			S_LOGGER.info("import metricGroupRsl.....");
 		}
 		importMetricGroupRel();
-		
-		
+		if (S_LOGGER.isInfoEnabled()) {
+			S_LOGGER.info("import modelSysOid.....");
+		}
+		importModelSysoid();
 	}
 	
 	public void importMetricGroupRel() throws ServiceException, ContainerException{
@@ -260,6 +262,7 @@ public class ImportFile2Db {
 		DBServiceProxy.removeAllModel();
 		List<ModelBasePojo> t_insertList = new ArrayList<ModelBasePojo>();
 		for (Model pojo : t_list) {
+			pojo.setTag4(pojo.getProcessor());
 			t_insertList.add(pojo);
 		}
 		DBServiceProxy.createBatchModel(t_insertList);
@@ -330,19 +333,10 @@ public class ImportFile2Db {
 	 * @throws ServiceException
 	 * @throws ContainerException
 	 */
-	// @Test
 	public void importModelSysoid() throws ServiceException, ContainerException {
-		
 		List<ModelSysoidPojo> t_list = getDictService().getDictPojo().getListDictSysoidPojo();
 		DBServiceProxy.removeAllModelSysoid();
-
-		if (isBatch) {
-			DBServiceProxy.createBatchModelSysoid(t_list);
-			return;
-		}
-		for (ModelSysoidPojo pojo : t_list) {
-			DBServiceProxy.createModelSysoid(pojo);
-		}
+		DBServiceProxy.createBatchModelSysoid(t_list);
 	}
 
 	public void importPolicy() throws ServiceException, ContainerException {
@@ -560,6 +554,7 @@ public class ImportFile2Db {
 						t_collectCmdsProcessorList.add(t_collectCmdsProcessor);
 						
 						List<String> t_parameters = t_collectCmds.getParameter();
+						int sortId = 0;
 						for (String t_parameter : t_parameters) {
 							CollectCmdsProcessPara t_collectCmdsProcessPara = new CollectCmdsProcessPara();
 							String t_connProtocalUuid = UUID.randomUUID().toString();
@@ -567,7 +562,8 @@ public class ImportFile2Db {
 							t_collectCmdsProcessPara.setParameter(t_parameter);
 							t_collectCmdsProcessPara.setProcessorId(t_collectCmdsProcessorId);
 							//TODO 取不到sort
-//							t_collectCmdsProcessPara.setSortId(sortId);
+							t_collectCmdsProcessPara.setSortId(String.valueOf(sortId));
+							sortId++;
 							t_collectCmdsProcessParaList.add(t_collectCmdsProcessPara);
 						}
 					}
@@ -638,6 +634,7 @@ public class ImportFile2Db {
 				t_bindingList.add(t_pojo);
 				
 				List<String> t_metricProcessorParas = t_binding.getParameter();
+				int sortId = 0;
 				for (String t_metricProcessorPara : t_metricProcessorParas) {
 					MetricProcessPara t_metricProcessPara = new MetricProcessPara();
 					String t_metricProcessParaUuid = UUID.randomUUID().toString();
@@ -645,7 +642,8 @@ public class ImportFile2Db {
 					t_metricProcessPara.setMetricBindingId(t_uuid);
 					t_metricProcessPara.setParameter(t_metricProcessorPara);
 					//TODO 取不到sort
-//					t_metricProcessPara.setSortId(sortId);
+					t_metricProcessPara.setSortId(String.valueOf(sortId));
+					sortId++;
 					t_processParaList.add(t_metricProcessPara);
 				}
 			}

@@ -9,9 +9,11 @@ $(document).ready(function() {
 
 	var table = $('#dataTable').dataTable({
 		"oLanguage": GIRD_I18N,
-		"bFilter": true,
-		"bLengthChange": true,
+		"bFilter": false,
+		"bLengthChange": false,
 		"bAutoWidth": true,
+		"bProcessing": true,
+		"aLengthMenu": [22],
 		"ajax": ctx + "/resmodel/admin/userdata/query/1",
 		"initComplete": initCheckBox,
 		"columns": [{

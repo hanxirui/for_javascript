@@ -14,6 +14,9 @@ function initGrid() {
 		"oLanguage": GIRD_I18N,
 		"bFilter": true,
 		"bLengthChange": false,
+		"bAutoWidth": true,
+		"bProcessing": true,
+		"aLengthMenu": [22],
 		"ajax": ctx + "/resmodel/admin/role/load/users",
 		"initComplete": initCheckBox,
 		"columns": [{

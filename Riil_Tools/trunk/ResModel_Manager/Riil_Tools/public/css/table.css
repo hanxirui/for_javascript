@@ -12,11 +12,19 @@ table.dataTable {
    * Body styles
    */
 }
-table.dataTable tbody td {
-  padding: 8px 10px;
+table.dataTable tbody td{
+  /*padding: 8px 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width:120px !important;
-  word-wrap: break-word
+  word-wrap: break-word;*/
+  overflow:hidden; 
+  white-space:nowrap; 
+  text-overflow:ellipsis; 
+  -o-text-overflow:ellipsis; 
+  -icab-text-overflow: ellipsis; 
+  -khtml-text-overflow: ellipsis; 
+  -moz-text-overflow: ellipsis; 
+  -webkit-text-overflow: ellipsis; 
 }

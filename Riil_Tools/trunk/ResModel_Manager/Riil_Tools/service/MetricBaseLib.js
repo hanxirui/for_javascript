@@ -78,7 +78,7 @@ exports.saveMetricGroupRelation = function (sqlparam) {
  * @return {Object} 指标信息recordSet对象
  */
 //"UPDATE t_moni_metric_base SET c_id=:metric_id,c_name=:metric_name,c_desc=:metric_desc,c_metric_type=:metric_type,c_unit=:metric_unit,c_data_type=:metric_datatype,c_is_custom=:metric_iscustom,c_user_id=:metric_userid WHERE id =:metric_id",
-exports.saveMetricBaseModify = function (sqlparam) {
+/*exports.saveMetricBaseModify = function (sqlparam) {
     var userId="liutong";
     console.log(sqlparam);
     var myQ = Q.defer();
@@ -89,7 +89,7 @@ exports.saveMetricBaseModify = function (sqlparam) {
         myQ.reject(err);
     });
     return myQ.promise;
-};
+};*/
 
 /**
  * 删除指标
@@ -123,7 +123,17 @@ exports.deleteMetricBaseById = function (metricId) {
 //metric.c_name=? and metric.c_metric_type=? and metric.c_id=?
 exports.getMetricBaseByCondition = function (condition) {
     var myQ = Q.defer();
-    commander.get("t_moni_metric_base.select_by_condation", [condition.metric_name, condition.metric_type, condition.metric_id]).then(function (recordset) {
+    var sql = "SELECT * FROM (SELECT metric.c_id AS metricId,metric.c_name AS metricName,metric.c_unit AS metricUnit,metric.c_data_type AS dataType,metric.c_metric_type AS metricType,metric.c_desc AS metricDesc,metric.c_is_custom AS isCustom,metric.c_user_id AS metricUser,grouprel.c_metric_group_id AS groupRelId,GROUP_CONCAT(mgroup.c_name) AS groupName,GROUP_CONCAT(mgroup.c_id) AS groupId FROM t_moni_metric_base AS metric,t_moni_metric_group_rel AS grouprel,t_moni_metric_group AS mgroup WHERE  metric.c_id = grouprel.c_metric_id AND mgroup.c_id = grouprel.c_metric_group_id  GROUP BY metric.c_id) temp where 1=1";
+    if(condition.type !== ''){
+        sql += " AND metricType ='" + condition.type + "'";
+    }
+    if(condition.groupId !== ''){
+        sql += " AND FIND_IN_SET('" + condition.groupId + "', temp.groupId)";
+    }
+    if(condition.metricName !== ''){
+        sql += " AND metricName LIKE '%" + condition.metricName + "%'";
+    }
+    commander.getBySql(sql, []).then(function (recordset) {
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);
@@ -141,7 +151,7 @@ exports.getMetricBaseByCondition = function (condition) {
 
 exports.getMetricTypeList = function () {
     var myQ = Q.defer();
-    commander.get('t_moni_metric_base.selectMetricName', []).then(function (recordset) {
+    commander.get('t_moni_metric_base.selectMetricType', []).then(function (recordset) {
         var jsonStr = JSON.stringify(recordset);
         var obj = JSON.parse(jsonStr);
         if (obj.isError) {
@@ -165,7 +175,7 @@ exports.getMetricTypeList = function () {
 
 exports.getMetricGroupList = function () {
     var myQ = Q.defer();
-    commander.get('t_moni_metric_base.selectMetricType', []).then(function (recordset) {
+    commander.get('t_moni_metric_group.select', []).then(function (recordset) {
         var jsonStr = JSON.stringify(recordset);
         var obj = JSON.parse(jsonStr);
         if (obj.isError) {

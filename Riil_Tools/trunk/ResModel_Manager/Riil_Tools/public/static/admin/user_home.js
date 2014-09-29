@@ -1,8 +1,8 @@
 $(document).ready(function(){
-    var $url=window.location.origin + "/resmodel/admin/leftpage";
+    var $url = ctx + "/resmodel/admin/leftpage";
 	$("#home_left").load( $url,function(data){
 		var iframedom = $('#user_message')[0];
-		iframedom.src = window.location.origin+ "/resmodel/admin/userdata/1";
+		iframedom.src = ctx + "/resmodel/admin/userdata/1";
 	});
  
     

@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.resmodel.dao.impl.modelSysoidDao">
+
+	<resultMap id="modelSysoidResultMap" type="com.riil.base.resmodel.pojo.vendor.ModelSysoidPojo">
+		<result property="modelId" column="C_MODEL_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="resTypeId" column="C_RESTYPE_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="osType" column="C_OS_TYPE" javaType="string" jdbcType="VARCHAR" />
+		<result property="devType" column="C_DEV_TYPE" javaType="string" jdbcType="VARCHAR" />
+		<result property="sysOid" column="C_SYS_OID" javaType="string" jdbcType="VARCHAR" />
+		<result property="vendorModelId" column="C_VENDOR_MODEL_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="vendorId" column="C_VENDOR_ID" javaType="string" jdbcType="VARCHAR" />
+	</resultMap>
+	<!-- Select All POJO object -->
+	<select id="select_all"  resultMap="modelSysoidResultMap">
+		SELECT C_MODEL_ID, C_RESTYPE_ID,
+		C_OS_TYPE, C_DEV_TYPE,  C_SYS_OID, C_VENDOR_MODEL_ID,C_VENDOR_ID
+		FROM t_moni_model_sysoid
+	</select>
+</mapper>

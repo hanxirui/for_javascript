@@ -20,6 +20,10 @@ module.exports = function(app) {
  	var metricGroupController = require('./metricGroupController');
  	/**资源模型管理*/
  	var resModelCotroller = require('./resourceModelCotroller');
+ 	/**审计日志*/
+ 	var logController = require('./logController');
+ 	/**导出*/
+ 	var exportController = require('./resmodelExport');
 
 
     //
@@ -42,6 +46,10 @@ module.exports = function(app) {
  	app.use('/resmodel/metricGroupController', metricGroupController);
  	/**资源模型管理*/
  	app.use('/resmodel/resModelCotroll', resModelCotroller);
+ 	/**审计日志*/
+ 	app.use('/resmodel/logController', logController);
+ 	/**导出*/
+ 	app.use('/resmodel/exportController', exportController);
 
     //
 	console.log('Loading Router is Completed');

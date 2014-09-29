@@ -35,7 +35,7 @@ CREATE TABLE t_moni_event_base
 	c_tag1 VARCHAR(50) COMMENT '冗余字段1',
 	c_tag2 VARCHAR(50) COMMENT '冗余字段2',
 	c_tag3 VARCHAR(50) COMMENT '冗余字段3',
-	c_tag4 VARCHAR(50) COMMENT '冗余字段4',
+	c_tag4 VARCHAR(500) COMMENT '冗余字段4(存模型的processor)',
 	PRIMARY KEY (c_id),
 	UNIQUE UQ_temp_event(c_event_id, c_moni_temp_id),
 	INDEX idx_temp_id (c_moni_temp_id ASC)

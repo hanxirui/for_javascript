@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.riil.resmodel.dao.impl.CollectCmdsDao">
+
+	<resultMap id="collectCmdsResultMap" type="com.riil.base.binding.pojo.CollectCmdsPojo">
+		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="metricBindingId" column="C_METRICBINDING_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="isDefault" column="C_IS_DEFAULT" javaType="byte" jdbcType="TINYINT" />
+		<result property="isDynamic" column="C_IS_DYNAMIC" javaType="byte" jdbcType="TINYINT" />
+		<result property="sortId" column="C_SORT_ID" javaType="string" jdbcType="INTEGER" />
+	</resultMap>
+	<select id="select_by_all" resultMap="collectCmdsResultMap">
+		SELECT C_ID, C_METRICBINDING_ID,C_IS_DEFAULT,C_IS_DYNAMIC,C_SORT_ID
+		FROM
+		t_moni_cmds_group
+    </select>
+	<select id="select_by_bingId" parameterType="string" resultMap="collectCmdsResultMap">
+		SELECT C_ID, C_METRICBINDING_ID,C_IS_DEFAULT,C_IS_DYNAMIC,C_SORT_ID
+		FROM
+		t_moni_cmds_group
+		WHERE C_METRICBINDING_ID = #{metricBindingId ,jdbcType=VARCHAR}
+    </select>
+</mapper>

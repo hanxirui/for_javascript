@@ -5,7 +5,8 @@ $(document).ready(function() {
 		"oLanguage": GIRD_I18N,
 		"bFilter": false,
 		"bLengthChange": false,
-		"aLengthMenu": [13],
+		"aLengthMenu": [22],
+		"bProcessing": true,
 		"bAutoWidth": true,
 		"ajax": ctx + "/resmodel/metricGroupController/getAllMetricGroupInfos",
 		/*"aaData" : JSON.parse(data),*/

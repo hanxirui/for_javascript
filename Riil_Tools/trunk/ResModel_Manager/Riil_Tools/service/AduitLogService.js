@@ -49,3 +49,40 @@ exports.insertLog = function(paramJson) {
     }
     return getQ.promise;
 };
+exports.getAduitLogList = function() {
+    var recordSet = new RecordSet();
+    var getQ = q.defer();
+    try {
+        DataSource.getSession().then(function (session) {
+            var sqlStr = "SELECT c_user,c_time,c_info FROM t_aduit_log";
+            return session.select(sqlStr, [])
+                .fin(function () {
+                    DataSource.release(session);
+                });
+        })
+        .then(function (rows) {
+            recordSet.isError = false;
+            recordSet.errMessage = "SqlCommand.get succeed";
+            var index = 0;
+            for (var record in rows[0]) {
+                recordSet.fields[index] = record;
+                index++;
+            }
+            recordSet.fieldCount = recordSet.fields.length;
+            recordSet.rows = rows;
+            recordSet.recourdCount = rows.length;
+            getQ.resolve(recordSet);
+        })
+        .fail(function (err) {
+            recordSet.isError = true;
+            recordSet.errMessage = "SqlCommand.del error,error message = " + err.toString();
+            getQ.reject(recordSet);
+        });
+    }catch (er) {
+        logger.writeErr('AduitLog.select error,' + er);
+        recordSet.isError = true;
+        recordSet.errMessage = errMsg;
+        getQ.reject(recordSet);
+    }
+    return getQ.promise;
+};

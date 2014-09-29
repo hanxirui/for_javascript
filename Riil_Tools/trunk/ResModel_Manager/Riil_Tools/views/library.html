@@ -6,7 +6,8 @@
 <title>Insert title here</title>
 <link href="/css/comm.css" rel="stylesheet" type="text/css" />
 <link href="/css/pop.css" rel="stylesheet" type="text/css" />
-
+<link href="/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="/css/table.css">
 <script type="text/javascript" src="/js/common/jquery-1.9.0.js"></script>
 <script type="text/javascript" src="/js/common/common.js"></script>
 <script type="text/javascript" src="/js/common/prompt.js"></script>
@@ -15,44 +16,51 @@
 <% include baseInfo.html %>
 </head>
 <body>
-	<div id="form_div">
-		<form id="form1" method="post" action="">
-			<!--tab控件-->
-			<div id="tabDiv" style="padding: 0px;">
-				<!--tab头-->
-				<div id="tabsHead">
-					<a class="curtab" id="tabs1"
-						href="javascript:showTab('tabs1','tabContent1')">指标信息</a>
-				</div>
-				<div id="tabContent2" style="display: block;">
-					<div class="btn_top">
-						<a class="btn"
-							onclick="deleteMetric();">删除</a><a class="btn"
-							target="_blank" onclick="pop()">添加</a>
-					</div>
-					<div class="con_t" style="margin: 0px 10px 10px 10px; border: 0px;">
-						<ul>
-							<li>
-								<table width="100%" cellspacing="0" cellpadding="0" id="libraryData" class="t_td table">
-									<thead>
-										<tr bgcolor="#ecf1f9">
-											<td width="5%"><input id="all" name="all" type="checkbox" onclick="checkAll()" /></td>
-											<td width="15%">名称</td>
-											<td width="15%">类型</td>
-											<td width="15%">分组</td>
-											<td width="15%">单位</td>
-											<td width="10%">数据类型</td>
-											<td width="15%">描述</td>
-											<td width="10%">添加人</td>
-										</tr>
-									</thead>
-								</table>
-							</li>
-						</ul>
-					</div>
-				</div>
-			</div>
-		</form>
-	</div>
+  <div id="form_div">
+    <form id="form1" method="post" action="">
+      <!--tab控件-->
+      <div id="tabDiv" style="padding: 0px;">
+        <!--tab头-->
+        <div id="tabsHead">
+          <a class="curtab" id="tabs1"
+            href="javascript:showTab('tabs1','tabContent1')">指标库信息</a>
+        </div>
+        <div id="tabContent2" style="display: block;">
+          <div class="btn_top">
+            <div class="f_left"><span class="f_left" style="padding-top:4px;">类型：
+              <select name="typeSelect" id="typeSelect" style="width:100px" class="ml_20" onchange="searchMetricLibInfos();">
+              </select>&nbsp;&nbsp;分组：
+              <select name="groupSelect" id="groupSelect" style="width:100px" class="ml_20" onchange="searchMetricLibInfos();">
+              </select>&nbsp;&nbsp;
+              <input name="searchMetricName" type="text" id="searchMetricName" value="请输入指标名称进行搜索" size="40" onblur="searchOnblur();" onfocus="searchOnfocus();">
+            </span> <a onclick="searchMetricLibInfos();" class="ico search f_left" title="搜索"></a></div>
+            <div class="f_right"><a class="btn"
+              onclick="deleteMetric();">删除</a><a class="btn"
+              target="_blank" onclick="pop()">添加</a></div>
+          </div>
+          <div class="con_t" style="margin: 0px 10px 10px 10px; border: 0px;">
+            <ul>
+              <li>
+                <table width="100%" cellspacing="0" cellpadding="0" id="libraryData" class="t_td table">
+                  <thead>
+                    <tr bgcolor="#ecf1f9">
+                      <td width="5%"><input id="all" name="all" type="checkbox" onclick="checkAll()" /></td>
+                      <td width="15%">名称</td>
+                      <td width="15%">类型</td>
+                      <td width="15%">分组</td>
+                      <td width="15%">单位</td>
+                      <td width="10%">数据类型</td>
+                      <td width="15%">描述</td>
+                      <td width="10%">添加人</td>
+                    </tr>
+                  </thead>
+                </table>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
 </body>
 </html>

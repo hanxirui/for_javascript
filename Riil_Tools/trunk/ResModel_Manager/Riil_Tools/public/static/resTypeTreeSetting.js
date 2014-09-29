@@ -11,8 +11,11 @@ function zTreeOnClick(event, treeId, treeNode) {
     var iframedom = $('#model_add')[0];
     if(!iframedom){
       iframedom = $(window.parent.document).find('iframe[id=model_add]');
+      var url = ctx + '/resmodel/resourceTypeCotroller/getResourceTypeAdd?modelId=' + treeNode.modelId;
+      iframedom.attr('src', url);
+    }else{
+      iframedom.src = ctx + '/resmodel/resourceTypeCotroller/getResourceTypeAdd?modelId=' + treeNode.modelId;
     }
-    iframedom.src = ctx + '/resmodel/resourceTypeCotroller/getResourceTypeAdd?modelId=' + treeNode.modelId;
   }
 }
 var setting = {

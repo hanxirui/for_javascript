@@ -1,7 +1,7 @@
 /* jshint jquery:true */
 /* jslint devel */
 /*jslint browser:true*/
-/*global ctx,vendorId,parentId,isMain,id,err_msg_show,alert,closeWin,setting,console,zTreeObj */
+/*global ctx,vendorId,parentId,isMain,id,err_msg_show,alert,closeWin,setting,console,zTreeObj,refreshResTypeTree */
 'use strict';
 $(document).ready(function () {
   $('#resTypeId_msg').text('ID必须以RIIL_RMT开头');
@@ -20,9 +20,9 @@ $(document).ready(function () {
   if (parentId !== '') {
     $('#isMainType').removeAttr('disabled');
     $('#notMainType').removeAttr('disabled');
-    $('#scanImg').css('display', 'inline');
+    /*$('#scanImg').css('display', 'inline');*/
   } else {
-    $('#scanImg').css('display', 'none');
+    /*$('#scanImg').css('display', 'none');*/
   }
   if (isMain !== '') {
     if (isMain === '1') {
@@ -31,11 +31,10 @@ $(document).ready(function () {
       $('#notMainType').attr('checked', 'checked');
     }
   }
-  var imageName = $('#manufIcon').attr('value');
-  if (imageName !== '') {
+  if (vendorImg !== '') {
     var path = window.location.href;
     var imagePath = path.substring(0, path.indexOf('/resmodel')) + '/images/template/';
-    imagePath += imageName;
+    imagePath += vendorImg;
     $('#image_display').attr('src', imagePath);
   }
 });
@@ -43,7 +42,7 @@ $(document).ready(function () {
 function checkIdRepeat() {
   var resTypeId = $('#resTypeId').val();
   var noRepeat = true;
-  if (!resTypeId) {
+  if (resTypeId !== '') {
     if (resTypeId !== id) {
       var data = {
         'id': resTypeId
@@ -126,15 +125,42 @@ function updateResTypeInfo() {
   }
 }
 
+function checkUploadImgRepeat(imgName) {
+  var imgNotRepeat = true;
+  if (imgName !== '') {
+    $.ajax({
+      type: 'get',
+      url: ctx + '/resmodel/manufController/checkImgName',
+      data: {
+        imgName: imgName
+      },
+      dataType: 'json',
+      success: function (data) {
+        if (data.msg === '1') {
+          err_msg_show('manufIcon', 'upload_msg', '名称重复', true);
+          imgNotRepeat = false;
+        } else {
+          err_msg_show('manufIcon', 'upload_msg', '', false);
+          imgNotRepeat = true;
+        }
+      },
+      error: function () {
+        alert('查询错误');
+        imgNotRepeat = false;
+      }
+    });
+  }
+  return imgNotRepeat;
+}
+
 function addResTypeInfo() {
-  if (checkIdNoNull() && checkIdRepeat()) {
-    /**上传图片*/
+  var c_icon = $('#manufIcon').val();
+  if (checkIdNoNull() && checkIdRepeat() && checkUploadImgRepeat(c_icon)) {
     $('#submitBtn').click();
     var c_id = $('#resTypeId').val();
     var c_name = $('#resTypeName').val();
     var c_is_main = $('input:radio[name="mainType"]:checked').val();
     var c_vendor_id = $('#manufSelect option:selected').val();
-    var c_icon = $('#manufIcon').val();
     var resTypeInfo = {
       'c_id': c_id,
       'c_name': c_name,
@@ -151,8 +177,8 @@ function addResTypeInfo() {
       //async:true,//表示该ajax为同步的方式
       success: function (data) {
         if (data.msg === '1') {
-          //refreshResTypeTree();
-          parent.location.reload();
+          refreshResTypeTree();
+          //parent.location.reload();
           alert('操作成功');
         } else {
           alert('操作失败');
@@ -177,22 +203,102 @@ function submitClick() {
   }
 }
 
-function checkUploadImgRepeat(imgName) {
-  if (!imgName) {
+function checkfile(fileObj, imgPreviewId, divPreviewId) {
+  var str = $('#manuf_icon').val();
+  str = str.substring(str.lastIndexOf('\\') + 1, str.length);
+  if (checkUploadImgRepeat(str)) {
+    $('#manufIcon').attr('value', str);
+    /**预览图片*/
+    //js本地图片预览，兼容ie[6-9]、火狐、Chrome17+、Opera11+、Maxthon3、360浏览器
+    var allowExtention = '.jpg,.bmp,.png'; //允许上传文件的后缀名document.getElementById('hfAllowPicSuffix').value;
+    var extention = fileObj.value.substring(fileObj.value.lastIndexOf('.') + 1).toLowerCase();
+    var browserVersion = window.navigator.userAgent.toUpperCase();
+    if (allowExtention.indexOf(extention) > -1) {
+      if (fileObj.files) { //兼容chrome、火狐7+、360浏览器5.5+等，应该也兼容ie10，HTML5实现预览
+        if (window.FileReader) {
+          var reader = new window.FileReader();
+          reader.onload = function (e) {
+            document.getElementById(imgPreviewId).setAttribute('src', e.target.result);
+          };
+          if (fileObj.files[0].size > 102400) {
+            alert('图片附件超过100k');
+            return false;
+          }
+          reader.readAsDataURL(fileObj.files[0]);
+        } else if (browserVersion.indexOf('SAFARI') > -1) {
+          alert('不支持Safari浏览器6.0以下版本的图片预览!');
+          return false;
+        }
+      } else if (browserVersion.indexOf('MSIE') > -1) { //ie、360低版本预览
+        if (browserVersion.indexOf('MSIE 6') > -1) { //ie6
+          document.getElementById(imgPreviewId).setAttribute('src', fileObj.value);
+        } else { //ie[7-9]
+          fileObj.select();
+          //obj.blur();在本页可以,但如果是IFrame的页面,就只能用 window.parent.focus(); 
+          window.parent.focus();
+          var imageUrl = document.selection.createRange().text || fileObj.value;
+          var newPreview = document.getElementById(divPreviewId + 'New');
+          if (!newPreview) {
+            newPreview = document.createElement('div');
+            newPreview.setAttribute('id', divPreviewId + 'New');
+            newPreview.style.width = document.getElementById(imgPreviewId).width + 'px';
+            newPreview.style.height = document.getElementById(imgPreviewId).height + 'px';
+            newPreview.style.border = 'solid 1px #d2e2e2';
+            newPreview.style.display = 'inline';
+          }
+          newPreview.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod="scale",src="' + imageUrl + '")';
+          var tempDivPreview = document.getElementById(divPreviewId);
+          tempDivPreview.parentNode.insertBefore(newPreview, tempDivPreview);
+          tempDivPreview.style.display = 'none';
+          document.getElementById(imgPreviewId).style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod="scale",src="' + imageUrl + '")';
+        }
+      } else if (browserVersion.indexOf('FIREFOX') > -1) { //firefox
+        var firefoxVersion = parseFloat(browserVersion.toLowerCase().match(/firefox\/([\d.]+)/)[1]);
+        if (fileObj.files[0].size > 102400) {
+          alert('图片附件超过100k');
+          return false;
+        }
+        if (firefoxVersion < 7) { //firefox7以下版本
+          document.getElementById(imgPreviewId).setAttribute('src', fileObj.files[0].getAsDataURL());
+        } else { //firefox7.0+
+          document.getElementById(imgPreviewId).setAttribute('src', window.URL.createObjectURL(fileObj.files[0]));
+        }
+      } else {
+        document.getElementById(imgPreviewId).setAttribute('src', fileObj.value);
+      }
+    } else {
+      alert('仅支持' + allowExtention + '为后缀名的文件!');
+      fileObj.value = ''; //清空选中文件
+      if (browserVersion.indexOf('MSIE') > -1) {
+        fileObj.select();
+        document.selection.clear();
+      }
+      //fileObj.outerHTML = fileObj.outerHTML;
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function manufSelectChange(){
+  var manuf_val = $("#manufSelect").val();
+  if(manuf_val !== ''){
+    //根据厂商ID查询对应厂商图标
     $.ajax({
       type: 'get',
-      url: ctx + '/resmodel/manufController/checkImgName',
+      url: ctx + '/resmodel/resourceTypeCotroller/getManufImg',
       data: {
-        imgName: imgName
+        id: manuf_val
       },
       dataType: 'json',
       success: function (data) {
-        if (data.msg === '1') {
-          err_msg_show('manufIcon', 'upload_msg', '名称重复', true);
-          window.imgNotRepeat = false;
-        } else {
-          err_msg_show('manufIcon', 'upload_msg', '', false);
-          window.imgNotRepeat = true;
+        console.log(data.data.c_manuf_icon);
+        if(typeof data.data.c_manuf_icon !== 'undefined'){
+          var path = window.location.href;
+          var imagePath = path.substring(0, path.indexOf('/resmodel')) + '/images/template/';
+          imagePath += data.data.c_manuf_icon;
+          $('#image_display').attr('src', imagePath);
         }
       },
       error: function () {
@@ -201,80 +307,3 @@ function checkUploadImgRepeat(imgName) {
     });
   }
 }
-
-function checkfile(fileObj, imgPreviewId, divPreviewId) {
-  var str = $('#manuf_icon').val();
-  str = str.substring(str.lastIndexOf('\\') + 1, str.length);
-  checkUploadImgRepeat(str);
-  $('#manufIcon').attr('value', str);
-  /**预览图片*/
-  //js本地图片预览，兼容ie[6-9]、火狐、Chrome17+、Opera11+、Maxthon3、360浏览器
-  var allowExtention = '.jpg,.bmp,.png'; //允许上传文件的后缀名document.getElementById('hfAllowPicSuffix').value;
-  var extention = fileObj.value.substring(fileObj.value.lastIndexOf('.') + 1).toLowerCase();
-  var browserVersion = window.navigator.userAgent.toUpperCase();
-  if (allowExtention.indexOf(extention) > -1) {
-    if (fileObj.files) { //兼容chrome、火狐7+、360浏览器5.5+等，应该也兼容ie10，HTML5实现预览
-      if (window.FileReader) {
-        var reader = new window.FileReader();
-        reader.onload = function (e) {
-          document.getElementById(imgPreviewId).setAttribute('src', e.target.result);
-        };
-        if (fileObj.files[0].size > 102400) {
-          alert('图片附件超过100k');
-          return false;
-        }
-        reader.readAsDataURL(fileObj.files[0]);
-      } else if (browserVersion.indexOf('SAFARI') > -1) {
-        alert('不支持Safari浏览器6.0以下版本的图片预览!');
-        return false;
-      }
-    } else if (browserVersion.indexOf('MSIE') > -1) { //ie、360低版本预览
-      if (browserVersion.indexOf('MSIE 6') > -1) { //ie6
-        document.getElementById(imgPreviewId).setAttribute('src', fileObj.value);
-      } else { //ie[7-9]
-        fileObj.select();
-        //obj.blur();在本页可以,但如果是IFrame的页面,就只能用 window.parent.focus(); 
-        window.parent.focus();
-        var imageUrl = document.selection.createRange().text || fileObj.value;
-        var newPreview = document.getElementById(divPreviewId + 'New');
-        if (!newPreview) {
-          newPreview = document.createElement('div');
-          newPreview.setAttribute('id', divPreviewId + 'New');
-          newPreview.style.width = document.getElementById(imgPreviewId).width + 'px';
-          newPreview.style.height = document.getElementById(imgPreviewId).height + 'px';
-          newPreview.style.border = 'solid 1px #d2e2e2';
-          newPreview.style.display = 'inline';
-        }
-        newPreview.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod="scale",src="' + imageUrl + '")';
-        var tempDivPreview = document.getElementById(divPreviewId);
-        tempDivPreview.parentNode.insertBefore(newPreview, tempDivPreview);
-        tempDivPreview.style.display = 'none';
-        document.getElementById(imgPreviewId).style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod="scale",src="' + imageUrl + '")';
-      }
-    } else if (browserVersion.indexOf('FIREFOX') > -1) { //firefox
-      var firefoxVersion = parseFloat(browserVersion.toLowerCase().match(/firefox\/([\d.]+)/)[1]);
-      if (fileObj.files[0].size > 102400) {
-        alert('图片附件超过100k');
-        return false;
-      }
-      if (firefoxVersion < 7) { //firefox7以下版本
-        document.getElementById(imgPreviewId).setAttribute('src', fileObj.files[0].getAsDataURL());
-      } else { //firefox7.0+
-        document.getElementById(imgPreviewId).setAttribute('src', window.URL.createObjectURL(fileObj.files[0]));
-      }
-    } else {
-      document.getElementById(imgPreviewId).setAttribute('src', fileObj.value);
-    }
-  } else {
-    alert('仅支持' + allowExtention + '为后缀名的文件!');
-    fileObj.value = ''; //清空选中文件
-    if (browserVersion.indexOf('MSIE') > -1) {
-      fileObj.select();
-      document.selection.clear();
-    }
-    //fileObj.outerHTML = fileObj.outerHTML;
-    return false;
-  }
-  return true;
-}
-

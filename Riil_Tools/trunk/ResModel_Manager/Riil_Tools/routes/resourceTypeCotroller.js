@@ -95,6 +95,14 @@ router.post('/getResTypeTree', function (req, res) {
   });
 });
 
+router.get('/getManufImg', function (req, res){
+  manufService.queryIconById(req.query.id, function(r) {
+    res.json({
+      data : r[0]
+    });
+  });
+});
+
 
 
 module.exports = router;

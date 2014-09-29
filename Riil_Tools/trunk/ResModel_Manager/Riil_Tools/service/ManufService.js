@@ -58,8 +58,16 @@ var ManufService = {
 		});
 	},
 	queryImgName : function(imgName, $callback){
-		var sql = "SELECT c_manuf_id,c_manuf_icon FROM t_ml_manuf where c_manuf_icon = :imgName";
+		var sql = "SELECT temp.c_manuf_id FROM (SELECT c_manuf_id,c_manuf_icon FROM t_ml_manuf UNION ALL SELECT c_id AS c_manuf_id,c_vendor_icon AS c_manuf_icon FROM t_moni_vendor) temp WHERE temp.c_manuf_icon = :imgName";
 		commander.getBySql(sql, {'imgName' : imgName}).then(function(recordset){
+		    $callback(recordset.rows);
+		}).fail(function(err){
+    		console.log(err.toString());
+		});
+	},
+	queryIconById : function(id, $callback){
+		var sql = "SELECT temp.c_manuf_icon FROM (SELECT c_manuf_id,c_manuf_icon FROM t_ml_manuf UNION ALL SELECT c_id AS c_manuf_id,c_vendor_icon AS c_manuf_icon FROM t_moni_vendor) temp WHERE temp.c_manuf_id = :id";
+		commander.getBySql(sql, {'id' : id}).then(function(recordset){
 		    $callback(recordset.rows);
 		}).fail(function(err){
     		console.log(err.toString());

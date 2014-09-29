@@ -1,0 +1,10 @@
+truncate table riil_test.t_moni_cmd; 
+truncate table riil_test.t_moni_cmd_filters; 
+truncate table riil_test.t_moni_cmd_properties; 
+truncate table riil_test.t_moni_cmds_conn_protocol; 
+truncate table riil_test.t_moni_cmds_group; 
+truncate table riil_test.t_moni_cmds_process_para; 
+truncate table riil_test.t_moni_cmds_processor; 
+truncate table riil_test.t_moni_cmds_support; 
+truncate table riil_test.t_moni_metric_process_para; 
+truncate table riil_test.t_moni_metricbinding; 

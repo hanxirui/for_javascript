@@ -1,39 +1,19 @@
-<div class="btn_top"><a class="btn">删除</a><a class="btn" href="mat_add01.html" target="_blank">添加</a></div> 
-          <div class="con_t" style="margin:0px 10px 10px 10px; border:0px;">
-            <ul>
-              <li>
-                <table width="100%" cellspacing="0" cellpadding="0" class="t_td table" id="metricTable">
-                  <tbody><tr bgcolor="#ecf1f9">
-                    <td width="30">&nbsp;</td>
-                    <td>名称</td>
-                    <td>实例化</td>
-                    <td>初始化</td>
-                    <td>显示名称</td>
-                    <td>显示名称前缀</td>
-                    <td>计数类型</td>
-                    <td>取值协议</td>
-                  </tr>
-                  <tr>
-                    <td height="26"><input name="" type="checkbox" value=""></td>
-                    <td>内存利用率</td>
-                    <td>否</td>
-                    <td>是</td>
-                    <td>否</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>WMI</td>
-                  </tr>
-                  <tr>
-                    <td height="26"><input name="" type="checkbox" value=""></td>
-                    <td>CPU利用率</td>
-                    <td>否</td>
-                    <td>是</td>
-                    <td>否</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>WMI</td>
-                  </tr>
-                </tbody></table>
-              </li>
-            </ul>
-          </div>
+<div class="btn_top"><a class="btn" onclick="resmodelMetric.delResmodelMetric()">删除</a><a class="btn" onclick="resmodelMetric.popMetricAddPage()">添加</a></div> 
+<div class="con_t" style="margin:0px 10px 10px 10px; border:0px;">
+  <ul>
+    <li>
+      <table width="100%" cellspacing="0" cellpadding="0" class="t_td table" id="metricTable">
+        <thead><tr bgcolor="#ecf1f9">
+          <th width="20"><input name="input3" type="checkbox" id="all"></th>
+          <th width="19%">名称</th>
+          <th width="19%">实例化</th>
+          <th width="19%">初始化</th>
+          <th width="19%">显示名称</th>
+          <th width="15%">显示名称前缀</th>
+          <th width="9%">取值协议</th>
+        </tr>
+      </thead></table>
+    </li>
+  </ul>
+</div>
+<script type="text/javascript" src="/static/resModel/resmodel_metric.js"></script>

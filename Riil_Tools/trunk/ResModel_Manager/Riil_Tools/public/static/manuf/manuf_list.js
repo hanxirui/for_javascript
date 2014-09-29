@@ -13,6 +13,8 @@ $(document).ready(function() {
 		"bFilter": false,
 		"bLengthChange": false,
 		"bAutoWidth": true,
+		"bProcessing": true,
+		"aLengthMenu": [22],
 		"ajax": ctx + "/resmodel/manufController/getAllManufInfos",
 		/*"aaData" : JSON.parse(data),*/
 		"initComplete": initCheckBox,
@@ -69,6 +71,8 @@ $(document).ready(function() {
 		"bFilter": false,
 		"bLengthChange": false,
 		"bAutoWidth": true,
+		"bProcessing": true,
+		"aLengthMenu": [22],
 		"ajax": ctx + "/resmodel/vendorController/getAllVendorInfos",
 		"initComplete": initCheckBoxVendor,
 		"columns": [
@@ -104,9 +108,15 @@ $(document).ready(function() {
 					}
 				}
 			},{
-				"data": "c_model_number"
+				"data": "c_model_number",
+				"render": function (data, type, row){
+					return '<span title="' + data + '">'+ data +'</span>';
+				}
 			},{
-				"data": "c_series"
+				"data": "c_series",
+				"render": function (data, type, row){
+					return '<span title="' + data + '">'+ data +'</span>';
+				}
 			},{
 				"data": "c_vendor_name"
 			},{

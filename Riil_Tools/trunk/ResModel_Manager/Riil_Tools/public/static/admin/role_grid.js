@@ -1,10 +1,13 @@
 $(document).ready(function() {
 
-
+	debugger;
 	var table = $('#dataTable').dataTable({
 		"oLanguage": GIRD_I18N,
-		"bFilter": true,
-		"bLengthChange": true,
+		"bFilter": false,
+		"bLengthChange": false,
+		"bAutoWidth": true,
+		"bProcessing": true,
+		"aLengthMenu": [22],
 		"ajax": ctx + "/resmodel/admin/role/" + role_id,
 		"initComplete": initCheckBox,
 		"columns": [{
@@ -88,7 +91,7 @@ function initDel() {
 	});
 
 };
-var ctx = window.location.origin;
+/*var ctx = window.location.origin;*/
 var userRight = {
 	titleCheckBox: function() {
 		var allCk = document.getElementById("title_checkbox");

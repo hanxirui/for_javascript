@@ -47,10 +47,10 @@ exports.saveModelMetricRelation = function (sqlparam) {
     var metricIdArray = sqlparam.metricid;
     var resTypeId = sqlparam.restypeid;
     var logContent="";
-    metricIdArray.forEach(function(metric_id){
+     metricIdArray.forEach(function(metric_id){
         logContent="";
         logContent="资源模型管理,添加模型与指标间的关系"+"metricid:" +metric_id ;
-        commander.save("t_moni_model_metric_rel.insert", {modelid:modelId,metricid:metric_id,restypeid:resTypeId},{user:userId,info:logContent}).then(function (recordset) {
+        commander.save("t_moni_model_metric_rel.insert", {modelId:modelId,metricId:metric_id,resTypeId:resTypeId},{user:userId,info:logContent}).then(function (recordset) {
             myQ.resolve(recordset);
         }).fail(function (err) {
             myQ.reject(err);
@@ -60,6 +60,9 @@ exports.saveModelMetricRelation = function (sqlparam) {
     return myQ.promise;
 };
 
+exports.saveModelMetricRelation = function (transaction, modelmetricrel) {
+    return transaction.save("t_moni_model_metric_rel.insert", modelmetricrel);
+};
 
 /**
  * 删除模型与指标之间的关系
@@ -107,18 +110,76 @@ exports.deleteModelMetricRelation = function(modelId,metricId){
  * @return {Object} 指标信息recordSet对象
  */
 exports.getModelMetricList = function (modelId) {
+//    var myQ = Q.defer();
+//    commander.get('t_moni_model_base.selectById', [modelId]).then(function (recordset) {
+//        var jsonStr = JSON.stringify(recordset);
+//        console.log(jsonStr);
+//        var obj = JSON.parse(jsonStr);
+//        if (obj.isError) {
+//            myQ.reject(obj);
+//        } else {
+//            myQ.resolve(obj);
+//        }
+//    }).fail(function (err) {
+//        myQ.reject(err);
+//    });
+//    return myQ.promise;
+
     var myQ = Q.defer();
-    commander.get('t_moni_model_base.selectById', [modelId]).then(function (recordset) {
-        var jsonStr = JSON.stringify(recordset);
-        console.log(jsonStr);
-        var obj = JSON.parse(jsonStr);
-        if (obj.isError) {
-            myQ.reject(obj);
-        } else {
-            myQ.resolve(obj);
+    Q.spread([
+        commander.getBySql('SELECT metricBase.c_id AS metricId,'+
+        'metricBinding.c_id AS metricBindingId,'+
+        'metricBase.c_name AS metricName,'+
+        'metricBinding.c_is_instance AS isInstance,'+
+        'metricBinding.c_is_initvalue AS isInitValue,'+
+        'metricBinding.c_is_displayname AS isDisplayName,'+
+        'SUBSTRING(modelMetricRel.c_model_id,1,8) AS modelId,'+
+        'metricBase.c_is_custom AS isCustom '+
+        ' FROM '+
+        't_moni_metric_base AS metricBase,'+
+        't_moni_model_metric_rel AS modelMetricRel,'+
+        't_moni_cmds_group AS commandGroup,'+
+        't_moni_metricbinding AS metricBinding'+
+        ' WHERE  metricBase.c_id = modelMetricRel.c_metric_id '+
+        ' AND modelMetricRel.c_model_id = ?'+
+        ' AND metricBinding.c_model_id = ?'+
+        ' AND metricBinding.c_metric_id = modelMetricRel.c_metric_id'+
+        ' AND commandGroup.c_metricbinding_id = metricBinding.c_id'+
+        ' GROUP BY metricBindingId',[modelId,modelId]),
+
+         commander.getBySql('SELECT t_moni_metricbinding.c_id AS bindingId,t_moni_metricbinding.c_metric_id as metricId,t_moni_cmd.c_protocol As coltProtocol '+
+        ' FROM '+
+        ' t_moni_metricbinding,t_moni_cmds_group,t_moni_cmd'+
+        ' WHERE t_moni_metricbinding.c_model_id = ? '+
+        ' AND t_moni_cmds_group.c_metricbinding_id = t_moni_metricbinding.c_id'+
+        ' AND t_moni_cmd.c_cmds_group_id = t_moni_cmds_group.c_id'+
+        ' AND t_moni_cmd.c_protocol IN ("SNMP","JDBC","WMI")'+
+        ' GROUP BY bindingId',[modelId])
+    ],function(metricResult,collectCmdResult){
+        var  nFind=1;
+        for (var i=0; i< metricResult.recourdCount; i++) {
+            var metricId = metricResult.rows[i][metricResult.fields[0]];
+            var bindingId = metricResult.rows[i][metricResult.fields[1]];
+
+            for (var j=0; j< collectCmdResult.recourdCount;j++) {
+                var bindingId2 = collectCmdResult.rows[j][collectCmdResult.fields[0]];
+                var metricId2 = collectCmdResult.rows[j][collectCmdResult.fields[1]];
+
+                if (bindingId === bindingId2 && metricId === metricId2) {
+                    metricResult.rows[i].coltProtocol = collectCmdResult.rows[j][collectCmdResult.fields[2]];
+                }
+            }
         }
-    }).fail(function (err) {
-        myQ.reject(err);
+        var modelMetricArray = [];
+        for (var p=0; p< metricResult.recourdCount; p++) {
+            if (metricResult.rows[p].coltProtocol !== undefined)
+            {
+                modelMetricArray.push(metricResult.rows[p]);
+            }
+        }
+
+        myQ.resolve(modelMetricArray);
     });
     return myQ.promise;
+
 };

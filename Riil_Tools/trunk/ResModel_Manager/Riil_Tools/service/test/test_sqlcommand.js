@@ -5,7 +5,7 @@
 
 var SqlCommand = require('../class/SQLCommand.js');
 var Q = require('q');
-var commander = new SqlCommand();
+var commander = new SqlCommand(true);
 
 
     function getResult(recordSet) {
@@ -47,9 +47,11 @@ Q.spread([
       get2 : get2
     };
 }).then(function(obj){
+    commander.commit();
     JSON.stringify(obj, ' ', 2);
     console.log('2222',obj.get1.rows);
 }).fail(function(err){
+    commander.rollback();
     console.log('reject: '+err);
 }).catch(function(err){
     console.log('catch: '+err);

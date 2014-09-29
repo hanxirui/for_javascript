@@ -1,8 +1,8 @@
 <script type="text/javascript">
-      var id = '<%- data.c_id%>';
-      var parentId = '';
+      var c_res_type_id = '<%- data.c_res_type_id%>'
+      var parentId = '<%- parentId%>';
 </script>
-<div class="pos_obso btn_bg"><a class="btn" onclick="submitClick();">确定</a></div>
+<div class="pos_obso btn_bg"><a class="btn" id="submitBasicBtn" onclick="submitClick();">确定</a></div>
 <div class="con_t">
 <ul>
 <li class="bg_gray con_b">基础信息</li>
@@ -29,43 +29,63 @@
     </tr>
     <tr>
       <td height="26">资源类型：</td>
-      <td><input id="resType" name="resType" type="text" readonly="" style="width: 200px;">&nbsp;<a id="menuBtn" href="#" onclick="showMenu(); return false;">选择</a></td>
+      <td><input id="resType" name="resType" type="text" readonly="" style="width: 200px;" value="<%=: data.resTypeName|isNull%>">&nbsp;<a id="menuBtn" href="#" onclick="showMenu(); return false;">选择</a></td>
     </tr>
     <tr>
       <td height="26">是否SNMP模型：</td>
       <td><input type="radio" name="isSNMPModel" id="isSNMP" value="1">
       <label for="radio"></label>
       是&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="radio" name="isSNMPModel" id="notSNMP" value="0" checked="checked">
+      <input type="radio" name="isSNMPModel" id="notSNMP" value="-1" checked="checked">
       <label for="radio2"></label>
       否</td>
     </tr>
     <tr>
+      <td height="26">是否主模型：</td>
+      <td><input type="radio" name="mainModel" id="isMainModel" disabled="disabled" value="1">
+      <label for="radio3"></label>
+      是&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="radio" name="mainModel" id="notMainModel" value="-1" disabled="disabled" checked="checked">
+      <label for="radio4"></label>
+      否</td>
+    </tr>
+    <tr>
       <td height="26">所属主模型：</td>
-      <td><input id="mainModelType" name="mainModelType" type="text" readonly="" style="width: 200px;">&nbsp;<a id="mainModelMenuBtn" href="#" onclick="showMainModelMenu(); return false;">选择</a></td>
+      <td><input id="mainModelType" name="mainModelType" type="text" readonly="" style="width: 200px;" value="<%=: data.mainResModelName|isNull%>">&nbsp;<a id="mainModelMenuBtn" href="#" onclick="showMainModelMenu(); return false;">选择</a></td>
     </tr>
     <tr>
       <td height="26">取值插件：</td>
-      <td><select name="pluginSelect" id="pluginSelect" style="width:375px">
+      <td><select name="pluginSelect" id="pluginSelect" style="width:200px">
       </select></td>
     </tr>
     <tr>
       <td height="26">版本：</td>
-      <td><input name="version" type="text" id="version" size="60"></td>
+      <td><input name="version" type="text" id="version" size="60" style="width:200px;"></td>
     </tr>
   </tbody></table>
 </li>
 </ul>
 </div>
 <div id="resTypeContent" class="menuContent" style="position: absolute; left: 142px; top: 230px; display: none;">
-  <ul id="resTypeTree" class="ztree" style="margin-top: 0; width: 185px;"></ul>
+  <ul id="resTypeTree" class="ztree" style="margin-top: 0; width: 185px;height:360px;"></ul>
 </div>
 <div id="mainModelContent" class="mainModelContent" style="position: absolute; left: 142px; top: 230px; display: none;">
-  <ul id="mainModelTree" class="ztree" style="margin-top: 0; width: 185px;"></ul>
+  <ul id="mainModelTree" class="ztree" style="margin-top: 0; width: 185px;height:360px;"></ul>
 </div>
 <script type="text/javascript">
+  if(roleId === 'MAN_ENGINEER'){
+    $("#submitBasicBtn").toggleClass('btn_dis');
+    $("#submitBasicBtn").removeAttr("onclick");
+  }
+  if(parentId !== ''){
+    $('#isMainModel').removeAttr('disabled');
+    $('#notMainModel').removeAttr('disabled');
+  }
   var isSnmp = '<%- data.c_is_snmp%>';
   var pluginId = '<%- data.c_plugin_id%>';
+  if(c_res_type_id != ''){
+    $("#menuBtn").css('display', 'none');
+  }
   $('#modelId_msg').text('ID必须以RIIL_RMM开头');
   $("#modelNameEn").val($("#modelName").val());
   if(isSnmp !== ''){

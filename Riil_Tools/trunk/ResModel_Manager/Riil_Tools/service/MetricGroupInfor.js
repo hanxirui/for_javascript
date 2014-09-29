@@ -3,7 +3,7 @@
  * Created by daihongwei on 2014/8/29.
  */
 var Q = require('q');
-var SqlCommand = require('../service/class/SQLCommand.js');
+var SqlCommand = require('./class/SQLCommand.js');
 var commander = new SqlCommand();
 
 exports.getMetricGroupNameMap = function() {

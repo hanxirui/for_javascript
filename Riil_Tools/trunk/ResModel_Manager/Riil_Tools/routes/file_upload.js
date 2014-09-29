@@ -11,7 +11,7 @@ router.post('/manufImages', function(req, res){
 	    var formidable = require('formidable');
 	    var fs = require('fs');
 	    var form = new formidable.IncomingForm();
-	    var baseUploadPath = './public/manufImages/';
+	    var baseUploadPath = './public/images/template/';
 	    form.parse(req,function(error,fields,files){
 	        if(!error){
 	            var desUploadName = baseUploadPath + files.manuf_icon.name;
