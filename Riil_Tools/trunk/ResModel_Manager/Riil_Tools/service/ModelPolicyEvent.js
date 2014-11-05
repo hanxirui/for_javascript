@@ -4,23 +4,12 @@
  * 资源模型管理 策略事件管理
  */
 var mysql = require('mysql');
-var dbConfig = require('../conf/config.json').db;
 var sqlConfig = require('../conf/config.json').sql;
-
+var SqlCommand = require('../service/class/SQLCommand.js');
+var AduitLogService = require('../service/AduitLogService');
 
 var ModelPolicyEventService = {
-
-    _pool: {},
-    init: function () {
-        ModelPolicyEventService._pool = mysql.createPool({
-            connectionLimit: dbConfig.limit,
-            host: dbConfig.db_host,
-            user: dbConfig.db_user,
-            password: dbConfig.db_pass,
-            database: dbConfig.db_name,
-            port: 3306
-        });
-    },
+    init:function(){},
     /**
      * 获取策略基本信息
      *
@@ -29,7 +18,7 @@ var ModelPolicyEventService = {
      * @return {Object} 资源模型关系的recordSet对象
      */
     getModelPolicyBaseInfor:function(modelId,$callback){
-        ModelPolicyEventService._pool.getConnection(function(err, connection) {
+        SqlCommand.getConnection(function(err, connection) {
             connection.query(sqlConfig.t_moni_policy_info_selectById, [modelId], function(err, rows) {
                 if (err) {
                     console.log(err);
@@ -50,7 +39,7 @@ var ModelPolicyEventService = {
      * @return {Object} 资源模型关系的recordSet对象
      */
     getThresholdList:function(modelId,$callback){
-        ModelPolicyEventService._pool.getConnection(function(err, connection) {
+        SqlCommand.getConnection(function(err, connection) {
             connection.query(sqlConfig.t_moni_policy_metric_select, [modelId,modelId], function(err, rows) {
                 if (err) {
                     console.log(err);
@@ -72,7 +61,7 @@ var ModelPolicyEventService = {
      * @return {Object} 资源模型关系的recordSet对象
      */
     getModelEventList:function(modelId,$callback){
-        ModelPolicyEventService._pool.getConnection(function(err, connection) {
+        SqlCommand.getConnection(function(err, connection) {
             connection.query(sqlConfig.t_moni_policy_event_selectEventInfor, [modelId], function(err, rows) {
                 if (err) {
                     console.log(err);
@@ -85,8 +74,8 @@ var ModelPolicyEventService = {
             });
         });
     },
-    updatePolicyMetricThreshold:function(policyMetricThresholdInfo,$callback){
-        ModelPolicyEventService._pool.getConnection(function(err, connection) {
+    updatePolicyMetricThreshold:function(policyMetricThresholdInfo,$callback,aduitJson){
+        SqlCommand.getConnection(function(err, connection) {
             connection.beginTransaction(function(err) {
                 if (err) {
                     console.log(err);
@@ -128,6 +117,9 @@ var ModelPolicyEventService = {
                                     return;
                                 });
                             }
+                            if(aduitJson){
+                                AduitLogService.insertLog(aduitJson);
+                            }
                             connection.release();
                             $callback('success');
                         });
@@ -136,8 +128,8 @@ var ModelPolicyEventService = {
             });
         });
     },
-    updatePolicyEvent:function(policyEventInfo,$callback){
-        ModelPolicyEventService._pool.getConnection(function(err, connection) {
+    updatePolicyEvent:function(policyEventInfo,$callback,aduitJson){
+        SqlCommand.getConnection(function(err, connection) {
             var param=[];
             param.push(policyEventInfo.level);
             param.push(policyEventInfo.inUse);
@@ -148,14 +140,17 @@ var ModelPolicyEventService = {
                     connection.release();
                     return;
                 }
+                if(aduitJson){
+                    AduitLogService.insertLog(aduitJson);
+                }
                 var r = rows;
                 connection.release();
                 $callback(r);
             });
         });
     },
-    updatePolicyInfo:function(policyInfo,$callback){
-        ModelPolicyEventService._pool.getConnection(function(err,connection){
+    updatePolicyInfo:function(policyInfo,$callback,aduitJson){
+        SqlCommand.getConnection(function(err,connection){
             var param=[];
             param.push(policyInfo.id);
             param.push(policyInfo.name);
@@ -168,6 +163,9 @@ var ModelPolicyEventService = {
                     connection.release();
                     return;
                 }
+                if(aduitJson){
+                    AduitLogService.insertLog(aduitJson);
+                }
                 var r = rows;
                 connection.release();
                 $callback(r);
@@ -177,8 +175,7 @@ var ModelPolicyEventService = {
 };
 module.exports = ModelPolicyEventService;
 
-
-ModelPolicyEventService.init();
+/*
 var policyMetricThresholdInfo={
     flapping:"2",
     timeOut:"30000",
@@ -207,22 +204,23 @@ var policyInfo={
     modelId:"RIIL_RMM_WLAN_ZTE_SNMP"
 }
 
-
+ModelPolicyEventService.init();
 ModelPolicyEventService.getThresholdList("RIIL_RMM_DB_DB2",function(r){
     console.log(r);
 });
 
-//ModelPolicyEventService.updatePolicyMetricThreshold(policyMetricThresholdInfo,function(r){
-//    console.log(r);
-//});
+ModelPolicyEventService.updatePolicyMetricThreshold(policyMetricThresholdInfo,function(r){
+    console.log(r);
+});
 
-//ModelPolicyEventService.updatePolicyEvent(policyEventInfo,function(r){
-//    console.log(r);
-//});
-//ModelPolicyEventService.updatePolicyMetricThreshold("RIIL_RMM_WLAN_ZTE_SNMP",function(r){
-//    console.log(r);
-//});
+ModelPolicyEventService.updatePolicyEvent(policyEventInfo,function(r){
+    console.log(r);
+});
+ModelPolicyEventService.updatePolicyMetricThreshold("RIIL_RMM_WLAN_ZTE_SNMP",function(r){
+    console.log(r);
+});
 
-//ModelPolicyEventService.updatePolicyInfo(policyInfo,function(r){
-//    console.log(r);
-//});
+ModelPolicyEventService.updatePolicyInfo(policyInfo,function(r){
+    console.log(r);
+});
+*/

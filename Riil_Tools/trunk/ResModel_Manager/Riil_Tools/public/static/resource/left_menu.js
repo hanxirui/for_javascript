@@ -23,20 +23,34 @@ function delNode() {
   var treeObjDel = $.fn.zTree.getZTreeObj("treeDemo");
   var nodes = treeObjDel.getCheckedNodes(true);
   var delNodeIds = [];
+  var isCustom = true;
   if (nodes.length === 0) {
     alert("请选择您要删除的记录");
   } else {
     for (var i = 0; i < nodes.length; i++) {
-      delNodeIds.push(nodes[i].modelId);
+      /*delNodeIds.push(nodes[i].modelId);
       if (nodes[i].isParent) {
         for (var j = 0; j < nodes[i].children.length; j++) {
           delNodeIds.push(nodes[i].children[j].modelId);
         }
+      }*/
+      /**半选状态不删除*/
+      if (!nodes[i].getCheckStatus().half) {
+        if (nodes[i].isCustom === 0) {
+          isCustom = false;
+          break;
+        } else {
+          delNodeIds.push(nodes[i].modelId);
+        }
       }
     }
-    var r = confirm("确定要删除所选记录吗？");
-    if (r == true) {
-      sureDelNodes(delNodeIds);
+    if (isCustom) {
+      var r = confirm("确定要删除所选记录吗？");
+      if (r == true) {
+        sureDelNodes(delNodeIds);
+      }
+    } else {
+      alert('所选资源类型中包含系统预置，不能删除');
     }
   }
 }
@@ -60,6 +74,7 @@ function sureDelNodes(ids) {
           type: "post",
           dataType: "json",
           success: function(data) {
+            $.fn.zTree.getZTreeObj("treeDemo").destroy();
             var zNodes = data.data;
             zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
             var node = zTreeObj.getNodeByParam('id', '00'); //获取id为00的点  
@@ -67,6 +82,7 @@ function sureDelNodes(ids) {
             zTreeObj.setting.callback.onClick(null, zTreeObj.setting.treeId, node); //调用事件  
           }
         });
+        /*$.fn.zTree.getZTreeObj("treeDemo").reAsyncChildNodes(null, "refresh");*/
         alert(msg);
       } else {
         msg = "操作失败";
@@ -95,18 +111,28 @@ function delResModelNodes() {
   var treeObjDel = $.fn.zTree.getZTreeObj("resModelTree");
   var nodes = treeObjDel.getCheckedNodes(true);
   var delNodeIds = [];
+  var isCustom = true;
   if (nodes.length === 0) {
     alert("请选择您要删除的记录");
   } else {
     for (var i = 0; i < nodes.length; i++) {
       /**半选状态不删除*/
       if (!nodes[i].getCheckStatus().half) {
-        delNodeIds.push(nodes[i].modelId);
+        if (nodes[i].isCustom === 0) {
+          isCustom = false;
+          break;
+        } else {
+          delNodeIds.push(nodes[i].modelId);
+        }
       }
     }
-    var r = confirm("确定要删除所选记录吗？");
-    if (r == true) {
-      sureDelResModelNodes(delNodeIds);
+    if (isCustom) {
+      var r = confirm("确定要删除所选记录吗？");
+      if (r == true) {
+        sureDelResModelNodes(delNodeIds);
+      }
+    }else{
+      alert('所选资源模型中包含系统预置，不能删除');
     }
   }
 }
@@ -135,7 +161,7 @@ function sureDelResModelNodes(ids) {
             var node = modelTreeObj.getNodeByTId('resModelTree_5'); //获取tid为'resModelTree_5'的点
             modelTreeObj.selectNode(node); //选择点
             modelTreeObj.setting.callback.onClick(null, modelTreeObj.setting.treeId, node); //调用事件
-            /**类型节点checkbox disabled*/
+            //类型节点checkbox disabled
             var resModelTree = $.fn.zTree.getZTreeObj("resModelTree");
             var uncheckedNodes = resModelTree.transformToArray(resModelTree.getNodes());
             for (var i = 0; i < uncheckedNodes.length; i++) {
@@ -145,6 +171,7 @@ function sureDelResModelNodes(ids) {
             }
           }
         });
+        /*$.fn.zTree.getZTreeObj("resModelTree").reAsyncChildNodes(null, "refresh");*/
         alert(msg);
       } else {
         msg = "操作失败";

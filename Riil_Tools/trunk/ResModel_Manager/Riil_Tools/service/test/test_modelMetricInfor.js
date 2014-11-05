@@ -10,66 +10,75 @@
 
 var modelmetric_infor = require('../ModelMetricInfor.js'),
     comm_func = require('../func/commonfunc.js');
-var  ModelMetricRelParam = require('../func/ModelMetricRelParameter');
 var SqlCommand = require('../class/SQLCommand.js'),
     commander = new SqlCommand();
 
 
 ////获取模型与指标关系列表数据
-//modelmetric_infor.getMetricDetailById('RIIL_RMM_CHILD_NIC_NETWORK_DLINK_OTHER_SNMP','IfOutBroadPkts').then(function (recordSet) {
-//    var jsonStr = JSON.stringify(recordSet);
-//    console.log('模型与指标关系  列表数据   ' + jsonStr);
-//}).fail(function (err) {
-//    var jstr = JSON.stringify(err);
-//    var jobj = JSON.parse(jstr);
-//    console.error(jobj.errMessage);
-//});
-//
-//根据模型ID获取指标详细数据
-//modelmetric_infor.getModelMetricDetailData('RIIL_RMM_DB_INFORMIX').then(function (recordSet) {
-//    var jsonStr = JSON.stringify(recordSet);
-//    console.log('根据模型ID 取模型下的详细指标数据   ' + jsonStr);
-//}).fail(function (err) {
-//    var jstr = JSON.stringify(err);
-//    var jobj = JSON.parse(jstr);
-//    console.error(jobj.errMessage);
-//});
+/*modelmetric_infor.getMetricDetailById('RIIL_RMM_DB_DB2', 'CPURate').then(function (recordSet) {
+ console.log(recordSet.rows);
+ }).fail(function (err) {
+ console.error(err);
+ });*/
 
+/*var modelMetric ={
+ metricId: 'CPURate1',
+ resTypeId: 'RIIL_RMT_DB_DB2',
+ isInstance: 1,
+ isInitValue: 1,
+ isDisplayName: 1,
+ modelId: 'RIIL_RMM_DB_DB2',
+ metricBindingId: '',
 
-modelmetric_infor.getModelMetricDetailByModelId('RIIL_RMM_DB_DB2').then(function (recordSet) {
-    var jsonStr = JSON.stringify(recordSet);
-    console.log('根据模型ID 取模型下的详细指标数据   ' + jsonStr);
+ cmdGroupId: '',
+ isDefault: '-1',
+ isDynamic: '1',
+ cmdId: '',
+ cmdIndex: '1',
+ cmdProtocol: 'JDBC',
+ cmd: 'select PercentProcessorTime, Timestamp_Sys100NS from Win32_PerfRawData_PerfProc_Process',
+
+ propName: 'collectType1',
+ propValue:'WALK1'
+ };
+ modelmetric_infor.addModelMetricAndCollectParam(modelMetric).then(function (rs){
+ console.log(rs);
+ }).fail(function (err) {
+ console.error(err);
+ });*/
+
+/*modelmetric_infor.getModelMetricDetailByModelId('RIIL_RMM_DB_DB2').then(function (recordSet) {
+ var jsonStr = JSON.stringify(recordSet);
+ console.log('根据模型ID 取模型下的详细指标数据   ' + jsonStr);
+ console.log(recordSet.rows.length);
+ }).fail(function (err) {
+ console.error(err);
+ });*/
+
+/*var cmdSupport = {
+ cmdGroupId: 'e613e932-7e31-4d22-8c8e-70d0d2c6d5d7',
+ metricBindingId: '1',
+ cmdId: '3dbaaeb4-57ea-48ad-9851-0c5f07d793a7',
+ cmdVersion: '2',
+ rel: '3'
+ };
+ modelmetric_infor.saveMetricCmdSupport(cmdSupport).then(function (recordSet) {
+ console.log(recordSet);
+ }).fail(function (err) {
+ console.error(err);
+ });*/
+
+var cmdSupport = {
+    cmdGroupId: 'e613e932-7e31-4d22-8c8e-70d0d2c6d5d7',
+    //cmdGroupId: '1',
+    metricBindingId: '1',
+    cmdIds: ['3dbaaeb4-57ea-48ad-9851-0c5f07d793a7'],
+    //cmdIds: ['1', '2'],
+    cmdVersion: '2',
+    rel: '3'
+};
+modelmetric_infor.deleteMetricCmdSupport(cmdSupport).then(function (recordSet) {
+    console.log(recordSet);
 }).fail(function (err) {
-    var jstr = JSON.stringify(err);
-    var jobj = JSON.parse(jstr);
-    console.error(jobj.errMessage);
-});
-
-modelmetric_infor.getModelMetricCommandDetail('RIIL_RMM_DB_DM','TotalMemGB','SNMP','1','-1','-1').then(function (recordSet) {
-    var jsonStr = JSON.stringify(recordSet);
-    console.log('根据模型ID 取模型下的详细指令数据   ' + jsonStr);
-}).fail(function (err) {
-    var jstr = JSON.stringify(err);
-    var jobj = JSON.parse(jstr);
-    console.error(jobj.errMessage);
-});
-
-
-modelmetric_infor.modifyModelMetricAndCollectParam('RIIL_RMM_DB_DB2','TotalMemGB','64871c3e-b2eb-76b2-7dc9-45527c022cfc','WMI','1','1','1','test11111','namespace','root\\cimv2').then(function (recordSet) {
-    var jsonStr = JSON.stringify(recordSet);
-    console.log('编辑模型下的指标数据   ' + jsonStr);
-}).fail(function (err) {
-    var jstr = JSON.stringify(err);
-    var jobj = JSON.parse(jstr);
-    console.error(jobj.errMessage);
-});
-
-
-modelmetric_infor.getSNMPSupportCommandList('RIIL_RMM_ROUTER_H3C_SNMP','CPURate').then(function (recordSet) {
-    var jsonStr = JSON.stringify(recordSet);
-    console.log('根据模型ID 取模型下的扩展指令数据   ' + jsonStr);
-}).fail(function (err) {
-    var jstr = JSON.stringify(err);
-    var jobj = JSON.parse(jstr);
-    console.error(jobj.errMessage);
+    console.error(err);
 });

@@ -6,6 +6,7 @@ var Q = require('q');
 var SqlCommand = require('../service/class/SQLCommand.js');
 var commander = new SqlCommand();
 var sqlObj = require('../conf/config.json').sql;
+var AduitLogService = require('../service/AduitLogService');
 
 //指标定义参数定义
 var metricGroupParameter = {
@@ -18,28 +19,16 @@ exports.MetricGroupParam = metricGroupParameter;
 
 
 exports.getMetricGroupList = function() {
-    var getQ = Q.defer();
-    var fieldID = "groupId";
-    var fieldName = "groupName";
-    commander.get('t_moni_metric_group.select', []).then(function (recordset) {
-        var jsonStr = JSON.stringify(recordset);
-        console.info(jsonStr);
-        var recordObj = JSON.parse(jsonStr);
-        if (recordObj.isError) {
-            getQ.reject(recordObj);
-        } else {
-            getQ.resolve(recordObj);
-        }
-    }).fail(function (err) {
-        getQ.reject(err);
-    });
-    return getQ.promise;
+    return commander.get('t_moni_metric_group.select', []);
 };
 
-exports.saveMetricGroup = function (sqlparam) {
+exports.saveMetricGroup = function (sqlparam,aduitJson) {
     var myQ = Q.defer();
     var logContent = "指标组管理插入数据id:" + sqlparam.groupId;
-    commander.save("t_moni_metric_group.insert", sqlparam, {user:sqlparam.operator,info:logContent}).then(function (recordset) {
+    commander.save("t_moni_metric_group.insert", sqlparam, {userId:sqlparam.operator,info:logContent}).then(function (recordset) {
+        if(aduitJson){
+            AduitLogService.insertLog(aduitJson);
+        }
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);
@@ -47,10 +36,13 @@ exports.saveMetricGroup = function (sqlparam) {
     return myQ.promise;
 };
 
-exports.updataMetricGroup = function (sqlparam) {
+exports.updataMetricGroup = function (sqlparam,aduitJson) {
     var myQ = Q.defer();
     var logContent = "指标组管理修改数据id:" + sqlparam.groupId;
-    commander.save("t_moni_metric_group.update",sqlparam, {user:sqlparam.operator,info:logContent}).then(function (recordset) {
+    commander.save("t_moni_metric_group.update",sqlparam, {userId:sqlparam.operator,info:logContent}).then(function (recordset) {
+        if(aduitJson){
+            AduitLogService.insertLog(aduitJson);
+        }
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);
@@ -60,13 +52,16 @@ exports.updataMetricGroup = function (sqlparam) {
 
 
 
-exports.deleteMetricGroupById = function (data) {
+exports.deleteMetricGroupById = function (data,aduitJson) {
     var myQ = Q.defer();
     var delJson ={
         groupIds:data.ids
     };
     var logContent = "指标组管理删除数据";
-    commander.del("t_moni_metric_group.delete", delJson, {user:data.operator,info:logContent}).then(function (recordset) {
+    commander.del("t_moni_metric_group.delete", delJson, {userId:data.operator,info:logContent}).then(function (recordset) {
+        if(aduitJson){
+            AduitLogService.insertLog(aduitJson);
+        }
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);
@@ -76,7 +71,7 @@ exports.deleteMetricGroupById = function (data) {
 
 exports.getMetricGroupById = function(groupId){
     var myQ = Q.defer();
-    commander.get("t_moni_metric_group.selectById", [groupId]).then(function (recordset) {
+    commander.get("t_moni_metric_group_by_id.select", [groupId]).then(function (recordset) {
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);
@@ -86,9 +81,7 @@ exports.getMetricGroupById = function(groupId){
 
 exports.checkMetricGroupId = function(groupId){
     var myQ = Q.defer();
-    var sqlKey = "t_moni_metric_group.selectById";
-
-    commander.get("t_moni_metric_group.selectById", [groupId]).then(function (recordset) {
+    commander.get("t_moni_metric_group_by_id.select", [groupId]).then(function (recordset) {
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);

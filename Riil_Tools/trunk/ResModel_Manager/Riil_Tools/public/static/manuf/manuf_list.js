@@ -1,5 +1,6 @@
 
 var vendorTable = null;
+var table = null;
 var login_userName = $(window.parent.document).find('input[id=userId]').val();
 $(document).ready(function() {
 	if(tab !== ''){
@@ -8,7 +9,7 @@ $(document).ready(function() {
 		$("#tabs1").click();
 	}
 	/**init jquery table*/
-	var table = $('#manufTable').dataTable({
+	table = $('#manufTable').dataTable({
 		"oLanguage": GIRD_I18N,
 		"bFilter": false,
 		"bLengthChange": false,
@@ -18,6 +19,10 @@ $(document).ready(function() {
 		"ajax": ctx + "/resmodel/manufController/getAllManufInfos",
 		/*"aaData" : JSON.parse(data),*/
 		"initComplete": initCheckBox,
+		'columnDefs':[{
+                 orderable:false,//禁用排序
+                 targets:[0]   //指定的列
+             }],
 		"columns": [
 			{
 				"aDataSort": false,
@@ -75,6 +80,10 @@ $(document).ready(function() {
 		"aLengthMenu": [22],
 		"ajax": ctx + "/resmodel/vendorController/getAllVendorInfos",
 		"initComplete": initCheckBoxVendor,
+		'columnDefs':[{
+                 orderable:false,//禁用排序
+                 targets:[0]   //指定的列
+             }],
 		"columns": [
 			{
 				"aDataSort": false,
@@ -220,9 +229,19 @@ var manufManager = {
 			success: function(data) {
 				if (data.msg == '1') {
 					msg = "操作成功";
-					var iframedom = $('#model_add', parent.document)[0];
-					iframedom.src = ctx + "/resmodel/manufController/getManufManagement";
+					table.fnClearTable();
 					alert(msg);
+		            $.ajax({
+		              type: 'get',
+		              url: ctx + "/resmodel/manufController/getAllManufInfos",
+		              async:true,//表示该ajax为同步的方式
+		              success: function(data) {
+		                table.fnAddData(data.data);
+		              },
+		              error: function() {
+		                alert("操作失败");
+		              }
+		            });
 				} else {
 					msg = "操作失败";
 					alert(msg);
@@ -233,12 +252,12 @@ var manufManager = {
 				alert(msg);
 			}
 		});
-		setSMsgContent(msg, 70, "45%");
 	},
 	/**修改厂商*/
 	popManufAlterPage: function(obj) {
 		var manufId = $(obj).attr('val');
-		$.get(ctx + '/resmodel/manufController/updatePre/' + manufId, function(data) {
+		var nowTime = new Date().getTime();
+		$.get(ctx + '/resmodel/manufController/updatePre?manufId=' + manufId + '&date=' + nowTime, function(data) {
 			myAlert({
 				title: '编辑厂商信息',
 				msg: data,
@@ -333,7 +352,7 @@ var vendorManager = {
 				alert(msg);
 			}
 		});
-		setSMsgContent(msg, 70, "45%");
+		/*setSMsgContent(msg, 70, "45%");*/
 	},
 	searchVendorInfos : function(){
 		var manufID = $('#select option:selected').val();

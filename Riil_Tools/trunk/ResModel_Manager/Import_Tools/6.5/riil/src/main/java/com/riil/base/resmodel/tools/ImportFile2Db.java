@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.junit.Test;
 import org.springframework.beans.BeanUtils;
 
 import com.riil.base.binding.pojo.CmdFilter;
@@ -24,6 +25,7 @@ import com.riil.base.binding.pojo.CollectCmdsProcessPara;
 import com.riil.base.binding.pojo.CollectCmdsProcessor;
 import com.riil.base.binding.pojo.MetricBindingPojo;
 import com.riil.base.binding.pojo.MetricProcessPara;
+import com.riil.base.binding.pojo.ResTypeExtendPojo;
 import com.riil.base.pojo.enums.EnumRoot.PolicyType;
 import com.riil.base.policy.IPolicyService;
 import com.riil.base.policy.IResourcePolicyService;
@@ -68,7 +70,6 @@ import com.riil.core.dam.exception.DBException;
 import com.riil.core.dam.tx.TransactionManager;
 import com.riil.core.logger.SystemLogger;
 import com.riil.core.service.ServiceException;
-import com.riil.core.utils.bean.SerializeUtil;
 
 /**
  * 导入数据到简化模型 从资源模型的bin文件导入到简化模型数据库 <br>
@@ -263,6 +264,8 @@ public class ImportFile2Db {
 		List<ModelBasePojo> t_insertList = new ArrayList<ModelBasePojo>();
 		for (Model pojo : t_list) {
 			pojo.setTag4(pojo.getProcessor());
+			//isCustom默认是0
+			pojo.setIsCustom((byte)0);
 			t_insertList.add(pojo);
 		}
 		DBServiceProxy.createBatchModel(t_insertList);
@@ -391,15 +394,15 @@ public class ImportFile2Db {
 	 * @throws ServiceException
 	 * @throws ContainerException
 	 */
-	// @Test
+//	 @Test
 	public void importResType() throws ServiceException, ContainerException {
 		List<ResTypePojo> t_list = getResTypeService().getAllResType();
 		String oneNode = ".00";
 		DBServiceProxy.removeAllResType();
 		int sortIdLength = 14;
-		List<ResTypePojo> t_insertList = new ArrayList<ResTypePojo>();
+		List<ResTypeExtendPojo> t_insertList = new ArrayList<ResTypeExtendPojo>();
 		for (ResTypePojo pojo : t_list) {
-			ResTypePojo t_resType = new ResTypePojo();
+			ResTypeExtendPojo t_resType = new ResTypeExtendPojo();
 			BeanUtils.copyProperties(pojo, t_resType);
 			if (t_resType.getSortId() <= 0) {
 				String treeNodeId = t_resType.getTreeNodeId();
@@ -409,8 +412,9 @@ public class ImportFile2Db {
 				}
 				t_resType.setSortId(Integer.parseInt(t_sortId.toString().replaceAll("\\.", "")));
 			}
+			//ResType新增isCustom字段，默认是0
+			t_resType.setIsCustom(0);
 			t_insertList.add(t_resType);
-
 		}
 		DBServiceProxy.createBatchResType(t_insertList);
 	}

@@ -17,7 +17,7 @@ var ManufService = {
 	save: function(manufInfo, $callback) {
 		var logContent = "厂商管理插入数据id:" + manufInfo.cManufId + ",name:" + manufInfo.cManufName + ",icon:" + manufInfo.cManufIcon;
 		var sql = "insert into t_ml_manuf (c_manuf_id, c_manuf_name,c_photoid,c_manuf_icon,c_operator) values(:cManufId, :cManufName, :cManufPhoto, :cManufIcon, :cOperator)";
-		commander.saveBySqlInsert(sql, manufInfo, {user:manufInfo.cOperator,info:logContent}).then(function(recordset){
+		commander.saveBySqlInsert(sql, manufInfo, {userId:manufInfo.cOperator,info:logContent}).then(function(recordset){
 		    $callback(recordset.rows);
 		}).fail(function(err){
     		console.log(err.toString());
@@ -31,7 +31,7 @@ var ManufService = {
 			};
 			var logContent = "厂商管理删除数据";
 			var sql = "delete  from t_ml_manuf where c_manuf_id in (:delIds)";
-			commander.delBySql(sql, delIds, {user:data.operator,info:logContent}).then(function(recordset){
+			commander.delBySql(sql, delIds, {userId:data.operator,info:logContent}).then(function(recordset){
 			    $callback(recordset.rows);
 			}).fail(function(err){
 	    		console.log(err.toString());
@@ -51,8 +51,14 @@ var ManufService = {
 	update: function(manufInfo, $callback) {
 		var logContent = "厂商管理修改数据 id:" + manufInfo.cManufId;
 		var sql = "update t_ml_manuf set c_manuf_name=:cManufName,c_photoid=:cManufPhoto,c_manuf_icon=:cManufIcon where c_manuf_id=:cManufId";
-		commander.saveBySqlUpdate(sql, manufInfo, {user:manufInfo.operator,info:logContent}).then(function(recordset){
-		    $callback(recordset.rows);
+		commander.saveBySqlUpdate(sql, manufInfo, {userId:manufInfo.operator,info:logContent}).then(function(recordset){
+		    /*$callback(recordset.rows);*/
+		    var resTypeSQL = "UPDATE t_moni_res_type SET c_icon=:cManufIcon WHERE c_vendor_id=:cManufId"
+		    commander.saveBySqlUpdate(resTypeSQL, manufInfo).then(function(recordset){
+			    $callback(recordset.rows);
+			}).fail(function(err){
+	    		console.log(err.toString());
+			});
 		}).fail(function(err){
     		console.log(err.toString());
 		});

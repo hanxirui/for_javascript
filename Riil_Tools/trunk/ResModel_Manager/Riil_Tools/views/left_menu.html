@@ -9,6 +9,21 @@
 <script src="../../js/common/jquery-ui-1.9.2.custom.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="../../js/common/jquery.ztree.core-3.5.js"></script>
 <script type="text/javascript" src="../js/common/jquery.ztree.excheck-3.5.js"></script>
+<script type="text/javascript">
+	/*var role = '<%- roleId%>';*/
+	$(document).ready(function(){
+		/**若为维护工程师，则隐藏指标组及资源模型*/
+		if(role === 'MAN_ENGINEER'){
+			$("#resourcetype").css('display', 'none');
+			$("#indicatorsOfGroup").css('display', 'none');
+			$("#delBtn").css('display', 'none');
+			$("#addBtn").css('display', 'none');
+			$("#copyBtn").css('display', 'none');
+			$("#resmodelTreeDiv").css('height', '491px');
+			$("#resModelTree").toggleClass('ztree1');
+		}
+	});
+</script>
 <title>Insert title here</title>
 </head>
 <body>
@@ -46,7 +61,7 @@
 						<a class="ico copy f_right" id="copyBtn" title="复制" onclick="copyResModels();"></a>
 					</li>
 
-				<div class="zTreeDemoBackground left" style="height:460px">
+				<div id="resmodelTreeDiv" class="zTreeDemoBackground left" style="height:460px">
 					<ul id="resModelTree" class="ztree"></ul>
 				</div>
 			</div>	
@@ -108,19 +123,6 @@
 	</div>
 	<input type="hidden" id="manufBoardUrl" value="">
 </body>
-<script type="text/javascript">
-	var role = '<%- roleId%>';
-	$(document).ready(function(){
-		/**若为维护工程师，则隐藏指标组及资源模型*/
-		if(role === 'MAN_ENGINEER'){
-			$("#resourcetype").css('display', 'none');
-			$("#indicatorsOfGroup").css('display', 'none');
-			/*$("#delBtn").css('display', 'none');
-			$("#addBtn").css('display', 'none');
-			$("#copyBtn").css('display', 'none');*/
-		}
-	});
-</script>
 <script type="text/javascript" src="../static/resTypeTreeSetting.js"></script>
 <script type="text/javascript" src="../static/resModelTreeSetting.js"></script>
 <script type="text/javascript" src="../static/resource/accordion.js"></script>

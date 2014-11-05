@@ -1,5 +1,5 @@
 {
-    "customBaseDir" :"D:/node.js/log/",
+    "customBaseDir" :"D:/RIIL_ResModel/Riil_Tools/log/",
     "customDefaultAtt" :{
         "type": "dateFile",
         "absolute": true,

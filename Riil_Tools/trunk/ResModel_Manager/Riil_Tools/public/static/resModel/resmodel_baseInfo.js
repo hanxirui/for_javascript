@@ -1,5 +1,5 @@
 var resTypeId = "";
-var mainModelId = "";
+var mainModelId = c_main_model_id;
 var setting = {
   view: {
     dblClickExpand: false
@@ -181,7 +181,52 @@ function checkIdRepeat() {
   return noRepeat;
 }
 
-function checkIdNoNull() {
+function checkModelNameRepeat(isUpdate) {
+  debugger;
+  var parentTId = window.parent.$.fn.zTree.getZTreeObj("resModelTree").getSelectedNodes()[0].parentTId;
+  var parent_node = window.parent.$.fn.zTree.getZTreeObj("resModelTree").getNodeByParam('tId', parentTId);
+  var parent_res_id = '';
+  if(mainModelId !== null && mainModelId !== ''){
+    parent_res_id = mainModelId;
+  }else{
+    parent_res_id = window.parent.$.fn.zTree.getZTreeObj("resModelTree").getSelectedNodes()[0].modelId;
+  }
+  var modelName = $('#modelName').val();
+  var noRepeat = true;
+  if (modelName !== '') {
+    var data = {
+      'mainmodelid': parent_res_id,
+      'modelName':modelName,
+      'id':$('#modelId').val(),
+      'isUpdate':isUpdate
+    };
+    $.ajax({
+      type: 'get',
+      url: ctx + '/resmodel/resModelCotroll/checkModelName',
+      dataType: 'json',
+      data: data,
+      async: false, //表示该ajax为同步的方式
+      success: function(data) {
+        if (data.data === true) {
+          err_msg_show('modelName', 'modelName_msg', '名称重复', true);
+          noRepeat = false;
+        } else {
+          err_msg_show('modelName', 'modelName_msg', '', false);
+          noRepeat = true;
+        }
+      },
+      error: function() {
+        alert('操作失败');
+      }
+    });
+  }else{
+    err_msg_show('modelName', 'modelName_msg', '名称不能为空', true);
+    noRepeat = false;
+  }
+  return noRepeat;
+}
+
+function checkModelIdNoNull() {
   var modelId = $('#modelId').val();
   var notNull = true;
   if (modelId === '') {
@@ -198,7 +243,7 @@ function checkIdNoNull() {
 }
 
 function updateResModelInfo() {
-  if (checkIdNoNull() && checkIdRepeat()) {
+  if (checkModelIdNoNull() && checkIdRepeat() && checkModelNameRepeat(true)) {
     var c_id = $('#modelId').val();
     var modelInfo = {
       'c_id': c_id,
@@ -207,7 +252,8 @@ function updateResModelInfo() {
       'c_desc': $("#detail").val(),
       'c_is_snmp': $('input:radio[name="isSNMPModel"]:checked').val(),
       'c_plugin_id': $('#pluginSelect option:selected').val(),
-      'c_main_model_id': mainModelId
+      'c_main_model_id': mainModelId,
+      'c_res_type_id': c_res_type_id
     };
     $.ajax({
       type: 'post',
@@ -218,7 +264,7 @@ function updateResModelInfo() {
       success: function(data) {
         if (data.msg === '1') {
           /**刷新模型树*/
-          refreshResModelTree();
+          refreshResModelTree(modelInfo.c_id, modelInfo.c_oldId, true);
           alert('操作成功');
         } else {
           alert('操作失败');
@@ -227,16 +273,26 @@ function updateResModelInfo() {
       error: function(err) {
         var jstr = JSON.stringify(err);
         var jobj = JSON.parse(jstr);
-        console.error(jobj);
-
         alert('操作错误');
       }
     });
   }
 }
 
+function checkResTypeNotNull(){
+  var notNull = true;
+  if(resTypeId === '' || typeof resTypeId === 'undefined'){
+    err_msg_show('resType', 'resType_msg', '资源类型不能为空', true);
+    notNull = false;
+  }else{
+    err_msg_show('resType', 'resType_msg', '', false);
+    notNull = true;
+  }
+  return notNull;
+}
+
 function addResModelInfo() {
-  if (checkIdNoNull() && checkIdRepeat()) {
+  if (checkModelIdNoNull() && checkIdRepeat() && checkResTypeNotNull() && checkModelNameRepeat(false)) {
     var c_id = $('#modelId').val();
     var modelInfo = {
       'c_id': c_id,
@@ -257,7 +313,7 @@ function addResModelInfo() {
       success: function(data) {
         if (data.msg === '1') {
           /**刷新模型树*/
-          refreshResModelTree();
+          refreshResModelTree(modelInfo.c_id, modelInfo.c_id, false);
           alert('操作成功');
         } else {
           alert('操作失败');

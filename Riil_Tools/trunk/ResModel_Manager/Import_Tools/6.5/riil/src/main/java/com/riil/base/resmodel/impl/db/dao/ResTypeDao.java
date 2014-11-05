@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.riil.base.binding.pojo.ResTypeExtendPojo;
 import com.riil.base.resmodel.pojo.base.ResTypePojo;
 import com.riil.base.resmodel.pojo.base.ResTypeBaseQueryParam;
 import com.riil.base.resource.param.DomainParam;
@@ -74,7 +75,7 @@ public class ResTypeDao extends BaseDAO<ResTypePojo> {
 		}
 	}
 	
-	public void insert(List<ResTypePojo> pojos)  throws DAOException {
+	public void insert(List<ResTypeExtendPojo> pojos)  throws DAOException {
 		try {
 			getDam().update("batchInsert", pojos);
 		} catch (DBException e) {

@@ -35,7 +35,7 @@ var VendorService = {
 		var logContent = "厂商型号管理插入数据oid:" + vendorInfo.sysoid;
 		var sql = "insert into t_resmodel_vendor (C_ID, C_VENDOR_ID,C_VENDOR_NAME,C_VENDOR_OID,C_DEV_TYPE,C_MODEL_TYPE,C_SERIES,C_MODEL_NUMBER,C_DEV_NAME,C_OPERATOR) values "
 				+ "(:id, :manufID, :manufName, :sysoid, :deviceId, :modelID, :series, :number, :deviceName, :operator)";
-		commander.saveBySqlInsert(sql, vendorInfo, {user:vendorInfo.operator,info:logContent}).then(function(recordset){
+		commander.saveBySqlInsert(sql, vendorInfo, {userId:vendorInfo.operator,info:logContent}).then(function(recordset){
 		    $callback(recordset.rows);
 		}).fail(function(err){
     		console.log(err.toString());
@@ -83,7 +83,7 @@ var VendorService = {
 			};
 			var logContent = "厂商型号管理删除数据";
 			var sql = "delete  from t_resmodel_vendor where c_id in (:delIds)";
-			commander.delBySql(sql, delIds, {user:data.operator,info:logContent}).then(function(recordset){
+			commander.delBySql(sql, delIds, {userId:data.operator,info:logContent}).then(function(recordset){
 			    $callback(recordset.rows);
 			}).fail(function(err){
 	    		console.log(err.toString());
@@ -103,7 +103,7 @@ var VendorService = {
 	update: function(vendorInfo, $callback) {
 		var logContent = "厂商型号管理修改数据 id:" + vendorInfo.sysoid;
 		var sql = "update t_resmodel_vendor set C_VENDOR_ID=:manufID,C_VENDOR_NAME=:manufName,C_VENDOR_OID=:sysoid,C_DEV_TYPE=:deviceId,C_MODEL_TYPE=:modelID,C_SERIES=:series,C_MODEL_NUMBER=:number,C_DEV_NAME=:deviceName where c_id=:cid";
-		commander.saveBySqlUpdate(sql, vendorInfo, {user:vendorInfo.operator,info:logContent}).then(function(recordset){
+		commander.saveBySqlUpdate(sql, vendorInfo, {userId:vendorInfo.operator,info:logContent}).then(function(recordset){
 		    $callback(recordset.rows);
 		}).fail(function(err){
     		console.log(err.toString());

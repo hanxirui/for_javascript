@@ -2,6 +2,8 @@ package com.riil.resmodel.services.impl;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -318,7 +320,27 @@ public class ResModelService implements IResModelService{
 		List<MetricGroupPojo> t_metricGroupAll = dictDao.getMetricGroupAll();
 		t_dict.setListMetricGroup(t_metricGroupAll);
 		List<Map<String, String>> t_metricGroupRelAll = dictDao.getMetricGroupRelAll();
-		t_dict.setListGroupMetricRel(t_metricGroupRelAll);
+		Map<String,List<String>> t_newMetricGroupRelAll = new HashMap<String,List<String>>();
+		
+		for (Map<String, String> t_map : t_metricGroupRelAll) {
+			String t_key = t_map.get("C_METRIC_GROUP_ID");
+			String t_value = t_map.get("C_METRIC_ID");
+			if(t_newMetricGroupRelAll.containsKey(t_key)){
+				List<String> t_list = t_newMetricGroupRelAll.get(t_key);
+				t_list.add(t_value);
+			}else{
+				List<String> t_list = new ArrayList<String>();
+				t_list.add(t_value);
+				t_newMetricGroupRelAll.put(t_key, t_list);
+			}
+		}
+		Iterator<String> t_iterator = t_newMetricGroupRelAll.keySet().iterator();
+		while (t_iterator.hasNext()) {
+			String t_key = (String) t_iterator.next();
+			List<String> t_values = t_newMetricGroupRelAll.get(t_key);
+			t_dict.addMetricGroupRel(t_key, t_values);
+		}
+		
 		List<EventBasePojo> t_eventBaseAll = dictDao.getEventBaseAll();
 		if(null != t_eventBaseAll){
 			for (EventBasePojo t_eventBase : t_eventBaseAll) {

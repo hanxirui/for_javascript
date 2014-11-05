@@ -1,26 +1,13 @@
+'use strict';
 var mysql = require('mysql');
-var config = require('../conf/config.json').db;
+
+var SqlCommand = require('../service/class/SQLCommand.js');
 
 var UserService = {
-	_pool: {},
-	init: function() {
-		UserService._pool = mysql.createPool({
-			connectionLimit: config.limit,
-			host: config.db_host,
-			user: config.db_user,
-			password: config.db_pass,
-			database: config.db_name,
-			port: 3306
-		});
-
-
-
-	},
-
 	checkUser: function(user_name, password, $callback) {
 
 
-		UserService._pool.getConnection(function(err, connection) {
+        SqlCommand.getConnection(function(err, connection) {
 			// Use the connection
 			var sql = "select a.id,a.c_account,a.c_user_name,a.c_mail_addr,a.c_phone_num,a.c_dept,b.c_role_name,a.c_role " +
 				" from t_ml_user a join t_ml_role b on a.c_role=b.c_role_id where a.c_account=? and a.c_password=?";
@@ -29,7 +16,7 @@ var UserService = {
 			connection.query(sql, param, function(err, rows) {
 
 				if (err) {
-					console.log(err);
+					//console.log(err);
 					connection.release();
 					return;
 				}
@@ -48,15 +35,15 @@ var UserService = {
 	checkUserName: function(user_name, ori_user_name, $callback) {
 
 
-		UserService._pool.getConnection(function(err, connection) {
+        SqlCommand.getConnection(function(err, connection) {
 			// Use the connection
 			var sql = "select id from t_ml_user where c_user_name!=? and c_user_name=?";
 			var param = [ori_user_name, user_name];
-			console.log(param);
+			//console.log(param);
 			connection.query(sql, param, function(err, rows) {
 
 				if (err) {
-					console.log(err);
+					//console.log(err);
 					connection.release();
 					return;
 				}
@@ -74,14 +61,14 @@ var UserService = {
 	queryById: function(acct_id, $callback) {
 
 
-		UserService._pool.getConnection(function(err, connection) {
+        SqlCommand.getConnection(function(err, connection) {
 			// Use the connection
 			var sql = "select id,c_account,c_user_name,c_password,c_mail_addr,c_phone_num,c_dept,c_role from t_ml_user where c_account='" + acct_id + "'";
 
 			connection.query(sql, function(err, rows) {
 
 				if (err) {
-					console.log(err);
+					//console.log(err);
 					connection.release();
 					return;
 				}
@@ -98,17 +85,17 @@ var UserService = {
 	},
 	queryAll: function(pageInfo, $callback) {
 
-		console.log(pageInfo);
-		UserService._pool.getConnection(function(err, connection) {
+		//console.log(pageInfo);
+        SqlCommand.getConnection(function(err, connection) {
 			// Use the connection
 			var sql = "select id,c_account,c_user_name,c_password,c_mail_addr,c_phone_num,c_dept,c_role from t_ml_user ";
 			var limitSQL = " limit " + pageInfo.index + ", " + pageInfo.PageLast;
 			sql += limitSQL;
-			console.log(sql);
+			//console.log(sql);
 			connection.query(sql, function(err, rows) {
 
 				if (err) {
-					console.log(err);
+					//console.log(err);
 					connection.release();
 					return;
 				}
@@ -125,19 +112,19 @@ var UserService = {
 	},
 	deleteById: function(acct_id, $callback) {
 
-		UserService._pool.getConnection(function(err, connection) {
+        SqlCommand.getConnection(function(err, connection) {
 			// Use the connection
 			if (acct_id.length > 0) {
 				var sqlWhere = "";
 				for (var i = 0; i < acct_id.length; i++) {
 					sqlWhere += ',' + "'" + acct_id[i] + "'";
-				};
+				}
 				var sql = "delete  from t_ml_user where c_account in (" + sqlWhere.substring(1) + ")";
-				console.log(sql);
+				//console.log(sql);
 				connection.query(sql, function(err, rows) {
 
 					if (err) {
-						console.log(err);
+						//console.log(err);
 						connection.release();
 						return;
 					} else {
@@ -167,13 +154,13 @@ var UserService = {
 		param.push(userInfo.cAccount);
 
 
-		UserService._pool.getConnection(function(err, connection) {
+        SqlCommand.getConnection(function(err, connection) {
 			// Use the connection
 
 			connection.query(sql, param, function(err, rows) {
 
 				if (err) {
-					console.log(err);
+					//console.log(err);
 					connection.release();
 					return;
 				}
@@ -196,34 +183,34 @@ var UserService = {
 		var sqlwhere = "";
 		sqlwhere = "(" + "'" + userInfo.cAccount + "'" + "," + "'" + userInfo.cUserName + "'" + "," + "'" + userInfo.cPassword + "'";
 
-		if (userInfo.cMailAddr != '') {
+		if (userInfo.cMailAddr !== '') {
 			sqlwhere += "," + "'" + userInfo.cMailAddr + "'";
 		} else {
 			sqlwhere += ",''";
 		}
 
-		if (userInfo.cPhoneNum != '') {
+		if (userInfo.cPhoneNum !== '') {
 			sqlwhere += "," + "'" + userInfo.cPhoneNum + "'";
 		} else {
 			sqlwhere += ",''";
 		}
 
-		if (userInfo.cDept != '') {
+		if (userInfo.cDept !== '') {
 			sqlwhere += ",'" + userInfo.cDept + "')";
 		} else {
 			sqlwhere += ",'')";
 		}
 		sql += sqlwhere;
-		console.log(sql);
+		//console.log(sql);
 
 
-		UserService._pool.getConnection(function(err, connection) {
+        SqlCommand.getConnection(function(err, connection) {
 			// Use the connection
 
 			connection.query(sql, function(err, rows) {
 
 				if (err) {
-					console.log(err);
+					//console.log(err);
 					connection.release();
 					return;
 				}

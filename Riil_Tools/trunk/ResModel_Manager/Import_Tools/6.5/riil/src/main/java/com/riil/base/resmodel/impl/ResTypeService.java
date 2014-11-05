@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.riil.base.binding.pojo.ResTypeExtendPojo;
 import com.riil.base.pojo.dict.DictPojo;
 import com.riil.base.pojo.enums.Enum4ResModel.ResIsMain;
 import com.riil.base.resmodel.IModelService;
@@ -140,10 +141,11 @@ public class ResTypeService extends AbsService implements IResTypeService,
 
 	}
 	
-	protected void createBatch(List<ResTypePojo> templates) throws ServiceException {
+	protected void createBatch(List<ResTypeExtendPojo> templates) throws ServiceException {
 		if (templates == null || templates.isEmpty()) {
 			return;
 		}
+		
 		try {
 			int batchResSize = 1000;// 每次入库数
 			int resCount = templates.size();// 总资源数

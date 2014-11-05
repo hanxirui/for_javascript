@@ -22,34 +22,37 @@ $(document).ready(function() {
     ajax: ctx + '/resmodel/paramlibrary/queryLibraryData',
     bFilter: false,
     bLengthChange: false,
-    sScrollY: '590px',
+    /*sScrollY: '590px',*/
     bAutoWidth: true,
     bJQueryUI: false,
     oLanguage: GIRD_I18N,
     initComplete: initCheckBox,
     "bProcessing": true,
-    aLengthMenu: [20],
+    aLengthMenu: [22],
+    'columnDefs':[{
+                 orderable:false,//禁用排序
+                 targets:[0]   //指定的列
+             }],
     aoColumns: [{
       data: "metricId",
       "aDataSort": false,
       "render": function(data, type, row) {
-        debugger;
-        if(row.isCustom === '0'){
+        if (row.isCustom === 0) {
           return "<input type='checkbox' name='cb' disabled='disabled' />";
-        }else{
+        } else {
           return "<input type='checkbox' name='cb'  value='" + data + "'/>";
         }
-        
+
       }
     }, {
       data: "metricName",
       "render": function(data, type, row) {
-        if(row.isCustom === '0'){
+        if (row.isCustom === 0) {
           return '<span  title="' + data + '">' + data + '<a>';
-        }else{
+        } else {
           return '<a onclick="updateMetric(\'' + row.metricId + '\')">' + data + '<a>';
         }
-        
+
       }
     }, {
       data: "metricType"
@@ -73,7 +76,7 @@ function initCheckBox() {
     var names = document.getElementsByName("cb");
     for (var i = 0; i < names.length; i++) {
       if (allCk.checked == true) {
-        if(names[i].value !== '' && !names[i].disabled){
+        if (names[i].value !== '' && !names[i].disabled) {
           names[i].checked = true;
         }
       } else {
@@ -105,7 +108,8 @@ function deleteMetric() {
  * 打开修改页面
  */
 function updateMetric(metricId) {
-  $.get(ctx + '/resmodel/paramlibrary/updateLibraryData?id=' + metricId, function(data) {
+  var nowTime = new Date().getTime();
+  $.get(ctx + '/resmodel/paramlibrary/updateLibraryData?id=' + metricId + '&date=' + nowTime, function(data) {
     myAlert({
       title: '修改指标信息',
       msg: data,
@@ -157,51 +161,92 @@ function pop() {
   });
 }
 
+function checkMetricIdNotNull() {
+  var m_paramid = $("#m_paramid").val();
+  if (m_paramid == "") {
+    err_msg_show('m_paramid', 'm_paramid_msg', 'ID不能为空', true);
+    return false;
+  } else {
+    err_msg_show('m_paramid', 'm_paramid_msg', '', false);
+  }
+  return true;
+}
+
+function checkMetricIdRepeat() {
+  var notRepeat = true;
+  $.ajax({
+    type: 'get',
+    url: ctx + "/resmodel/paramlibrary/check",
+    data: {
+      id: $('#m_paramid').val()
+    },
+    dataType: 'json',
+    async: false, //表示该ajax为同步的方式
+    success: function(data) {
+      if (data.data !== null && data.data !== '') {
+        err_msg_show('m_paramid', 'm_paramid_msg', 'ID重复', true);
+        notRepeat = false;
+      } else {
+        err_msg_show('m_paramid', 'm_paramid_msg', '', false);
+        notRepeat = true;
+      }
+    },
+    error: function() {
+      alert('查询错误');
+    }
+  });
+  return notRepeat;
+}
+
 /**
  * 添加指标（提交数据按钮）
  */
 function submitlibrary() {
-  var paramgroup = [];
-  $("input[name='m_paramgroup']:checked").each(function(e, data) {
-    paramgroup.push(data.value);
-  });
+  if (checkMetricIdNotNull() && checkMetricIdRepeat()) {
+    var paramgroup = [];
+    $("input[name='m_paramgroup']:checked").each(function(e, data) {
+      paramgroup.push(data.value);
+    });
 
 
-  $.ajax({
-    type: 'post',
-    url: ctx + '/resmodel/paramlibrary/addMretric',
-    data: {
-      metricName: $("#m_paramname").val(),
-      metricDesc: $("#m_paramdesc").val(),
-      metricType: $("#m_paramtype").val(),
-      metricUnit: $("#m_paramunit").val(),
-      metricDataType: $("#m_paramdatatype").val(),
-      metricGroupName: paramgroup
-    },
-    success: function(msg) { // 提交成功后的回调，msg变量是输出的内容。
-      if (msg.msg == '1') {
-        alert('操作成功');
-        /*setSMsgContent("操作成功", 70, "45%");*/
-        closeAlert("alert");
-        // 清除JQuery的缓存，使load页面有效
-        $.ajaxSetup({
-          cache: false
-        });
-        var iframedom = $('#model_add', parent.document)[0];
-        iframedom.src = ctx + "/resmodel/paramlibrary/listparam";
-        /*debugger;
+    $.ajax({
+      type: 'post',
+      url: ctx + '/resmodel/paramlibrary/addMretric',
+      data: {
+        metricId: $("#m_paramid").val(),
+        metricName: $("#m_paramname").val(),
+        metricDesc: $("#m_paramdesc").val(),
+        metricType: $("#m_paramtype").val(),
+        metricUnit: $("#m_paramunit").val(),
+        metricDataType: $("#m_paramdatatype").val(),
+        metricGroupName: paramgroup
+      },
+      success: function(msg) { // 提交成功后的回调，msg变量是输出的内容。
+        if (msg.msg == '1') {
+          alert('操作成功');
+          /*setSMsgContent("操作成功", 70, "45%");*/
+          closeAlert("alert");
+          // 清除JQuery的缓存，使load页面有效
+          $.ajaxSetup({
+            cache: false
+          });
+          var iframedom = $('#model_add', parent.document)[0];
+          iframedom.src = ctx + "/resmodel/paramlibrary/listparam";
+          /*debugger;
           library_tb.fnDraw();*/
-      } else {
-        alert('操作失败');
-        /*setSMsgContent("操作失败", 70, "45%");*/
-        closeAlert("alert");
-        $.ajaxSetup({
-          cache: false
-        });
-        $("#form1").load(ctx + "/paramlibrary/listparam");
+        } else {
+          alert('操作失败');
+          /*setSMsgContent("操作失败", 70, "45%");*/
+          closeAlert("alert");
+          $.ajaxSetup({
+            cache: false
+          });
+          $("#form1").load(ctx + "/paramlibrary/listparam");
+        }
       }
-    }
-  });
+    });
+  }
+
 }
 //修改指标库
 function updateLib() {
@@ -263,7 +308,7 @@ function searchOnfocus() {
   }
 }
 
-function searchMetricLibInfos () {
+function searchMetricLibInfos() {
   var type = $('#typeSelect option:selected').val();
   var groupId = $('#groupSelect').val();
   var metricName = $('#searchMetricName').val();
@@ -273,7 +318,8 @@ function searchMetricLibInfos () {
   var condition = {
     type: type,
     groupId: groupId,
-    metricName: metricName
+    metricName: metricName,
+    nowTime:new Date().getTime()
   };
   $.ajax({
     type: 'get',

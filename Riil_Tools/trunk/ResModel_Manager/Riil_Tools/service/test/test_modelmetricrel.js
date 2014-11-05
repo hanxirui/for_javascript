@@ -6,31 +6,17 @@
 
 var modelmetric_rel = require('../ResourceModelRelation.js'),
     comm_func = require('../func/commonfunc.js');
- var  ModelMetricRelParam = require('../func/ModelMetricRelParameter');
 var SqlCommand = require('../class/SQLCommand.js'),
     commander = new SqlCommand();
 
-
-//获取模型与指标关系列表数据
-modelmetric_rel.getModelMetricRelationData('RIIL_RMM_DB_DM').then(function (recordSet) {
-    var jsonStr = JSON.stringify(recordSet);
-    console.log('模型与指标关系  列表数据   ' + jsonStr);
-}).fail(function (err) {
-    var jstr = JSON.stringify(err);
-    var jobj = JSON.parse(jstr);
-    console.error(jobj.errMessage);
-});
-
 //获取模型的详细指标列表数据
-modelmetric_rel.getModelMetricList('RIIL_RMM_DB_DB2').then(function (recordSet) {
-    var jsonStr = JSON.stringify(recordSet);
-    console.log('模型id 对应的指标 列表数据   ' + jsonStr);
+/*modelmetric_rel.getModelMetricList('RIIL_RMM_DB_DB2').then(function (recordSet) {
+    console.log(recordSet);
 }).fail(function (err) {
     var jstr = JSON.stringify(err);
     var jobj = JSON.parse(jstr);
     console.error(jobj.errMessage);
-});
-
+});*/
 
 //添加模型与 指标关系
 //
@@ -51,14 +37,10 @@ modelmetric_rel.getModelMetricList('RIIL_RMM_DB_DB2').then(function (recordSet) 
 
 
 ////删除自定义指标
-//modelmetric_rel.deleteModelMetricRelation('RIIL_RMM_BUSINESSAPPLICATION_test','').then(function (recordset) {
-//    var jsonStr = JSON.stringify(recordset);
-//    console.log('删除 模型与指标关系 ' + jsonStr);
-//}).fail(function (err) {
-//    var jstr = JSON.stringify(err);
-//    var jobj = JSON.parse(jstr);
-//    console.error(jobj.errMessage);
-//});
-
-
-
+var modelId = '1';
+var metricIds = ['1', '2'];
+modelmetric_rel.deleteModelMetricRelation(modelId, metricIds).then(function (recordset) {
+    //console.log('删除 模型与指标关系 ' + recordset);
+}).fail(function (err) {
+   console.error(err);
+});

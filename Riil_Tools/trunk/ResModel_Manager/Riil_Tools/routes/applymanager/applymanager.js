@@ -45,7 +45,7 @@ router.get('/downLoadFile', function(req, res) {
 //删除背板
 router.post('/deleteData', function(req, res) {
 	var backGroudId = req.body.id;
-	backboardService.deleteBpData(backGroudId,function(r){
+	backboardService.deleteBpData(backGroudId, req.session.userInfo.userId,function(r){
 		if(!r){
 			res.json({
 				msg:'success'

@@ -1,5 +1,9 @@
 /* jshint node:true */
 'use strict';
+/*global t_moni_res_type_selectAll*/
+
+/*jshint undef:true */
+
 /**
  * Created by mufei on 2014/8/28.
  */
@@ -7,71 +11,573 @@ var uuid = require('node-uuid');
 var Q = require('q');
 var _ = require('underscore');
 var rand = require("random-key");
+var mysql = require('mysql');
+
+var sqlConfig = require('../conf/config.json').sql;
 var SqlCommand = require('../service/class/SQLCommand.js');
-var modelmetric_rel = require('../service/ResourceModelRelation.js');
+var AduitLogService = require('../service/AduitLogService');
 
-function getResTypeTree(host) {
-    var promise = Q.defer();
-    var commander = new SqlCommand();
-    commander.get('t_moni_res_type.select').then(function (rs) {
-        if (rs && rs.recourdCount > 0) {
-            for (var j = 0; j < rs.recourdCount; j++) {
-                for (var i = 0; i < rs.fieldCount; i++) {
-                    var field = rs.fields[i];
-                    var value = rs.rows[j][field];
-                    if ('pId' === field) {
-                        rs.rows[j][field] = getPid(value);
-                    } else if ('icon' === field) {
-                        if (value) {
-                            rs.rows[j][field] = getIcon(host, value);
+var ResTypeTree = {
+    getResTypeTree: function (host) {
+        return query(sqlConfig.t_moni_res_type_selectAll).then(function (rows) {
+            if (rows && rows.length > 0) {
+                rows.forEach(function (row) {
+                    formatRow(row, host);
+                });
+            }
+            return rows;
+        });
+    },
+    getResTypeById: function (typeId) {
+        return query(sqlConfig.t_moni_res_type_select_by_id, typeId);
+    },
+    saveResType: function (resType, aduitJson) {
+        if (resType) {
+            if (resType.c_parent_id) {
+                return ResTypeTree.getResTypeById(resType.c_parent_id).then(function (rows) {
+                    if (rows && rows.length > 0) {
+                        resType.c_tree_level = ++rows[0].c_tree_level;
+                        return getTreeNodeId(rows[0].c_id, rows[0].c_tree_node_id);
+                    }
+                }).then(function (treeNodeId) {
+                    if (treeNodeId) {
+                        if (aduitJson) {
+                            AduitLogService.insertLog(aduitJson);
+                        }
+                        resType.c_tree_node_id = treeNodeId;
+                        resType.c_sort_id = getSortId(resType.c_tree_node_id);
+                        resType.c_is_custom = 1;
+                        return queryWithTrans(sqlConfig.t_moni_res_type_insert, resType);
+                    }
+                });
+            }
+        }
+    },
+    updataResType: function (resType, oldId, aduitJson) {
+        if (resType && oldId) {
+            var stm = sqlConfig.t_moni_res_type_update + ' WHERE c_id =' + mysql.escape(oldId);
+            if (aduitJson) {
+                AduitLogService.insertLog(aduitJson);
+            }
+            return queryWithTrans(stm, resType);
+        }
+    },
+    deleteResType: function (ids, aduitJson) {
+        if (aduitJson) {
+            AduitLogService.insertLog(aduitJson);
+        }
+        return queryWithTrans(sqlConfig.t_moni_res_type_delete, [ids]);
+    },
+    getAllPlugin: function () {
+        return query(sqlConfig.t_moni_model_base_select_plugin);
+    },
+    getResModelById: function (modelId) {
+        return query(sqlConfig.t_moni_model_base_select_by_id, modelId);
+    },
+    saveResModel: function (resModel, aduitJson) {
+        if (aduitJson) {
+            AduitLogService.insertLog(aduitJson);
+        }
+        resModel.c_is_custom = 1;
+        return createResModel(sqlConfig.t_moni_model_base_insert, resModel);
+    },
+    updataResModel: function (resModel, oldId, aduitJson) {
+        if (resModel && oldId) {
+            if (aduitJson) {
+                AduitLogService.insertLog(aduitJson);
+            }
+            var stm = sqlConfig.t_moni_model_base_update + ' WHERE c_id =' + mysql.escape(oldId);
+            return createResModel(stm, resModel);
+        }
+    },
+    deleteResModel: function (ids, aduitJson) {
+        if (aduitJson) {
+            AduitLogService.insertLog(aduitJson);
+        }
+        return queryWithTrans(sqlConfig.t_moni_model_base_delete, [ids]);
+    },
+    getResModelTree: function (host) {
+        return Q.spread([
+            this.getResTypeTree(host),
+            getMainResModel(),
+            getResModel('-1')
+        ], function (resTypeTree, mainResModel, resModel) {
+            Array.prototype.push.apply(resTypeTree, mainResModel);
+            Array.prototype.push.apply(resTypeTree, resModel);
+            return resTypeTree;
+        });
+    },
+    getMainResModelTree: function (host) {
+        return Q.spread([
+            this.getResTypeTree(host),
+            getResModel('1')
+        ], function (resTypeTree, mainResModel) {
+            Array.prototype.push.apply(resTypeTree, mainResModel);
+            return resTypeTree;
+        });
+    },
+    copyResModels: function (modelIds, aduitJson) {
+        var promise = Q.defer();
+        SqlCommand.getConnection(function (err, connection) {
+            if (!!err) {
+                promise.reject(err);
+            } else {
+                connection.beginTransaction(function (err) {
+                    if (!!err) {
+                        promise.reject(err);
+                        connection.release();
+                    } else {
+                        connQuery(connection, sqlConfig.t_moni_model_base_select_by_ids, [modelIds]).then(function (rows) {
+                            var result = [], mainModels = [], subModels = [], models = [], cloneModels = [];
+                            getResModels(rows, mainModels, subModels);
+                            var cloneMainModels = JSON.parse(JSON.stringify(mainModels)), cloneSubModels = JSON.parse(JSON.stringify(subModels));
+                            getCloneResModels(mainModels, cloneMainModels, cloneSubModels);
+                            models = models.concat(mainModels).concat(subModels);
+                            cloneModels = cloneModels.concat(cloneMainModels).concat(cloneSubModels);
+                            for (var i = 0; i < models.length; i++) {
+                                result.push(copyModelMetricRelation(connection, models[i], cloneModels[i]));
+                                result.push(copyModelMetricCmd(connection, models[i], cloneModels[i]));
+                            }
+                            result.push(copyPolicyInfo(connection, models, cloneModels));
+                            Q.all(result).then(function () {
+                                connection.commit();
+                                promise.resolve(true);
+                                if (aduitJson) {
+                                    AduitLogService.insertLog(aduitJson);
+                                }
+                            }).fail(function (err) {
+                                connection.rollback();
+                                promise.resolve(err);
+                            }).fin(function () {
+                                connection.release();
+                            });
+
+                        });
+                    }
+                });
+            }
+        });
+        return promise.promise;
+    },
+    isExistResName: function (resId, resName, selfId) {
+        if (!!resId && !!resName) {
+            var sql = 'SELECT * FROM t_moni_res_type WHERE c_parent_id = ?';
+            return query(sql, resId).then(function (rows) {
+                var flag = false;
+                if (rows && rows.length > 0) {
+                    for (var i = 0; i < rows.length; i++) {
+                        if (resName === rows[i].c_name) {
+                            if (selfId && rows[i].c_id === selfId) {
+                                continue;
+                            } else {
+                                flag = true;
+                            }
+                            break;
                         }
                     }
                 }
+                return flag;
+            });
+        } else {
+            return Q.resolve(false);
+        }
+    },
+    isExistModelName: function (mainmodelid, modelName, selfId) {
+        if (!!mainmodelid && !!modelName) {
+            if (mainmodelid.lastIndexOf('RIIL_RMM', 0) === 0) {
+                return query(sqlConfig.t_moni_model_base_select_by_mainmodelid, mainmodelid).then(function (rows) {
+                    var flag = false;
+                    if (rows && rows.length > 0) {
+                        for (var i = 0; i < rows.length; i++) {
+                            if (modelName === rows[i].name) {
+                                if (selfId && rows[i].modelId === selfId) {
+                                    continue;
+                                } else {
+                                    flag = true;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    return flag;
+                });
+            } else if (mainmodelid.lastIndexOf('RIIL_RMT', 0) === 0) {
+                var sql = 'SELECT * FROM t_moni_model_base WHERE c_res_type_id = ?';
+                return query(sql, mainmodelid).then(function (rows) {
+                    var flag = false;
+                    if (rows && rows.length > 0) {
+                        for (var i = 0; i < rows.length; i++) {
+                            if (modelName === rows[i].c_name) {
+                                if (selfId && rows[i].c_id === selfId) {
+                                    continue;
+                                } else {
+                                    flag = true;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    return flag;
+                });
+            } else {
+                return Q.resolve(false);
             }
-            promise.resolve(rs);
+        } else {
+            return Q.resolve(false);
+        }
+    }
+};
+
+function getResModels(resModels, mainModels, subModels) {
+    resModels.forEach(function (resModel) {
+        if (resModel.c_is_main && resModel.c_is_main === 1) {
+            mainModels.push(resModel);
+        } else {
+            subModels.push(resModel);
+        }
+    });
+}
+
+function getCloneResModels(mainModels, cloneMainModels, cloneSubModels) {
+    cloneMainModels.forEach(function (cloneMainModel) {
+        cloneMainModel.c_id = cloneMainModel.c_id + "_" + rand.generate(4);
+        cloneMainModel.c_name += '_复制';
+    });
+    cloneSubModels.forEach(function (cloneSubModel) {
+        cloneSubModel.c_id = cloneSubModel.c_id + "_" + rand.generate(4);
+        for (var i = 0; i < mainModels.length; i++) {
+            if (cloneSubModel.c_main_model_id === mainModels[i].c_id) {
+                cloneSubModel.c_main_model_id = cloneMainModels[i].c_id;
+                break;
+            }
+        }
+    });
+}
+
+function copyModelMetricRelation(connection, resModel, clonesResModel) {
+    if (resModel) {
+        clonesResModel.c_is_custom = 1;
+        return connQuery(connection, sqlConfig.t_moni_model_base_insert, clonesResModel).then(function () {
+            return connQuery(connection, sqlConfig.t_moni_model_metric_rel_select_by_modelid, resModel.c_id);
+        }).then(function (rows) {
+            if (rows && rows.length > 0) {
+                var results = [];
+                rows.forEach(function (row) {
+                    row.c_model_id = clonesResModel.c_id;
+                    row.c_res_type_id = clonesResModel.c_res_type_id;
+                    results.push(connQuery(connection, sqlConfig.t_moni_model_metric_rel_insert, row));
+                });
+                return Q.all(results);
+            }
+        });
+    }
+}
+
+function copySubPolicyInfo(connection, querySql, saveSql, policyInfo, clonePolicyInfo) {
+    if (policyInfo) {
+        return connQuery(connection, querySql, policyInfo.c_id).then(function (rows) {
+            if (rows && rows.length > 0) {
+                var results = [];
+                rows.forEach(function (row) {
+                    row.c_id = uuid.v4();
+                    row.c_policy_id = clonePolicyInfo.c_id;
+                    results.push(connQuery(connection, saveSql, row));
+                });
+                return Q.all(results);
+            }
+        });
+    }
+}
+
+function copyPolicyInfo(connection, resModels, clonesResModels) {
+    var result = [], policyInfos = [], clonePolicyInfos = [];
+    for (var i = 0; i < resModels.length; i++) {
+        result.push(getPolicyInfo(connection, resModels[i], clonesResModels[i], policyInfos, clonePolicyInfos));
+    }
+    return Q.all(result).then(function () {
+        for (var i = 0; i < policyInfos.length; i++) {
+            if (!!policyInfos[i].c_main_policy_id) {
+                for (var j = 0; j < policyInfos.length; j++) {
+                    if (policyInfos[i].c_main_policy_id === policyInfos[j].c_id) {
+                        clonePolicyInfos[i].c_main_policy_id = clonePolicyInfos[j].c_id;
+                        break;
+                    }
+                }
+            }
+        }
+        var rs = [];
+        for (i = 0; i < policyInfos.length; i++) {
+            rs.push(copySubPolicyInfo(connection, sqlConfig.t_moni_policy_event_select_by_policyid, sqlConfig.t_moni_policy_event_insert, policyInfos[i], clonePolicyInfos[i]));
+            rs.push(copySubPolicyInfo(connection, sqlConfig.t_moni_policy_metric_select_by_policyid, sqlConfig.t_moni_policy_metric_insert, policyInfos[i], clonePolicyInfos[i]));
+            rs.push(copySubPolicyInfo(connection, sqlConfig.t_moni_policy_threshold_select_by_policyid, sqlConfig.t_moni_policy_threshold_insert, policyInfos[i], clonePolicyInfos[i]));
+            rs.push(copySubPolicyInfo(connection, sqlConfig.t_moni_policy_res_avail_rule_select_by_policyid, sqlConfig.t_moni_policy_res_avail_rule_insert, policyInfos[i], clonePolicyInfos[i]));
+        }
+        return Q.all(rs);
+    });
+}
+
+function getPolicyInfo(connection, resModel, clonesResModel, policyInfos, clonePolicyInfos) {
+    if (resModel) {
+        return connQuery(connection, sqlConfig.t_moni_policy_info_select_by_modelid, resModel.c_id).then(function (rows) {
+            if (rows && rows.length > 0) {
+                var results = [];
+                rows.forEach(function (row) {
+                    var clonePolicyInfo = JSON.parse(JSON.stringify(row));
+                    clonePolicyInfo.c_id = row.c_id + "_" + rand.generate(4);
+                    clonePolicyInfo.c_name += '_复制';
+                    clonePolicyInfo.c_desc += '_复制';
+                    clonePolicyInfo.c_model_id = clonesResModel.c_id;
+                    clonePolicyInfo.c_model_name = clonesResModel.c_name;
+                    policyInfos.push(row);
+                    clonePolicyInfos.push(clonePolicyInfo);
+                    results.push(connQuery(connection, sqlConfig.t_moni_policy_info_insert, clonePolicyInfo));
+                });
+                return Q.all(results);
+            }
+        });
+    }
+}
+
+function copyModelMetricCmd(connection, resModel, clonesResModel) {
+    var getMetricBinding = 'SELECT * FROM t_moni_metricbinding WHERE c_model_id = ?';
+    var saveMetricBinding = 'INSERT INTO t_moni_metricbinding SET ?';
+    if (resModel) {
+        return connQuery(connection, getMetricBinding, resModel.c_id).then(function (rows) {
+            var metricBindingIds = [], cloneMetricBindingIds = [];
+            if (rows && rows.length > 0) {
+                var results = [];
+                rows.forEach(function (row) {
+                    metricBindingIds.push(row.c_id);
+                    row.c_model_id = clonesResModel.c_id;
+                    row.c_id = uuid.v4();
+                    cloneMetricBindingIds.push(row.c_id);
+                    results.push(connQuery(connection, saveMetricBinding, row));
+                });
+                for (var i = 0; i < metricBindingIds.length; i++) {
+                    results.push(copyCmdGroup(connection, metricBindingIds[i], cloneMetricBindingIds[i]));
+                }
+                return Q.all(results);
+            }
+        });
+    }
+}
+
+function copyCmdGroup(connection, metricBindingId, cloneMetricBindingId) {
+    var getCmdGroup = 'SELECT * FROM t_moni_cmds_group WHERE c_metricbinding_id = ?';
+    var saveCmdGroup = 'INSERT INTO t_moni_cmds_group SET ?';
+    return connQuery(connection, getCmdGroup, metricBindingId).then(function (rows) {
+        var results = [];
+        if (rows && rows.length > 0) {
+            var cmdGroupIds = [], cloneCmdGroupIds = [];
+            rows.forEach(function (row) {
+                cmdGroupIds.push(row.c_id);
+                row.c_id = uuid.v4();
+                row.c_metricbinding_id = cloneMetricBindingId;
+                cloneCmdGroupIds.push(row.c_id);
+                results.push(connQuery(connection, saveCmdGroup, row));
+            });
+            for (var i = 0; i < cmdGroupIds.length; i++) {
+                results.push(copyCmd(connection, cmdGroupIds[i], cloneCmdGroupIds[i]));
+                results.push(copyCmdSupport(connection, cmdGroupIds[i], cloneCmdGroupIds[i]));
+                results.push(copyCmdConnProtocol(connection, cmdGroupIds[i], cloneCmdGroupIds[i]));
+                results.push(copyCmdProcessor(connection, cmdGroupIds[i], cloneCmdGroupIds[i]));
+            }
+        }
+        return Q.all(results);
+    });
+}
+
+function copyCmd(connection, cmdGroupId, cloneCmdGroupId) {
+    var getCmd = 'SELECT * FROM t_moni_cmd WHERE c_cmds_group_id = ?';
+    var saveCmd = 'INSERT INTO t_moni_cmd SET ?';
+    return connQuery(connection, getCmd, cmdGroupId).then(function (rows) {
+        var results = [];
+        if (rows && rows.length > 0) {
+            var cmdIds = [], cloneCmdIds = [];
+            rows.forEach(function (row) {
+                cmdIds.push(row.c_id);
+                row.c_id = uuid.v4();
+                row.c_cmds_group_id = cloneCmdGroupId;
+                cloneCmdIds.push(row.c_id);
+                results.push(connQuery(connection, saveCmd, row));
+            });
+            for (var i = 0; i < cmdIds.length; i++) {
+                results.push(copyCmdProp(connection, cmdIds[i], cloneCmdIds[i]));
+                results.push(copyCmdFilter(connection, cmdIds[i], cloneCmdIds[i]));
+            }
+        }
+        return Q.all(results);
+    });
+}
+
+function copyCmdProp(connection, cmdId, cloneCmdId) {
+    var getCmdProp = 'SELECT * FROM t_moni_cmd_properties WHERE c_cmd_id = ?';
+    var saveCmdProp = 'INSERT INTO t_moni_cmd_properties SET ?';
+    return connQuery(connection, getCmdProp, cmdId).then(function (rows) {
+        var results = [];
+        if (rows && rows.length > 0) {
+            rows.forEach(function (row) {
+                row.c_cmd_id = cloneCmdId;
+                results.push(connQuery(connection, saveCmdProp, row));
+            });
+        }
+        return Q.all(results);
+    });
+}
+
+function copyCmdFilter(connection, cmdId, cloneCmdId) {
+    var getCmdFilter = 'SELECT * FROM t_moni_cmd_filters WHERE c_cmd_id = ?';
+    var saveCmdFilter = 'INSERT INTO t_moni_cmd_filters SET ?';
+    return connQuery(connection, getCmdFilter, cmdId).then(function (rows) {
+        var results = [];
+        if (rows && rows.length > 0) {
+            rows.forEach(function (row) {
+                row.c_id = uuid.v4();
+                row.c_cmd_id = cloneCmdId;
+                results.push(connQuery(connection, saveCmdFilter, row));
+            });
+        }
+        return Q.all(results);
+    });
+}
+
+function copyCmdSupport(connection, cmdGroupId, cloneCmdGroupId) {
+    var getCmdSupport = 'SELECT * FROM t_moni_cmds_support WHERE c_cmds_group_id = ?';
+    var saveCmdSupport = 'INSERT INTO t_moni_cmds_support SET ?';
+    return connQuery(connection, getCmdSupport, cmdGroupId).then(function (rows) {
+        var results = [];
+        if (rows && rows.length > 0) {
+            rows.forEach(function (row) {
+                row.c_id = uuid.v4();
+                row.c_cmds_group_id = cloneCmdGroupId;
+                results.push(connQuery(connection, saveCmdSupport, row));
+            });
+        }
+        return Q.all(results);
+    });
+}
+
+function copyCmdConnProtocol(connection, cmdGroupId, cloneCmdGroupId) {
+    var getCmdConnProtocol = 'SELECT * FROM t_moni_cmds_conn_protocol WHERE c_cmds_group_id = ?';
+    var saveCmdConnProtocol = 'INSERT INTO t_moni_cmds_conn_protocol SET ?';
+    return connQuery(connection, getCmdConnProtocol, cmdGroupId).then(function (rows) {
+        var results = [];
+        if (rows && rows.length > 0) {
+            rows.forEach(function (row) {
+                row.c_id = uuid.v4();
+                row.c_cmds_group_id = cloneCmdGroupId;
+                results.push(connQuery(connection, saveCmdConnProtocol, row));
+            });
+        }
+        return Q.all(results);
+    });
+}
+
+function copyCmdProcessor(connection, cmdGroupId, cloneCmdGroupId) {
+    var getCmdProcessor = 'SELECT * FROM t_moni_cmds_processor WHERE c_cmds_group_id = ?';
+    var saveCmdProcessor = 'INSERT INTO t_moni_cmds_processor SET ?';
+    return connQuery(connection, getCmdProcessor, cmdGroupId).then(function (rows) {
+        var results = [];
+        if (rows && rows.length > 0) {
+            var processorIds = [], cloneProcessorIds = [];
+            rows.forEach(function (row) {
+                processorIds.push(row.c_id);
+                row.c_id = uuid.v4();
+                row.c_cmds_group_id = cloneCmdGroupId;
+                cloneProcessorIds.push(row.c_id);
+                results.push(connQuery(connection, saveCmdProcessor, row));
+                for (var i = 0; i < processorIds.length; i++) {
+                    results.push(copyProcessPara(connection, processorIds[i], cloneProcessorIds[i]));
+                }
+            });
+        }
+        return Q.all(results);
+    });
+}
+
+function copyProcessPara(connection, processorId, cloneProcessorId) {
+    var getProcessPara = 'SELECT * FROM t_moni_cmds_process_para WHERE c_cmds_processor_id = ?';
+    var saveProcessPara = 'INSERT INTO t_moni_cmds_process_para SET ?';
+    return connQuery(connection, getProcessPara, processorId).then(function (rows) {
+        var results = [];
+        if (rows && rows.length > 0) {
+            rows.forEach(function (row) {
+                row.c_id = uuid.v4();
+                row.c_cmds_processor_id = cloneProcessorId;
+                results.push(connQuery(connection, saveProcessPara, row));
+            });
+        }
+        return Q.all(results);
+    });
+}
+
+module.exports = ResTypeTree;
+
+function query(sql, args) {
+    var promise = Q.defer();
+    SqlCommand.getConnection(function (err, connection) {
+        if (!!err) {
+            promise.reject(err);
+        } else {
+            connection.query(sql, args, function (err, rows) {
+                connection.release();
+                if (!!err) {
+                    promise.reject(err);
+                } else {
+                    promise.resolve(rows);
+                }
+            });
         }
     });
     return promise.promise;
 }
 
-function getResModel(isMain) {
+function connQuery(connection, sql, args) {
     var promise = Q.defer();
-    var commander = new SqlCommand();
-    commander.get('t_moni_model_base.select', [isMain]).then(function (rs) {
-        if (rs && rs.recourdCount > 0) {
-            for (var j = 0; j < rs.recourdCount; j++) {
-                for (var i = 0; i < rs.fieldCount; i++) {
-                    var field = rs.fields[i];
-                    if ('id' === field) {
-                        if (!rs.rows[j][field]) {
-                            rs.rows[j][field] = uuid.v4();
-                        }
-                    }
-                }
-            }
-            promise.resolve(rs);
+    connection.query(sql, args, function (err, rows) {
+        if (!!err) {
+            promise.reject(err);
+        } else {
+            promise.resolve(rows);
         }
     });
     return promise.promise;
 }
 
-function getSubResModel(id, mainmodelid) {
+function queryWithTrans(sql, args) {
     var promise = Q.defer();
-    var commander = new SqlCommand();
-    commander.get('t_moni_model_base.select_by_mainmodelid', [mainmodelid]).then(function (rs) {
-        if (rs && rs.recourdCount > 0) {
-            for (var j = 0; j < rs.recourdCount; j++) {
-                for (var i = 0; i < rs.fieldCount; i++) {
-                    var field = rs.fields[i];
-                    if ('id' === field) {
-                        rs.rows[j][field] = uuid.v4();
-                    } else if ('pId' === field) {
-                        rs.rows[j][field] = id;
-                    }
+    SqlCommand.getConnection(function (err, connection) {
+        if (!!err) {
+            promise.reject(err);
+        } else {
+            connection.beginTransaction(function (err) {
+                if (!!err) {
+                    promise.reject(err);
+                    connection.release();
+                } else {
+                    connection.query(sql, args, function (err, rows) {
+                        if (!!err) {
+                            connection.rollback(function () {
+                                promise.reject(err);
+                                connection.release();
+                            });
+                        } else {
+                            connection.commit(function (err) {
+                                if (!!err) {
+                                    connection.rollback(function () {
+                                        promise.reject(err);
+                                        connection.release();
+                                    });
+                                } else {
+                                    promise.resolve(true);
+                                    connection.release();
+                                }
+                            });
+                        }
+                    });
                 }
-            }
+            });
         }
-        promise.resolve(rs);
     });
     return promise.promise;
 }
@@ -88,58 +594,76 @@ function getPid(id) {
 }
 
 function getIcon(host, icon) {
-    return host + '/images/template/' + icon;
+    if (icon)
+        return host + '/images/template/' + icon;
+    else
+        return host + '/images/template/Other.png';
+}
+
+function formatRow(row, host) {
+    row.pId = getPid(row.pId);
+    row.icon = getIcon(host, row.icon);
+}
+
+function createResModel(sqlid, resModel) {
+    if (resModel) {
+        if (resModel.c_res_type_id) {
+            return query(sqlConfig.t_moni_res_type_select_by_id, resModel.c_res_type_id).then(function (rows) {
+                if (rows && rows.length === 1) {
+                    resModel.c_tree_node_id = rows[0].c_tree_node_id;
+                }
+                return queryWithTrans(sqlid, resModel);
+            });
+        } else {
+            return queryWithTrans(sqlid, resModel);
+        }
+    }
+}
+
+function getResModel(isMain) {
+    return query(sqlConfig.t_moni_model_base_select_by_ismain, [isMain]).then(function (rows) {
+        if (rows && rows.length > 0) {
+            rows.forEach(function (row) {
+                row.id = uuid.v4();
+            });
+            return rows;
+        }
+    });
+}
+
+function getSubResModel(id, mainmodelid) {
+    return query(sqlConfig.t_moni_model_base_select_by_mainmodelid, mainmodelid).then(function (rows) {
+        if (rows && rows.length > 0) {
+            rows.forEach(function (row) {
+                row.id = uuid.v4();
+                row.pId = id;
+            });
+            return rows;
+        }
+    });
 }
 
 function getMainResModel() {
-    var promise = Q.defer();
-    getResModel('1').then(function (rs) {
-        if (rs && rs.recourdCount > 0) {
-            return Q.spread(_.map(rs.rows, function (row) {
-                return getSubResModel(row.id, row.modelId);
-            }), function () {
-                Array.prototype.forEach.call(arguments, function (result) {
-                    Array.prototype.push.apply(rs.rows, result.rows);
-                });
-            }).then(function () {
-                promise.resolve(rs);
+    return getResModel('1').then(function (rows) {
+        if (rows && rows.length > 0) {
+            var results = [];
+            rows.forEach(function (row) {
+                results.push(getSubResModel(row.id, row.modelId));
+            });
+            return Q.all(results).then(function () {
+                if (results && results.length > 0) {
+                    results.forEach(function (result) {
+                        if (result) {
+                            result.forEach(function (row) {
+                                rows.push(row);
+                            });
+                        }
+                    });
+                }
+                return rows;
             });
         }
     });
-    return promise.promise;
-}
-
-
-
-function getResModelTree(host) {
-    var promise = Q.defer();
-    Q.spread([
-        getResTypeTree(host),
-        getMainResModel(),
-        getResModel('-1')
-    ], function (resTypeTree, mainResModel, resModel) {
-        Array.prototype.push.apply(resTypeTree.rows, mainResModel.rows);
-        Array.prototype.push.apply(resTypeTree.rows, resModel.rows);
-        promise.resolve(resTypeTree);
-    });
-    return promise.promise;
-}
-
-function getMainResModelTree(host) {
-    var promise = Q.defer();
-    Q.spread([
-        getResTypeTree(host),
-        getResModel('1')
-    ], function (resTypeTree, mainResModel) {
-        Array.prototype.push.apply(resTypeTree.rows, mainResModel.rows);
-        promise.resolve(resTypeTree);
-    });
-    return promise.promise;
-}
-
-function getAllPlugin() {
-    var commander = new SqlCommand();
-    return commander.get('t_moni_model_base.select_plugin', null);
 }
 
 function getLastTreeNodeId(id) {
@@ -150,28 +674,6 @@ function getLastTreeNodeId(id) {
         }
     }
     return id;
-}
-
-function getTreeNodeId(parentId, parentTreeNodeId) {
-    var commander = new SqlCommand();
-    return commander.get('t_moni_res_type.select_by_parentid', parentId).then(function (rs) {
-        if (rs && rs.recourdCount > 0) {
-            var ids = [];
-            rs.rows.forEach(function (item) {
-                ids.push(parseInt(getLastTreeNodeId(item.c_tree_node_id)));
-            });
-            var lastTreeId = String(_.max(ids) + 1);
-            if (lastTreeId) {
-                if (lastTreeId.length === 1) {
-                    lastTreeId = '0' + lastTreeId;
-                }
-            }
-            if (parentTreeNodeId) {
-                parentTreeNodeId = parentTreeNodeId + '.' + lastTreeId;
-            }
-            return parentTreeNodeId;
-        }
-    });
 }
 
 function countInstances(mainStr, subStr) {
@@ -209,163 +711,23 @@ function getSortId(treeNodeId) {
     return parseInt(sortId);
 }
 
-function saveResType(resType) {
-    if (resType) {
-        var commander = new SqlCommand(true);
-        return commander.get('t_moni_res_type.select_by_id', resType.c_parent_id)
-            .then(function (rs) {
-                if (rs && rs.recourdCount > 0) {
-                    resType.c_tree_level = ++rs.rows[0].c_tree_level;
-                    return getTreeNodeId(rs.rows[0].c_id, rs.rows[0].c_tree_node_id);
-                }
-            })
-            .then(function (treeNodeId) {
-                if (treeNodeId) {
-                    resType.c_tree_node_id = treeNodeId;
-                    resType.c_sort_id = getSortId(resType.c_tree_node_id);
-                    return commander.save('t_moni_res_type.insert', resType);
-                }
-            }).then(function () {
-                commander.commit();
-            }).fail(function () {
-                commander.rollback();
+function getTreeNodeId(parentId, parentTreeNodeId) {
+    return query(sqlConfig.t_moni_res_type_select_by_parentid, parentId).then(function (rows) {
+        if (rows && rows.length > 0) {
+            var ids = [];
+            rows.forEach(function (row) {
+                ids.push(parseInt(getLastTreeNodeId(row.c_tree_node_id)));
             });
-    }
-}
-
-function getResTypeById(typeId) {
-    var commander = new SqlCommand();
-    return commander.get('t_moni_res_type.select_by_id', typeId);
-}
-
-function updataResType(resType) {
-    var commander = new SqlCommand();
-    return commander.save('t_moni_res_type.update', resType);
-}
-
-function deleteResType(ids) {
-    var commander = new SqlCommand();
-    return commander.del('t_moni_res_type.delete', ids);
-}
-
-function getResModelById(modelId) {
-    var commander = new SqlCommand();
-    return commander.get('t_moni_model_base.select_by_id', modelId);
-}
-
-function createResModel(sqlid, resModel) {
-    if (resModel) {
-        var commander = new SqlCommand(true);
-        return commander.get('t_moni_res_type.select_by_id', resModel.c_res_type_id).then(function (rs) {
-            if (rs && rs.recourdCount > 0) {
-                resModel.c_tree_node_id = rs.rows[0].c_tree_node_id;
-            }
-            return commander.save(sqlid, resModel);
-        }).then(function () {
-            commander.commit();
-        }).fail(function () {
-            commander.rollback();
-        });
-    }
-}
-
-function saveResModel(resModel) {
-    return createResModel('t_moni_model_base.insert', resModel);
-}
-
-function updataResModel(resModel) {
-    return createResModel('t_moni_model_base.update', resModel);
-}
-
-function deleteResModel(ids) {
-    var commander = new SqlCommand();
-    return commander.del('t_moni_model_base.delete', ids);
-}
-
-function copyModelMetricRelation(commander, resModel, clonesResModel) {
-    if (resModel) {
-        return modelmetric_rel.getModelMetricRelationData(resModel.c_id).then(function (rs) {
-            if (rs && rs.recourdCount > 0) {
-                return commander.save('t_moni_model_base.insert', clonesResModel).then(function () {
-                    var results = [];
-                    rs.rows.forEach(function (modelmetricrel) {
-                        modelmetricrel.modelId = clonesResModel.c_id;
-                        modelmetricrel.resTypeId = clonesResModel.c_res_type_id;
-                        results.push(modelmetric_rel.saveModelMetricRelation(commander, modelmetricrel));
-                    });
-                    return Q.all(results);
-                });
-            }
-        });
-    }
-}
-
-function copyResModels(modelIds) {
-    var promise = Q.defer();
-    if (modelIds && modelIds.length > 0) {
-        var commander = new SqlCommand(true);
-        var mainModels = [];
-        var subModels = [];
-        var results = [];
-        modelIds.forEach(function (modelId) {
-            results.push(commander.get('t_moni_model_base.select_by_id', modelId));
-        });
-        Q.spread(results, function () {
-            Array.prototype.forEach.call(arguments, function (rs) {
-                if (rs && rs.recourdCount === 1) {
-                    if (rs.rows[0].c_is_main && rs.rows[0].c_is_main === '1') {
-                        mainModels.push(rs.rows[0]);
-                    } else {
-                        subModels.push(rs.rows[0]);
-                    }
-                }
-            });
-        }).done(function () {
-            var result = [];
-            var cloneMainModels = JSON.parse(JSON.stringify(mainModels));
-            var cloneSubModels = JSON.parse(JSON.stringify(subModels));
-            for (var i = 0; i < cloneMainModels.length; i++) {
-                cloneMainModels[i].c_id = cloneMainModels[i].c_id + "_" + rand.generate(4);
-                cloneMainModels[i].c_name += '_复制';
-            }
-            for (var j = 0; j < cloneSubModels.length; j++) {
-                cloneSubModels[j].c_id = cloneSubModels[j].c_id + "_" + rand.generate(4);
-                for (var k = 0; k < mainModels.length; k++) {
-                    if (cloneSubModels[j].c_main_model_id === mainModels[k].c_id) {
-                        cloneSubModels[j].c_main_model_id = cloneMainModels[k].c_id;
-                        break;
-                    }
+            var lastTreeId = String(_.max(ids) + 1);
+            if (lastTreeId) {
+                if (lastTreeId.length === 1) {
+                    lastTreeId = '0' + lastTreeId;
                 }
             }
-            mainModels = mainModels.concat(subModels);
-            cloneMainModels = cloneMainModels.concat(cloneSubModels);
-            for (var l = 0; l < mainModels.length; l++) {
-                result.push(copyModelMetricRelation(commander, mainModels[l], cloneMainModels[l]));
+            if (parentTreeNodeId) {
+                parentTreeNodeId = parentTreeNodeId + '.' + lastTreeId;
             }
-            Q.all(result).then(function () {
-                commander.commit();
-                promise.resolve(true);
-            }).fail(function () {
-                commander.rollback();
-                promise.resolve(false);
-            });
-        });
-    }
-    return promise.promise;
+            return parentTreeNodeId;
+        }
+    });
 }
-
-module.exports.getResTypeTree = getResTypeTree;
-module.exports.getResTypeById = getResTypeById;
-module.exports.saveResType = saveResType;
-module.exports.updataResType = updataResType;
-module.exports.deleteResType = deleteResType;
-
-module.exports.getResModelTree = getResModelTree;
-module.exports.getMainResModelTree = getMainResModelTree;
-module.exports.getResModelById = getResModelById;
-module.exports.saveResModel = saveResModel;
-module.exports.updataResModel = updataResModel;
-module.exports.deleteResModel = deleteResModel;
-module.exports.copyResModels = copyResModels;
-
-module.exports.getAllPlugin = getAllPlugin;

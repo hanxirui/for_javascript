@@ -12,6 +12,7 @@ import com.riil.base.binding.pojo.CollectCmdsProcessPara;
 import com.riil.base.binding.pojo.CollectCmdsProcessor;
 import com.riil.base.binding.pojo.MetricBindingPojo;
 import com.riil.base.binding.pojo.MetricProcessPara;
+import com.riil.base.binding.pojo.ResTypeExtendPojo;
 import com.riil.base.pojo.dict.DictCollFrequencyPojo;
 import com.riil.base.resmodel.IDictService;
 import com.riil.base.resmodel.IMetricBindingService;
@@ -32,7 +33,7 @@ public class DBServiceProxy {
         getResTypeService().createResType(resType);
     }
 	
-    public static void createBatchResType(List<ResTypePojo> resTypes) throws ServiceException, ContainerException {
+    public static void createBatchResType(List<ResTypeExtendPojo> resTypes) throws ServiceException, ContainerException {
         getResTypeService().createBatch(resTypes);
     }
 

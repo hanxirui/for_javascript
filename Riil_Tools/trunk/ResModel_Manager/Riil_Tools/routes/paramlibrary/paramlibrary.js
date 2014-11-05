@@ -6,7 +6,6 @@ var router = express.Router();
 var metric_base = require('../../service/MetricBaseLib');
 var metricType = require('../../service/func/Enum4MetricType');
 var metricDataType = require('../../service/func/Enum4DataType');
-var metricGroup = require('../../service/MetricGroupInfor');
 var MetricBaseParam = require('../../service/func/MetricBaseParameter');
 var comm_func = require('../../service/func/commonfunc.js');
 var Q = require('q');
@@ -33,7 +32,7 @@ router.get('/listparam', function(req, res) {
 //删除指标
 router.post('/deleteLibraryData', function(req, res) {
   var metricIds = req.body.id;
-  metric_base.deleteMetricBaseById(metricIds).then(function(recordSet) {
+  metric_base.deleteMetricBaseById(metricIds,req.session.userInfo.userId).then(function(recordSet) {
     if (!recordSet.isError) {
       res.json({
         msg: 'success'
@@ -48,7 +47,7 @@ router.post('/deleteLibraryData', function(req, res) {
 
 //添加指标
 router.post('/addLibraryData', function(req, res) {
-  metricGroup.getMetricGroupNameMap().then(function(recordSet) {
+  metric_base.getMetricGroupList().then(function(recordSet) {
     var libraryInfo = {
       'metricType': metricType.metric,
       'metricDataType': metricDataType.data,
@@ -64,7 +63,7 @@ router.post('/addLibraryData', function(req, res) {
 router.get('/updateLibraryData', function(req, res) {
   var metricIds = req.query.id;
   Q.spread([
-    metricGroup.getMetricGroupNameMap(),
+    metric_base.getMetricGroupList(),
     metric_base.getMetricBaseById(metricIds)
   ], function(get1, get2) {
     return {
@@ -97,7 +96,7 @@ router.get('/updateLibraryData', function(req, res) {
 //添加指标
 router.post('/addMretric', function(req, res) {
   var metricBaseParam = new MetricBaseParam();
-  metricBaseParam.param.metric_id = comm_func.getUUID();
+  metricBaseParam.param.metric_id = req.body.metricId;
   metricBaseParam.param.metric_name = req.body.metricName;
   metricBaseParam.param.metric_desc = req.body.metricDesc
   metricBaseParam.param.metric_datatype = req.body.metricDataType;
@@ -145,7 +144,7 @@ router.post('/updateMretric', function(req, res) {
 
   Q.spread([
     metric_base.saveMetricBaseModify(metricBaseParam.param),
-    metric_base.deleteMetricGroupRelByMetricId(metricBaseParam.param.metric_id),
+    metric_base.deleteMetricGroupRelByMetricId(metricBaseParam.param.metric_id, metricBaseParam.param.userid),
     metric_base.saveMetricGroupRelation(metricBaseParam.param)
   ], function(get1, get2) {
     // debugger;
@@ -205,6 +204,14 @@ router.get('/getMetricBaseByCondition', function(req, res) {
     var jstr = JSON.stringify(err);
     var jobj = JSON.parse(jstr);
     console.error(jobj.errMessage);
+  });
+});
+
+router.get('/check', function(req, res) {
+  metric_base.getMetricBaseById(req.query.id).then(function (rs){
+    res.json({
+      data : rs.rows[0].metricId
+    });
   });
 });
 

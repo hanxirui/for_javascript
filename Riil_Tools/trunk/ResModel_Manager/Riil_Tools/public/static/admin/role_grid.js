@@ -1,6 +1,4 @@
 $(document).ready(function() {
-
-	debugger;
 	var table = $('#dataTable').dataTable({
 		"oLanguage": GIRD_I18N,
 		"bFilter": false,

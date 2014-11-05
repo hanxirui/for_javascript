@@ -1,5 +1,9 @@
 var accordion = {
   init: function() {
+    $('#accordion').bind('accordionchange', function(event, ui) {
+      ui.oldHeader.find('a.ico').removeClass('ico down f_right').addClass('ico up f_right');
+      ui.newHeader.find('a.ico').removeClass('ico up f_right').addClass('ico down f_right');
+    });
     accordion.accordionInit();
     accordion.collapse();
   },
@@ -72,11 +76,17 @@ var accordion = {
       $("#accordion").accordion({
         active: 1
       });
+      var select_h3 = $("#accordion").find('h3')[1];
+      var select_div = $(select_h3).find('div a')[1];
+      $(select_div).removeClass('ico up f_right').addClass('ico down f_right');
       accordion.initResModelTree();
     } else {
-      $("#accordion").accordion();
+      $("#accordion").accordion({
+        active: 0
+      });
+      var selectAccordion = $("#accordion").find('h3:first div a')[1];
+      $(selectAccordion).removeClass('ico up f_right').addClass('ico down f_right');
     }
-
   }
 }
 $(document).ready(function() {

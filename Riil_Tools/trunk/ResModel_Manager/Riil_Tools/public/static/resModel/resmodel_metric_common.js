@@ -30,11 +30,7 @@ function checkMetricInfoNoNull() {
 function checkMetricIdExists() {
   var resModelMetricInfo = {
     'modelId': id,
-    'metricId': $("#m_paramid").val(),
-    'coltProtocol': $("#pluginProtocol").val(),
-    'isInitValue': $('input:radio[name="isInitValue"]:checked').val(),
-    'isInstance': $('input:radio[name="isInstance"]:checked').val(),
-    'isDisplayName': $('input:radio[name="isDisplayName"]:checked').val()
+    'metricId': $("#m_paramid").val()
   };
   var flag = false;
   $.ajax({
@@ -62,31 +58,42 @@ function btnOk() {
   var resModelMetricInfo = {
     'modelId': id,
     'metricId': $("#m_paramid").val(),
-    'resType': $("#resType").val(),
-    'usedProtocol': $("#pluginProtocol").val(),
-    'isInitvalue': $('input:radio[name="isInitValue"]:checked').val(),
+    'resTypeId': res_type_id,
+    'cmdProtocol': $("#pluginProtocol").val(),
+    'isInitValue': $('input:radio[name="isInitValue"]:checked').val(),
     'isInstance': $('input:radio[name="isInstance"]:checked').val(),
-    'isDisplayname': $('input:radio[name="isDisplayName"]:checked').val(),
-    'collectCmds': $("#collectCmds").val(),
-    'paramValue': $("#collectParameters").val(),
-    'collCommandId': collCommandId
+    'isDisplayName': $('input:radio[name="isDisplayName"]:checked').val()
   };
   if (checkMetricInfoNoNull()) {
     if (metric_id !== '') {
+      resModelMetricInfo.metricBindingId = metric_bindingId;
+      resModelMetricInfo.isDefault = isDefault;
+      resModelMetricInfo.isDynamic = isDynamic;
+      resModelMetricInfo.cmd = $("#collectCmds").val();
+      resModelMetricInfo.propName = '';
+      resModelMetricInfo.propValue = '';
+      var cmdProps = $("#collectParameters").val();
+      if(cmdProps !== ''){
+        resModelMetricInfo.propName = cmdProps.split(';')[0].split('=')[0];
+        resModelMetricInfo.propValue = cmdProps.split(';')[0].split('=')[1];
+      }
+      resModelMetricInfo.cmdGroupId = cmdGroupId;
+      resModelMetricInfo.cmdId = cmdId;
       $.ajax({
         type: 'post',
         url: ctx + '/resmodel/resModelCotroll/updateMetric',
         data: resModelMetricInfo,
         dataType: 'json',
-        //async:true,//表示该ajax为同步的方式
+        async:true,//表示该ajax为同步的方式
         success: function(data) {
           if (data.msg === '1') {
+            table.fnClearTable();
+            var nowTime = new Date().getTime();
             $.ajax({
               type: 'get',
-              url: ctx + "/resmodel/resModelCotroll/getAllMetricInfos?modelId=" + id,
+              url: ctx + "/resmodel/resModelCotroll/getAllMetricInfos?modelId=" + id + '&date=' + nowTime,
               //async:true,//表示该ajax为同步的方式
               success: function(data) {
-                table.fnClearTable();
                 if (data.data.length > 0) {
                   table.fnAddData(data.data);
                 }
@@ -106,6 +113,17 @@ function btnOk() {
         }
       });
     } else {
+      resModelMetricInfo.metricBindingId = "";
+      resModelMetricInfo.isDefault = '1';
+      resModelMetricInfo.isDynamic = '-1';
+      resModelMetricInfo.cmd = $("#collectCmds").val();
+      resModelMetricInfo.propName = '';
+      resModelMetricInfo.propValue = '';
+      var cmdProps = $("#collectParameters").val();
+      if(cmdProps !== ''){
+        resModelMetricInfo.propName = cmdProps.split(';')[0].split('=')[0];
+        resModelMetricInfo.propValue = cmdProps.split(';')[0].split('=')[1];
+      }
       $.ajax({
         type: 'post',
         url: ctx + '/resmodel/resModelCotroll/addModelMetricInfo',
@@ -115,12 +133,13 @@ function btnOk() {
         success: function(data) {
           collCommandId = data.uuid;
           if (data.msg === '1') {
+            table.fnClearTable();
+            var nowTime = new Date().getTime();
             $.ajax({
               type: 'get',
-              url: ctx + "/resmodel/resModelCotroll/getAllMetricInfos?modelId=" + id,
-              //async:true,//表示该ajax为同步的方式
+              url: ctx + "/resmodel/resModelCotroll/getAllMetricInfos?modelId=" + id + '&date=' + nowTime,
+              async:true,//表示该ajax为同步的方式
               success: function(data) {
-                table.fnClearTable();
                 if (data.data.length > 0) {
                   table.fnAddData(data.data);
                 }
@@ -132,6 +151,7 @@ function btnOk() {
             metric_id = $("#m_paramid").val();
             $("#m_paramid").attr('disabled','disabled');
             alert('操作成功');
+            closeWin();
           } else {
             alert('操作失败');
           }

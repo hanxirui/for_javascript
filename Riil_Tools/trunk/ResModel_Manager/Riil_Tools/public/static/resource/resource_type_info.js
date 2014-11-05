@@ -3,20 +3,20 @@
 /*jslint browser:true*/
 /*global ctx,vendorId,parentId,isMain,id,err_msg_show,alert,closeWin,setting,console,zTreeObj,refreshResTypeTree */
 'use strict';
-$(document).ready(function () {
+$(document).ready(function() {
   $('#resTypeId_msg').text('ID必须以RIIL_RMT开头');
   /**厂商下拉列表*/
-  $.get(ctx + '/resmodel/vendorController/getAllManufInfos/', function (manufInfos) {
+  $.get(ctx + '/resmodel/vendorController/getAllManufInfos/', function(manufInfos) {
     $('#manufSelect').prepend('<option value="">请选择</option>');
     var i = 0;
     for (i = 0; i < manufInfos.data.length; i++) {
       $('#manufSelect').append('<option value=' + manufInfos.data[i].c_manuf_id + '>' + manufInfos.data[i].c_manuf_name + '</option>');
     }
-    if (!vendorId) {
+    if (vendorId !== '') {
       $('#manufSelect').val(vendorId);
     }
   });
-  $('#resTypeNameEn').val($('#resTypeName').val());
+  /*$('#resTypeNameEn').val($('#resTypeName').val());*/
   if (parentId !== '') {
     $('#isMainType').removeAttr('disabled');
     $('#notMainType').removeAttr('disabled');
@@ -36,6 +36,7 @@ $(document).ready(function () {
     var imagePath = path.substring(0, path.indexOf('/resmodel')) + '/images/template/';
     imagePath += vendorImg;
     $('#image_display').attr('src', imagePath);
+    $('#iconVal').val(vendorImg);
   }
 });
 
@@ -53,7 +54,7 @@ function checkIdRepeat() {
         dataType: 'json',
         data: data,
         async: false, //表示该ajax为同步的方式
-        success: function (data) {
+        success: function(data) {
           if (data.msg === '1') {
             err_msg_show('resTypeId', 'resTypeId_msg', 'id重复', true);
             noRepeat = false;
@@ -63,7 +64,7 @@ function checkIdRepeat() {
             noRepeat = true;
           }
         },
-        error: function () {
+        error: function() {
           alert('操作失败');
         }
       });
@@ -71,6 +72,50 @@ function checkIdRepeat() {
       err_msg_show('resTypeId', 'resTypeId_msg', '', false);
       $('#resTypeId_msg').text('ID必须以RIIL_RMT开头');
     }
+  }
+  return noRepeat;
+}
+
+function checkResNameRepeat(isUpdate) {
+  var parentTId = window.parent.$.fn.zTree.getZTreeObj("treeDemo").getSelectedNodes()[0].parentTId;
+  var parent_node = window.parent.$.fn.zTree.getZTreeObj("treeDemo").getNodeByParam('tId', parentTId);
+  var parent_res_id = '';
+  if(parentId !== null && parentId !== ''){
+    parent_res_id = parentId;
+  }else{
+    parent_res_id = window.parent.$.fn.zTree.getZTreeObj("treeDemo").getSelectedNodes()[0].modelId;
+  }
+  var resTypeName = $('#resTypeName').val();
+  var noRepeat = true;
+  if (resTypeName !== '') {
+    var data = {
+      'resId': parent_res_id,
+      'resName':resTypeName,
+      'id':$('#resTypeId').val(),
+      'isUpdate':isUpdate
+    };
+    $.ajax({
+      type: 'get',
+      url: ctx + '/resmodel/resourceTypeCotroller/checkResName',
+      dataType: 'json',
+      data: data,
+      async: false, //表示该ajax为同步的方式
+      success: function(data) {
+        if (data.data === true) {
+          err_msg_show('resTypeName', 'resTypeName_msg', '名称重复', true);
+          noRepeat = false;
+        } else {
+          err_msg_show('resTypeName', 'resTypeName_msg', '', false);
+          noRepeat = true;
+        }
+      },
+      error: function() {
+        alert('操作失败');
+      }
+    });
+  }else{
+    err_msg_show('resTypeName', 'resTypeName_msg', '名称不能为空', true);
+    noRepeat = false;
   }
   return noRepeat;
 }
@@ -92,7 +137,8 @@ function checkIdNoNull() {
 }
 
 function updateResTypeInfo() {
-  if (checkIdNoNull() && checkIdRepeat()) {
+  if (checkIdNoNull() && checkIdRepeat() && checkResNameRepeat(true)) {
+    var c_icon = $('#iconVal').val();
     var c_id = $('#resTypeId').val();
     var c_name = $('#resTypeName').val();
     var c_vendor_id = $('#manufSelect option:selected').val();
@@ -100,7 +146,8 @@ function updateResTypeInfo() {
       'c_id': c_id,
       'c_name': c_name,
       'c_oldId': id,
-      'c_vendor_id': c_vendor_id
+      'c_vendor_id': c_vendor_id,
+      'c_icon': c_icon
     };
     $.ajax({
       type: 'post',
@@ -108,17 +155,16 @@ function updateResTypeInfo() {
       data: resTypeInfo,
       dataType: 'json',
       //async:true,//表示该ajax为同步的方式
-      success: function (data) {
+      success: function(data) {
         if (data.msg === '1') {
-          var iframedom = $('#model_add', parent.document)[0];
-          //setSMsgContent('操作成功', 70, '45%');
+          refreshResTypeTree(resTypeInfo.c_id, resTypeInfo.c_oldId, true);
+          //parent.location.reload();
           alert('操作成功');
-          iframedom.src = ctx + '/resmodel/resourceTypeCotroller/getResourceTypeAdd?modelId=' + c_id;
         } else {
           alert('操作失败');
         }
       },
-      error: function () {
+      error: function() {
         alert('操作失败');
       }
     });
@@ -135,7 +181,7 @@ function checkUploadImgRepeat(imgName) {
         imgName: imgName
       },
       dataType: 'json',
-      success: function (data) {
+      success: function(data) {
         if (data.msg === '1') {
           err_msg_show('manufIcon', 'upload_msg', '名称重复', true);
           imgNotRepeat = false;
@@ -144,7 +190,7 @@ function checkUploadImgRepeat(imgName) {
           imgNotRepeat = true;
         }
       },
-      error: function () {
+      error: function() {
         alert('查询错误');
         imgNotRepeat = false;
       }
@@ -154,9 +200,9 @@ function checkUploadImgRepeat(imgName) {
 }
 
 function addResTypeInfo() {
-  var c_icon = $('#manufIcon').val();
-  if (checkIdNoNull() && checkIdRepeat() && checkUploadImgRepeat(c_icon)) {
-    $('#submitBtn').click();
+  var c_icon = $('#iconVal').val();
+  if (checkIdNoNull() && checkIdRepeat() && checkResNameRepeat(false)) {
+    /*$('#submitBtn').click();*/
     var c_id = $('#resTypeId').val();
     var c_name = $('#resTypeName').val();
     var c_is_main = $('input:radio[name="mainType"]:checked').val();
@@ -175,16 +221,16 @@ function addResTypeInfo() {
       data: resTypeInfo,
       dataType: 'json',
       //async:true,//表示该ajax为同步的方式
-      success: function (data) {
+      success: function(data) {
         if (data.msg === '1') {
-          refreshResTypeTree();
+          refreshResTypeTree(resTypeInfo.c_id, resTypeInfo.c_id, false);
           //parent.location.reload();
           alert('操作成功');
         } else {
           alert('操作失败');
         }
       },
-      error: function (err) {
+      error: function(err) {
         var jstr = JSON.stringify(err);
         var jobj = JSON.parse(jstr);
         console.error(jobj);
@@ -217,7 +263,7 @@ function checkfile(fileObj, imgPreviewId, divPreviewId) {
       if (fileObj.files) { //兼容chrome、火狐7+、360浏览器5.5+等，应该也兼容ie10，HTML5实现预览
         if (window.FileReader) {
           var reader = new window.FileReader();
-          reader.onload = function (e) {
+          reader.onload = function(e) {
             document.getElementById(imgPreviewId).setAttribute('src', e.target.result);
           };
           if (fileObj.files[0].size > 102400) {
@@ -281,9 +327,9 @@ function checkfile(fileObj, imgPreviewId, divPreviewId) {
   return true;
 }
 
-function manufSelectChange(){
+function manufSelectChange() {
   var manuf_val = $("#manufSelect").val();
-  if(manuf_val !== ''){
+  if (manuf_val !== '') {
     //根据厂商ID查询对应厂商图标
     $.ajax({
       type: 'get',
@@ -292,16 +338,16 @@ function manufSelectChange(){
         id: manuf_val
       },
       dataType: 'json',
-      success: function (data) {
-        console.log(data.data.c_manuf_icon);
-        if(typeof data.data.c_manuf_icon !== 'undefined'){
+      success: function(data) {
+        if (typeof data.data.c_manuf_icon !== 'undefined') {
           var path = window.location.href;
           var imagePath = path.substring(0, path.indexOf('/resmodel')) + '/images/template/';
           imagePath += data.data.c_manuf_icon;
           $('#image_display').attr('src', imagePath);
+          $('#iconVal').val(data.data.c_manuf_icon);
         }
       },
-      error: function () {
+      error: function() {
         alert('查询错误');
       }
     });

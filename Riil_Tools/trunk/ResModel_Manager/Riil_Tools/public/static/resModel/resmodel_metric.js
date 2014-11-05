@@ -11,12 +11,16 @@ $(document).ready(function () {
     "ajax": ctx + "/resmodel/resModelCotroll/getAllMetricInfos?modelId=" + id,
     /*"aaData" : JSON.parse(data),*/
     "initComplete": initCheckBox,
+    'columnDefs':[{
+                 orderable:false,//禁用排序
+                 targets:[0]   //指定的列
+             }],
     "columns": [
       {
         "aDataSort": false,
         "data": "metricId",
         "render": function (data, type, row) {
-          if(row.isCustom === '0'){
+          if(row.isCustom === 0){
             return '<input type="checkbox" name="cb" disabled="disabled" value ="" >';
           }else{
             return '<input type="checkbox" name="cb" value ="' + data + '" >';
@@ -26,13 +30,13 @@ $(document).ready(function () {
       }, {
         "data": "metricName",
         "render": function (data, type, row) {
-          var info = "'" + id + "'" + ",'" + row.metricId + "','" + row.coltProtocol + "','" + row.isInstance + "','" + row.isInitValue + "','" + row.isDisplayName + "'";
+          var info = "'" + id + "'" + ",'" + row.metricId + "'";
           return '<a val="' + row.metricId + '" title="' + data + '" onclick="resmodelMetric.updateModelMetricInfo('+info+')" >' + data + '</a>';
         }
       }, {
         "data": "isInstance",
         "render":function (data, type, row){
-          if(row.isInstance === '1'){
+          if(row.isInstance === 1){
             return '<span>是</span>';
           }else{
             return '<span>否</span>';
@@ -41,7 +45,7 @@ $(document).ready(function () {
       }, {
         "data": "isInitValue",
         "render":function (data, type, row){
-          if(row.isInitValue === '1'){
+          if(row.isInitValue === 1){
             return '<span>是</span>';
           }else{
             return '<span>否</span>';
@@ -50,14 +54,12 @@ $(document).ready(function () {
       }, {
         "data": "isDisplayName",
         "render":function (data, type, row){
-          if(row.isDisplayName === '1'){
+          if(row.isDisplayName === 1){
             return '<span>是</span>';
           }else{
             return '<span>否</span>';
           }
         }
-      }, {
-        "data": "modelId"
       }, {
         "data": "coltProtocol"
       }
@@ -117,12 +119,13 @@ var resmodelMetric = {
       dataType: 'json',
       success: function(data) {
         if (data.msg == '1') {
+          table.fnClearTable();
+          var nowTime = new Date().getTime();
           $.ajax({
               type : 'get',
-              url : ctx + "/resmodel/resModelCotroll/getAllMetricInfos?modelId=" + id,
-              //async:true,//表示该ajax为同步的方式
+              url : ctx + "/resmodel/resModelCotroll/getAllMetricInfos?modelId=" + id + '&date=' + nowTime,
+              async:true,//表示该ajax为同步的方式
               success : function(data){
-                table.fnClearTable();
                 if(data.data.length > 0){
                   table.fnAddData(data.data);
                 }
@@ -143,7 +146,7 @@ var resmodelMetric = {
         alert(msg);
       }
     });
-    setSMsgContent(msg, 70, "45%");
+    /*setSMsgContent(msg, 70, "45%");*/
   },
   popMetricAddPage: function() {
     $.get(ctx + "/resmodel/resModelCotroll/addMetricInfo", function(data) {
@@ -156,8 +159,9 @@ var resmodelMetric = {
       });
     });
   },
-  updateModelMetricInfo: function(modelId, metricId, coltProtocol,isInstance,isInitValue,isDisplayName) {
-    var url = ctx + '/resmodel/resModelCotroll/updateMetricInfo?modelId=' + modelId + '&metricId=' + metricId + '&coltProtocol=' + coltProtocol + '&isInstance=' + isInstance + '&isInitValue=' + isInitValue + '&isDisplayName=' + isDisplayName; 
+  updateModelMetricInfo: function(modelId, metricId) {
+    var nowTime = new Date().getTime();
+    var url = ctx + '/resmodel/resModelCotroll/updateMetricInfo?modelId=' + modelId + '&metricId=' + metricId + '&date=' + nowTime;
     $.get(url, function(data) {
       myAlert({
         title: '编辑',

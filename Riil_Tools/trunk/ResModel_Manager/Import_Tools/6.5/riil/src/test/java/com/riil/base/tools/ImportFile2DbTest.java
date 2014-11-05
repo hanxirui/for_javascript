@@ -81,6 +81,7 @@ public class ImportFile2DbTest extends BaseTest {
 		ImportFile2Db t_import = new ImportFile2Db();
 		t_import.setBatch(true);
 		t_import.importAll();
+		t_import.importAllMetricBinding();
 		assertTrue(resTypeDao.doSelectAll().size()>0);
 	}
 	

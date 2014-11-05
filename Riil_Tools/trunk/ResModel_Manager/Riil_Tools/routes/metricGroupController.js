@@ -43,8 +43,8 @@ router.post('/delete', function(req, res) {
 	});
 });
 //修改指标组 updatePre
-router.get('/updatePre/:metricGroupId', function(req, res) {
-	var metricGroupId = req.params.metricGroupId;
+router.get('/updatePre', function(req, res) {
+	var metricGroupId = req.query.metricGroupId;
 	MetricGroupService.getMetricGroupById(metricGroupId).then(function(r) {
 		res.render('metric_group_update', {
 			data: r.rows[0],

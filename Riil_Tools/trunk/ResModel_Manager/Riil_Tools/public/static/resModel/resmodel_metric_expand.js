@@ -1,8 +1,9 @@
 var expand_table = null;
 var metricId = $(window.parent.document).find('#m_paramid').val();
 var id = window.parent.id;
+var metricBindingId = window.parent.metric_bindingId;
 $(document).ready(function() {
-  var url = ctx + "/resmodel/resModelCotroll/getSNMPSupportCommandList?modelId=" + id + "&metricId=" + metricId;
+  var url = ctx + "/resmodel/resModelCotroll/getSNMPSupportCommandList?metricBindingId=" + metricBindingId;
   expand_table = $('#metricExpandTable').dataTable({
     "oLanguage": GIRD_I18N,
     "bFilter": false,
@@ -15,20 +16,20 @@ $(document).ready(function() {
     "ajax": url,
     /*"aaData" : JSON.parse(data),*/
     "initComplete": initCheckBox,
+    "aoColumnDefs": [{
+      "bVisible": false,
+      "data": "cmdGroupId"
+    }],
     "columns": [{
       "aDataSort": false,
-      "data": "cmdsGroupId",
+      "data": "cmdId",
       "render": function(data, type, row) {
         return '<input type="checkbox" name="cb" value ="' + data + '" >';
       }
     }, {
-      "data": "sysOID"
+      "data": "cmdVersion"
     }, {
-      "data": "sysVersion"
-    }, {
-      "data": "collectCmd"
-    }, {
-      "data": "collectType"
+      "data": "rel"
     }]
   });
 });
@@ -57,11 +58,11 @@ function initCheckBox() {
 function addExpand() {
   $.get(ctx + "/resmodel/resModelCotroll/addMetricExpand", function(data) {
     parent.myAlert({
-      title: '添加扩展指标信息',
+      title: '添加扩展指令信息',
       msg: data,
       type: 'alertadd',
-      width: 554,
-      height: 230,
+      width: 454,
+      height: 150,
       outAlert: 109
     });
   });
@@ -85,17 +86,23 @@ function delExpandInfos() {
 
 function sureDeleteExpandInfos(ids) {
   var msg = '';
+  var cmdGroupId = '';
+  if(expand_table.fnGetData().length > 0){
+    cmdGroupId = expand_table.fnGetData()[0].cmdGroupId;
+  }
   $.ajax({
     type: 'post',
     url: ctx + "/resmodel/resModelCotroll/delSNMPSupportCommand",
     data: {
-      ids: ids
+      metricBindingId : metricBindingId,
+      cmdGroupId : cmdGroupId,
+      cmdIds: ids
     },
     dataType: 'json',
     success: function(data) {
       if (data.msg == '1') {
         msg = "操作成功";
-        var url = ctx + "/resmodel/resModelCotroll/getSNMPSupportCommandList?modelId=" + id + "&metricId=" + metricId;
+        var url = ctx + "/resmodel/resModelCotroll/getSNMPSupportCommandList?metricBindingId=" + metricBindingId;
         $.ajax({
           type: 'get',
           url: url,

@@ -39,21 +39,16 @@ import com.riil.resmodel.services.impl.ResModelService;
     	private static String export_dict_url;
     	private static ApplicationContext context;
         
-        public static void main(String[] args) {
-        	try {
+        public static void main(String[] args) throws Exception{
         		init(args);
             	genModelBin();
             	genPolicyBin();
             	genResTypeBin();
             	genMetricBaseBin();
 				genDictBin();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
         
-        private static void genModelBin() throws SQLException{
+        private static void genModelBin() throws Exception{
         	ResModelService resModelService = (ResModelService) context.getBean(IResModelService.S_SERVICE_ID);
             List<ModelPojo> t_modelBaseList = resModelService.getModelList();
             for (ModelPojo t_modelPojo : t_modelBaseList) {
@@ -64,7 +59,7 @@ import com.riil.resmodel.services.impl.ResModelService;
         }
         
         
-        private static void genResTypeBin() throws SQLException{
+        private static void genResTypeBin() throws Exception{
         	ResModelService resModelService = (ResModelService) context.getBean(IResModelService.S_SERVICE_ID);
         	ArrayList<ResTypePojo> t_resTypeList = (ArrayList<ResTypePojo>) resModelService.getResTypeList();
         	GenBinFile genBin = new GenBinFile();
@@ -72,7 +67,7 @@ import com.riil.resmodel.services.impl.ResModelService;
    	 		genBin.genBinFile(t_resTypeList, t_file);	
         }
         
-        private static void genPolicyBin()throws SQLException{
+        private static void genPolicyBin()throws Exception{
         	ResModelService resModelService = (ResModelService) context.getBean(IResModelService.S_SERVICE_ID);
         	List<PolicyResPojo> t_policyList = resModelService.getPolicyList();
         	for (PolicyResPojo t_policy : t_policyList) {
@@ -82,7 +77,7 @@ import com.riil.resmodel.services.impl.ResModelService;
    			}
         }
         
-        private static void genMetricBaseBin()throws SQLException{
+        private static void genMetricBaseBin()throws Exception{
         	ResModelService resModelService = (ResModelService) context.getBean(IResModelService.S_SERVICE_ID);
         	ArrayList<MetricBasePojo> t_metricBaseList = (ArrayList<MetricBasePojo>) resModelService.getMetricBaseList();
         	GenBinFile genBin = new GenBinFile();
@@ -90,7 +85,7 @@ import com.riil.resmodel.services.impl.ResModelService;
    	 		genBin.genBinFile(t_metricBaseList, t_file);	
         }
         
-        private static void genDictBin()throws SQLException{
+        private static void genDictBin()throws Exception{
         	ResModelService resModelService = (ResModelService) context.getBean(IResModelService.S_SERVICE_ID);
         	DictPojo t_dict = resModelService.getDict();
           	GenBinFile genBin = new GenBinFile();

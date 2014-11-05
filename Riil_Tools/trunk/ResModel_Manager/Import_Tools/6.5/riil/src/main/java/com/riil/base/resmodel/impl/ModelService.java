@@ -401,6 +401,7 @@ public class ModelService implements IModelService, ILazyData<ModelPojo> {
 		if (models == null || models.isEmpty()) {
 			return;
 		}
+		ModelBasePojo t_pojo = new ModelBasePojo();
 		try {
 			int batchResSize = 1000;// 每次入库数
 			int resCount = models.size();// 总资源数

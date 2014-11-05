@@ -8,99 +8,143 @@
 var Q = require('q'),
     SqlCommand = require('../service/class/SQLCommand.js'),
     commander = new SqlCommand();
-
-/**
- * 资源模型关联关系查询,根据c_model_id查询t_moni_model_metric_rel
- *
- * @method getModelMetricRelationData
- * @param modelId 模型ID
- * @return {Object} 资源模型关系的recordSet对象
- */
-exports.getModelMetricRelationData = function (modelId) {
-    var myQ = Q.defer();
-    commander.get('t_moni_model_metric_rel.selectById', [modelId]).then(function (recordset) {
-        var jsonStr = JSON.stringify(recordset);
-        console.log(jsonStr);
-        var obj = JSON.parse(jsonStr);
-        if (obj.isError) {
-            myQ.reject(obj);
-        } else {
-            myQ.resolve(obj);
-        }
-    }).fail(function (err) {
-        myQ.reject(err);
-    });
-    return myQ.promise;
-};
-
-/**
- * 添加模型与指标之间的关系
- *
- * @method saveModelMetricRelation
- * @param {jsonObject} 保存数据的json对象
- * @return {Object} 指标信息recordSet对象
- */
-exports.saveModelMetricRelation = function (sqlparam) {
-    var userId="Admin";
-    var myQ = Q.defer();
-    var modelId = sqlparam.modelid;
-    var metricIdArray = sqlparam.metricid;
-    var resTypeId = sqlparam.restypeid;
-    var logContent="";
-     metricIdArray.forEach(function(metric_id){
-        logContent="";
-        logContent="资源模型管理,添加模型与指标间的关系"+"metricid:" +metric_id ;
-        commander.save("t_moni_model_metric_rel.insert", {modelId:modelId,metricId:metric_id,resTypeId:resTypeId},{user:userId,info:logContent}).then(function (recordset) {
-            myQ.resolve(recordset);
-        }).fail(function (err) {
-            myQ.reject(err);
-        });
-    });
-
-    return myQ.promise;
-};
-
-exports.saveModelMetricRelation = function (transaction, modelmetricrel) {
-    return transaction.save("t_moni_model_metric_rel.insert", modelmetricrel);
-};
+var AduitLogService = require('../service/AduitLogService');
 
 /**
  * 删除模型与指标之间的关系
  *
  * @method deleteModelMetricRelation
  * @param {string} modelId 模型ID
- *  @param {string} metricId 指标ID
+ * @param {string} metricId 指标ID
+ * @param {string} userId 登录用户ID
  * @return {Object} 指标信息recordSet对象
  */
-exports.deleteModelMetricRelation = function(modelId,metricId){
-    var userId="Admin";
-    var logContent ="";
-    var sql ="";
-    var data = {};
-    var myQ = Q.defer();
-    if (metricId ==="") {
-        logContent = "资源模型管理,删除模型与指标间的关系:" + "modelId:" + modelId ;
-        sql= "DELETE FROM t_moni_model_metric_rel where c_model_id in (:model_ids) ";
-        data = {
-            model_ids: modelId
-        };
+exports.deleteModelMetricRelation = function(modelId, metricIds, aduitJson) {
+    if (modelId && metricIds && metricIds.length > 0) {
+        var promise = Q.defer();
+        SqlCommand.getConnection(function (err, connection) {
+            if (!!err) {
+                promise.reject(err);
+            } else {
+                connection.beginTransaction(function (err) {
+                    if (!!err) {
+                        promise.reject(err);
+                        connection.release();
+                    } else {
+                        return Q.spread([
+                            // 删除模型和指标关联
+                            deleteModelMetricReleasion(connection, modelId, metricIds),
+                            // 删除指令绑定、指令以及扩展指令
+                            deleteMetricCmd(connection, modelId, metricIds)
+                        ], function () {
+                            connection.commit();
+                            if (aduitJson) {
+                                AduitLogService.insertLog(aduitJson);
+                            }
+                            connection.release();
+                            promise.resolve(true);
+                        }).fail(function (err) {
+                            promise.reject(err);
+                            connection.rollback();
+                            connection.release();
+                        });
+                    }
+                });
+            }
+        });
+        return promise.promise;
     }
-    else {
-        logContent = "资源模型管理,删除模型与指标间的关系:" + "modelId:" + modelId +",metricId:" + metricId;
-        sql= "DELETE FROM t_moni_model_metric_rel where c_model_id in (:model_ids) and c_metric_id in (:metric_ids) ";
-        data = {
-            model_ids: modelId,
-            metric_ids:metricId
-        };
-    }
-    commander.delBySql(sql, data,{user:userId,info:logContent}).then(function(recordset){
-        myQ.resolve(recordset);
-    }).fail(function(err){
-        myQ.reject(err);
-    });
-    return myQ.promise;
 };
 
+function deleteModelMetricReleasion(connection, modelId, metricIds) {
+    var sql = 'DELETE FROM t_moni_model_metric_rel WHERE c_model_id = ? AND c_metric_id in (?)';
+    return connQuery(connection, sql, [modelId, metricIds]);
+}
+
+function deleteMetricCmd(connection, modelId, metricIds) {
+    var getMetricBindingId = 'SELECT c_id FROM t_moni_metricbinding WHERE c_model_id = ? AND c_metric_id in (?)';
+    var getCmdGroupId = 'SELECT c_id FROM t_moni_cmds_group WHERE c_metricbinding_id in (?)';
+    var getCmdId = 'SELECT c_id FROM t_moni_cmd WHERE c_cmds_group_id in (?)';
+    var getCmdProcessor = 'SELECT c_id FROM t_moni_cmds_processor where c_cmds_group_id in (?)';
+    var delMetricBinding = 'DELETE FROM t_moni_metricbinding WHERE c_id in (?)';
+    var delCmdGroup = 'DELETE FROM t_moni_cmds_group WHERE c_id in (?)';
+    var delCmd = 'DELETE FROM t_moni_cmd WHERE c_id in (?)';
+    var delCmdProp = 'DELETE FROM t_moni_cmd_properties WHERE c_cmd_id in (?)';
+    var delSupport = 'DELETE FROM t_moni_cmds_support WHERE c_cmds_group_id in (?)';
+    var delConnProtocol = 'DELETE FROM t_moni_cmds_conn_protocol WHERE c_cmds_group_id in (?)';
+    var delCmdFilter = 'DELETE FROM t_moni_cmd_filters WHERE c_cmd_id in (?)';
+    var delCmdProcessorPara = 'DELETE FROM t_moni_cmds_process_para WHERE c_cmds_processor_id in (?)';
+    return connQuery(connection, getMetricBindingId, [modelId, metricIds]).then(function(result) {
+        var metricBindingIds = [];
+        if (result && result.length > 0) {
+            result.forEach(function(row) {
+                metricBindingIds.push(row.c_id);
+            });
+            //console.log('绑定ID = ' + metricBindingIds);
+            return Q.all([
+                // 删除指令绑定
+                connQuery(connection, delMetricBinding, [metricBindingIds]),
+                // 按照绑定ID查找指令组
+                connQuery(connection, getCmdGroupId, [metricBindingIds]).then(function(rslt) {
+                    if (rslt && rslt.length > 0) {
+                        var cmdGroupIds = [];
+                        rslt.forEach(function(row) {
+                            cmdGroupIds.push(row.c_id);
+                        });
+                        //console.log('指令组ID = ' + cmdGroupIds);
+                        return Q.all([
+                            // 删除指令组
+                            connQuery(connection, delCmdGroup, [cmdGroupIds]),
+                            // 删除采集指令组连接协议
+                            connQuery(connection, delConnProtocol, [cmdGroupIds]),
+                            // 按照指令组ID查找采集指令组处理器表
+                            connQuery(connection, getCmdProcessor, [cmdGroupIds]).then(function(rs) {
+                                if (rs && rs.length > 0) {
+                                    var processorIds = [];
+                                    rs.forEach(function(row) {
+                                        processorIds.push(row.c_id);
+                                    });
+                                    return connQuery(connection, delCmdProcessorPara, [processorIds]);
+                                }
+                            }),
+                            // 按照指令组ID查找指令
+                            connQuery(connection, getCmdId, [cmdGroupIds]).then(function(rs) {
+                                if (rs && rs.length > 0) {
+                                    var cmdIds = [];
+                                    rs.forEach(function(row) {
+                                        cmdIds.push(row.c_id);
+                                    });
+                                    return Q.all([
+                                        // 删除指令
+                                        connQuery(connection, delCmd, [cmdIds]),
+                                        // 删除指令参数
+                                        connQuery(connection, delCmdProp, [cmdIds]),
+                                        // 删除采集指令过滤器
+                                        connQuery(connection, delCmdFilter, [cmdIds])
+                                    ]);
+                                }
+                            }),
+                            // 按照指令组ID删除扩展指令
+                            connQuery(connection, delSupport, [cmdGroupIds])
+                        ]);
+                    }
+                })
+            ]);
+        }
+    });
+}
+
+function connQuery(connection, sql, args) {
+    var promise = Q.defer();
+    connection.query(sql, args, function (err, rows) {
+        if (!!err) {
+            promise.reject(err);
+        } else {
+            promise.resolve(rows);
+        }
+    });
+    return promise.promise;
+}
 
 /**
  * 根据模型ID获取指标详细信息
@@ -110,76 +154,29 @@ exports.deleteModelMetricRelation = function(modelId,metricId){
  * @return {Object} 指标信息recordSet对象
  */
 exports.getModelMetricList = function (modelId) {
-//    var myQ = Q.defer();
-//    commander.get('t_moni_model_base.selectById', [modelId]).then(function (recordset) {
-//        var jsonStr = JSON.stringify(recordset);
-//        console.log(jsonStr);
-//        var obj = JSON.parse(jsonStr);
-//        if (obj.isError) {
-//            myQ.reject(obj);
-//        } else {
-//            myQ.resolve(obj);
-//        }
-//    }).fail(function (err) {
-//        myQ.reject(err);
-//    });
-//    return myQ.promise;
-
-    var myQ = Q.defer();
-    Q.spread([
-        commander.getBySql('SELECT metricBase.c_id AS metricId,'+
-        'metricBinding.c_id AS metricBindingId,'+
-        'metricBase.c_name AS metricName,'+
-        'metricBinding.c_is_instance AS isInstance,'+
-        'metricBinding.c_is_initvalue AS isInitValue,'+
-        'metricBinding.c_is_displayname AS isDisplayName,'+
-        'SUBSTRING(modelMetricRel.c_model_id,1,8) AS modelId,'+
-        'metricBase.c_is_custom AS isCustom '+
-        ' FROM '+
-        't_moni_metric_base AS metricBase,'+
-        't_moni_model_metric_rel AS modelMetricRel,'+
-        't_moni_cmds_group AS commandGroup,'+
-        't_moni_metricbinding AS metricBinding'+
-        ' WHERE  metricBase.c_id = modelMetricRel.c_metric_id '+
-        ' AND modelMetricRel.c_model_id = ?'+
-        ' AND metricBinding.c_model_id = ?'+
-        ' AND metricBinding.c_metric_id = modelMetricRel.c_metric_id'+
-        ' AND commandGroup.c_metricbinding_id = metricBinding.c_id'+
-        ' GROUP BY metricBindingId',[modelId,modelId]),
-
-         commander.getBySql('SELECT t_moni_metricbinding.c_id AS bindingId,t_moni_metricbinding.c_metric_id as metricId,t_moni_cmd.c_protocol As coltProtocol '+
-        ' FROM '+
-        ' t_moni_metricbinding,t_moni_cmds_group,t_moni_cmd'+
-        ' WHERE t_moni_metricbinding.c_model_id = ? '+
-        ' AND t_moni_cmds_group.c_metricbinding_id = t_moni_metricbinding.c_id'+
-        ' AND t_moni_cmd.c_cmds_group_id = t_moni_cmds_group.c_id'+
-        ' AND t_moni_cmd.c_protocol IN ("SNMP","JDBC","WMI")'+
-        ' GROUP BY bindingId',[modelId])
-    ],function(metricResult,collectCmdResult){
-        var  nFind=1;
-        for (var i=0; i< metricResult.recourdCount; i++) {
-            var metricId = metricResult.rows[i][metricResult.fields[0]];
-            var bindingId = metricResult.rows[i][metricResult.fields[1]];
-
-            for (var j=0; j< collectCmdResult.recourdCount;j++) {
-                var bindingId2 = collectCmdResult.rows[j][collectCmdResult.fields[0]];
-                var metricId2 = collectCmdResult.rows[j][collectCmdResult.fields[1]];
-
-                if (bindingId === bindingId2 && metricId === metricId2) {
-                    metricResult.rows[i].coltProtocol = collectCmdResult.rows[j][collectCmdResult.fields[2]];
-                }
-            }
-        }
-        var modelMetricArray = [];
-        for (var p=0; p< metricResult.recourdCount; p++) {
-            if (metricResult.rows[p].coltProtocol !== undefined)
-            {
-                modelMetricArray.push(metricResult.rows[p]);
-            }
-        }
-
-        myQ.resolve(modelMetricArray);
-    });
-    return myQ.promise;
-
+    var sql = 'SELECT ' +
+        'metricBase.c_id                AS metricId,' +
+        'metricBinding.c_id             AS metricBindingId,' +
+        'metricBase.c_name              AS metricName,' +
+        'metricBase.c_unit              AS metricUnit,' +
+        'metricBinding.c_is_initvalue   AS isInitValue,' +
+        'metricBinding.c_is_instance    AS isInstance,' +
+        'metricBinding.c_is_displayname AS isDisplayName,' +
+        'metricBase.c_is_custom         AS isCustom,' +
+        'group_concat(DISTINCT t_moni_cmd.c_protocol order by t_moni_cmd.c_protocol separator ", ") as coltProtocol ' +
+        'FROM t_moni_model_metric_rel AS modelMetricRel,' +
+        't_moni_metric_base AS metricBase,' +
+        't_moni_metricbinding AS metricBinding,' +
+        't_moni_cmds_group AS commandGroup,' +
+        't_moni_cmd ' +
+        'WHERE modelMetricRel.c_model_id = ? ' +
+        'AND metricBase.c_id = modelMetricRel.c_metric_id ' +
+        'AND metricBinding.c_metric_id = modelMetricRel.c_metric_id ' +
+        'AND metricBinding.c_model_id = modelMetricRel.c_model_id ' +
+        'AND commandGroup.c_metricbinding_id = metricBinding.c_id ' +
+        'AND t_moni_cmd.c_cmds_group_id = commandGroup.c_id ' +
+        'GROUP BY metricId ' +
+        'ORDER BY metricId ASC';
+    var cmd = new SqlCommand();
+    return cmd.getBySql(sql, [modelId]);
 };

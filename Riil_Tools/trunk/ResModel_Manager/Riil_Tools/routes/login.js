@@ -17,8 +17,6 @@ router.post('/', function(req, res) {
     hmac = crypto.createHmac("sha1", "i'm a secret!");
     hmac.update(pwd);
     result = hmac.digest("hex");
-    console.log(result);
-    userService.init();
 
     userService.checkUser(userName, result, function(rows) {
         if (rows.length > 0) {
@@ -33,7 +31,8 @@ router.post('/', function(req, res) {
 
             res.render('index', {
                 userName: rows[0].c_user_name,
-                userId: rows[0].c_account
+                userId: rows[0].c_account,
+                roleId: req.session.userInfo.role
             });
         } else {
             res.redirect('/');
@@ -54,7 +53,8 @@ router.get('/', function(req, res) {
     // }
     res.render('index', {
         userName: req.session.userInfo.userName,
-        userId: req.session.userInfo.userId
+        userId: req.session.userInfo.userId,
+        roleId: req.session.userInfo.role
     });
 
 });
@@ -63,6 +63,8 @@ router.get('/', function(req, res) {
 
 router.get('/logout/:userId', function(req, res) {
     delete req.session.userInfo;
+    delete req.session.user;
+    req.session = null;
 
     res.redirect('/');
 });

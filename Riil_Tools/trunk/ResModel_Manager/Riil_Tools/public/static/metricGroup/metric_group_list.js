@@ -11,34 +11,47 @@ $(document).ready(function() {
 		"ajax": ctx + "/resmodel/metricGroupController/getAllMetricGroupInfos",
 		/*"aaData" : JSON.parse(data),*/
 		"initComplete": initCheckBox,
-		"columns": [
-			{
-				"aDataSort": false,
-				"data": "groupId",
-				"render": function(data, type, row) {
+		'columnDefs':[{
+                 orderable:false,//禁用排序
+                 targets:[0]   //指定的列
+             }],
+		"columns": [{
+			"aDataSort": false,
+			"data": "groupId",
+			"render": function(data, type, row) {
+				if (row.isCustom === 0) {
+					return '<input type="checkbox" name="cb" disabled="disabled" value ="" >';
+				} else {
 					return '<input type="checkbox" name="cb" value ="' + data + '" >';
 				}
-			},{
-				"data": "groupId"
-			},{
-				"data": "groupName",
-				"render": function(data, type, row) {
+			}
+		}, {
+			"data": "groupId"
+		}, {
+			"data": "groupName",
+			"render": function(data, type, row) {
+				if (row.isCustom === 0) {
+					return '<span title="' + data + '" >' + data + '</span>';
+				} else {
 					return '<a val="' + row.groupId + '" title="' + data + '" onclick="metricGroupManager.popMetricGroupAlterPage(this)" >' + data + '</a>';
 				}
-			},{
-				"data": "groupDesc"
 			}
-		]
+		}, {
+			"data": "groupDesc"
+		}]
 
 	});
 });
+
 function initCheckBox() {
 	$('#all').bind('click', function() {
 		var allCk = document.getElementById("all");
 		var names = document.getElementsByName("cb");
 		for (var i = 0; i < names.length; i++) {
 			if (allCk.checked == true) {
-				names[i].checked = true;
+				if(names[i].value !== '' && !names[i].disabled){
+		          names[i].checked = true;
+		        }
 			} else {
 				names[i].checked = false;
 			}
@@ -67,24 +80,24 @@ var metricGroupManager = {
 		var delMetricGroupInfos = [];
 		var oragin_infos = false;
 		$("input[name='cb']:checked").each(function(i, e) {
-			if($(e).val() === ''){
+			if ($(e).val() === '') {
 				oragin_infos = true;
 			}
 			delMetricGroupInfos.push($(e).val());
 		});
-		if(oragin_infos){
+		if (oragin_infos) {
 			alert("所选信息中包含系统预置信息不能删除");
-		}else{
+		} else {
 			if (delMetricGroupInfos.length == 0) {
 				alert("请选择您要删除的记录");
 			} else {
 				var r = confirm("确定要删除所选记录吗？");
-				if(r == true){
+				if (r == true) {
 					metricGroupManager.sureDeleteMetricGroupMsg();
 				}
 			}
 		}
-		
+
 	},
 	sureDeleteMetricGroupMsg: function() {
 		var msg = '';
@@ -115,12 +128,13 @@ var metricGroupManager = {
 				alert(msg);
 			}
 		});
-		setSMsgContent(msg, 70, "45%");
+		/*setSMsgContent(msg, 70, "45%");*/
 	},
 	/**修改厂商*/
 	popMetricGroupAlterPage: function(obj) {
 		var metricGroupId = $(obj).attr('val');
-		$.get(ctx + '/resmodel/metricGroupController/updatePre/' + metricGroupId, function(data) {
+		var nowTime = new Date().getTime();
+		$.get(ctx + '/resmodel/metricGroupController/updatePre?metricGroupId=' + metricGroupId + '&date=' + nowTime, function(data) {
 			myAlert({
 				title: '编辑指标组信息',
 				msg: data,

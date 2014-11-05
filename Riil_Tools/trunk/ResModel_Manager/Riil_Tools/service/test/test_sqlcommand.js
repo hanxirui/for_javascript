@@ -2,89 +2,122 @@
  * Created by R04419 on 2014/8/26.
  * SqlCommand 使用方法测试
  */
-
+'use strict';
+/*global describe,it*/
+var chai = require('chai').use(require('chai-spies'));
+var expect = chai.expect;
 var SqlCommand = require('../class/SQLCommand.js');
 var Q = require('q');
-var commander = new SqlCommand(true);
 
+describe('SQLCommand', function() {
 
-    function getResult(recordSet) {
-        var jsonStr = JSON.stringify(recordSet);
-        var obj = JSON.parse(jsonStr);
-        console.log('getResult' + jsonStr);
-        if (obj.isError) {
-            console.log(obj.errMessage);
-        } else {
-            if (obj.fieldCount > 0) {
-                for (var j = 0; j < obj.recourdCount; j++) {
-                    for (var i = 0; i < obj.fieldCount; i++) {
-                        var field = obj.fields[i];
-                        var value = obj.rows[j][field];
-                        console.log('field:' + field + ', value:' + value);
-                    }
-                }
-            }
-        }
+    function error(err) {
+        if (err instanceof Error) return err;
+        else return new Error(err.errMessage);
     }
 
-//function myget(callback) {
-//    commander.get("t_moni_cmds_process_para.selectAll", [], function(reccordSet) {
-//        var jsonStr = JSON.stringify(reccordSet);
-//        console.log((jsonStr));
-//        callback(jsonStr) ;
-//    });
-//}
-//myget(getResult);
+    it('get', function(done){
+        new SqlCommand().get('t_moni_metric_group.select').then(function(result) {
+            expect(result).to.exist;
+            expect(result.isError).to.be.false;
+            done();
+        }).fail(function(err) {
+            done(error(err));
+        });
+    });
 
-Q.spread([
-    commander.get("t_moni_cmds_process_para.select",[5]),
-    commander.get("t_moni_cmds_process_para.selectAll",[])
-],function(get1,get2) {
-   // debugger;
-   // console.info('!!!!!!', JSON.stringify(get1, ' ', 2));
-    return {
-      get1 : get1,
-      get2 : get2
-    };
-}).then(function(obj){
-    commander.commit();
-    JSON.stringify(obj, ' ', 2);
-    console.log('2222',obj.get1.rows);
-}).fail(function(err){
-    commander.rollback();
-    console.log('reject: '+err);
-}).catch(function(err){
-    console.log('catch: '+err);
+    it('getBySql', function(done){
+        new SqlCommand().getBySql('SELECT c_id as groupId,c_name as groupName,c_desc as groupDesc FROM t_moni_metric_group')
+        .then(function(result) {
+            expect(result).to.exist;
+            expect(result.isError).to.be.false;
+            done();
+        }).fail(function(err) {
+            done(error(err));
+        });
+    });
+
+    it('save(?)->del(?)', function(done){
+        var cmd = new SqlCommand(true);
+
+        cmd.save('t_moni_model_base.insert', {
+            c_id: "RIIL_RMM_MOCHA",
+            c_res_type_id: "RIIL_RMT_APPLICATION1",
+            c_name: "21",
+            c_desc: "21",
+            c_is_snmp: "1",
+            c_plugin_id: "1",
+            c_main_model_id: '1',
+            c_is_main: "1",
+            c_tree_node_id: '1',
+            c_vendor_id: '1',
+            c_vendor_name: '1',
+            c_precondition: '1',
+            c_connect_info_desc: '1',
+            c_tag1: '1',
+            c_tag2: '1',
+            c_tag3: '1',
+            c_tag4: '1'
+        })
+        .then(function(result) {
+            expect(result).to.exist;
+            expect(result.isError).to.be.false;
+            return cmd.del('t_moni_model_base.delete', ['RIIL_RMM_MOCHA']);
+        })
+        .then(function(result) {
+            expect(result).to.exist;
+            expect(result.isError).to.be.false;
+            cmd.commit();
+            done();
+        }).fail(function(err) {
+            cmd.rollback(err);
+            done(error(err));
+        });
+    });
+
+    it('save(insert)->save(update)->del', function(done) {
+        var cmd = new SqlCommand(true);
+
+        Q.spread([cmd.save('t_moni_metric_group.insert', {
+            groupId: 'MochaTestGroup1',
+            groupName: '抹茶测试组1',
+            groupDesc: '执行抹茶测试时生成的数据，一般在执行完成后删除。'
+        }), cmd.save('t_moni_metric_group.insert', {
+            groupId: 'MochaTestGroup2',
+            groupName: '抹茶测试组2',
+            groupDesc: '执行抹茶测试时生成的数据，一般在执行完成后删除。'
+        })], function(result1, result2) {
+            expect(result1).to.exist;
+            expect(result1.isError).to.be.false;
+            expect(result2).to.exist;
+            expect(result2.isError).to.be.false;
+
+            return cmd.save('t_moni_metric_group.update', {
+                groupId: 'MochaTestGroup2',
+                groupName: '抹茶测试组_修改',
+                groupDesc: '执行抹茶测试时生成的数据，一般在执行完成后删除。'
+            });
+        })
+        .then(function(result){
+            expect(result).to.exist;
+            expect(result.isError).to.be.false;
+            
+            return cmd.del('t_moni_metric_group.delete', {
+                groupIds: ['MochaTestGroup1', 'MochaTestGroup2']
+            });
+        })
+        .then(function(result){
+            expect(result).to.exist;
+            expect(result.isError).to.be.false;
+            cmd.commit();
+            done();
+        }, function(err) {
+            cmd.rollback(err);
+            throw error(err);
+        })
+        .fail(function(err) {
+            done(error(err));
+        });
+    });
+
 });
-
-//
-////查询
-//commander.get("t_moni_cmds_process_para.selectAll", []).then(function(recordset){
-//    var jsonStr = JSON.stringify(recordset);
-//    var obj = JSON.parse(jsonStr);
-//    console.log('getResult' + jsonStr);
-//}).fail(function(err){
-//    console.log(err.toString());
-//})
-
-
-
-//查询的主键 id=3
-//commander.get("t_moni_cmds_process_para.select",[3],getResult);
-//插入提交
-//commander.save("t_moni_cmds_process_para.insert",{name:"test_save"},getResult);
-//修改提交
-//commander.save("t_moni_cmds_process_para.update", {id: 3, name: "foo_test"},getResult);
-//commander.get("t_moni_cmds_process_para.selectAll",[],getResult);
-//删除
-//where id=2
-//commander.del("t_moni_cmds_process_para.delete",[2],getResult);
-//commander.get("t_moni_cmds_process_para.selectAll",[],getResult);
-
-
-
-
-
-
-
-

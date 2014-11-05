@@ -8,12 +8,14 @@ $(document).ready(function() {
     type: "get",
     dataType: "json",
     success: function(data) {
-      $("#policyId").val(data.data[0].policyId);
-      $("#policyName").val(data.data[0].policyName);
-      $("#policyDesc").val(data.data[0].policyDesc);
-      $("#policyTypeSelect").val(data.data[0].policyType);
-      if(roleId === 'MAN_ENGINEER'){
-        $("#addPolicyBaseicInfoBtn").css('display', 'none');
+      if(data.data.length !== 0){
+        $("#policyId").val(data.data[0].policyId);
+        $("#policyName").val(data.data[0].policyName);
+        $("#policyDesc").val(data.data[0].policyDesc);
+        $("#policyTypeSelect").val(data.data[0].policyType);
+        if(roleId === 'MAN_ENGINEER'){
+          $("#addPolicyBaseicInfoBtn").toggleClass('btn_dis');
+        }
       }
     }
   });

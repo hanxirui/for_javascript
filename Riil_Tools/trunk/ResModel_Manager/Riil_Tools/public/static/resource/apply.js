@@ -14,6 +14,10 @@ $(document).ready(function() {
     bJQueryUI: false,
     oLanguage: GIRD_I18N,
     initComplete: initCheckBox,
+    'columnDefs':[{
+                 orderable:false,//禁用排序
+                 targets:[0]   //指定的列
+             }],
     aoColumns: [{
       'aDataSort': false,
       data: 'c_id',
@@ -116,7 +120,8 @@ function deleteapply() {
   //修改背板管理
   function updataBackGroud(input) {
       var Id = $(input).attr('value');
-      $.get(ctx + '/resmodel/applymanager/updataBackGroud?id='+Id, function(data) {
+      var nowTime = new Date().getTime();
+      $.get(ctx + '/resmodel/applymanager/updataBackGroud?id=' + Id + '&date=' + nowTime, function(data) {
         myAlert({
           title: '项目信息查看',
           msg: data,
@@ -209,7 +214,7 @@ function checkIdValue() {
       'projectname': projectname,
     },
     success: function(data) {
-      if (data.count === '0') {
+      if (data.count === 0) {
         submitapply();
       } else {
         // 提示
@@ -222,11 +227,10 @@ function checkIdValue() {
 // 添加申请管理（点击确定添加）
 function submitapply() {
   if (!document.getElementById('file').value) {
-    setBMsgContent('prompt_warning', 'warning_content', '请选择要上传的附件', '',
-      msgHide, 270, 400, true);
+    alert('请选择要上传的附件');
     return false;
   } else {
-    setSMsgContent('操作成功', 70, '45%');
+    
     $('#addapplyform')[0].submit();
           
     return true;

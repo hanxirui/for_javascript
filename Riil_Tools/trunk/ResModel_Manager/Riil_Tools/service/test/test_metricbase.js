@@ -7,7 +7,6 @@
 var metric_base = require('../MetricBaseLib.js'),
     comm_func = require('../func/commonfunc.js');
  var  MetricBaseParam = require('../func/MetricBaseParameter');
- var  MetricGroupRelParam = require('../func/MetricGroupRelParameter');
 
 
 
@@ -69,7 +68,7 @@ metric_base.saveMetricBase(metricBaseParam.param).then(function (recordset) {
 
 //添加自定义指标组关系
 //
-var metricGroupRel_Param = new MetricGroupRelParam();
+var metricGroupRel_Param;
 metricGroupRel_Param.param.metricid = "test_metric_id";
 metricGroupRel_Param.param.groupid = ["AvailabilityGroup1","AvailabilityGroup11","AvailabilityGroup111"];
 metric_base.saveMetricGroupRelation(metricGroupRel_Param.param).then(function (recordset) {

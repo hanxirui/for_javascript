@@ -10,7 +10,8 @@
 var fs = require('fs');
 var Q = require('q');
 var uuid = require('node-uuid');
-var ExportResultData = require('./ExportResult.js');
+var dateFormat = require('dateformat');
+//var ExportResultData = require('./ExportResult.js');
 
 /**
  * getUUID
@@ -18,8 +19,7 @@ var ExportResultData = require('./ExportResult.js');
  * @returns {string}
  **/
 exports.getUUID = function () {
-    var strUUID = uuid.v4();
-    return strUUID;
+    return uuid.v4();
 };
 
 /**
@@ -28,21 +28,7 @@ exports.getUUID = function () {
  * @return {string} 日期格式字符串
  * */
 exports.getFormatDate = function () {
-    var date = new Date(),
-    seperator = "-";
-    //获取当前日期
-    var strDate = date.getDate(),
-    month = date.getMonth() + 1;
-    //格式化日期字符 两位月和两位日
-    var dateArray = new Array(month, strDate);
-    for (var item in dateArray) {
-        if (dateArray[item] >= 1 && dateArray[item] <= 9) {
-            dateArray[item] = '0' + dateArray[item];
-        }
-    }
-    //拼接日期格式字符串
-    var strDateTime = date.getFullYear() + seperator + dateArray[0] + seperator + dateArray[1];
-    return strDateTime;
+    return dateFormat(new Date(), "yyyy-mm-dd");
 };
 
 /**
@@ -51,32 +37,7 @@ exports.getFormatDate = function () {
  * @return {string} 日期时间字符串
  * */
 exports.getFormatDateTime = function () {
-    var date = new Date(),
-    seperator_day = "-",
-    seperator_time = ":";
-    var strDate = date.getDate(),
-    month = date.getMonth() + 1,
-    hour = date.getHours(),
-    minute = date.getMinutes(),
-    second = date.getSeconds();
-    //格式化日期时间字符串，将单月加‘0’,单天加'0',时分秒单数的加'0'
-    var dateArray = new Array(month, strDate, hour, minute, second);
-    for (var item in dateArray) {
-        if (item >= 2) {
-            //格式化 时、分、秒、数据
-            if (dateArray[item] >= 0 && dateArray[item] <= 9) {
-                dateArray[item] = '0' + dateArray[item];
-            }
-        } else {
-            //格式化 月、日数据
-            if (dateArray[item] >= 1 && dateArray[item] <= 9) {
-                dateArray[item] = '0' + dateArray[item];
-            }
-        }
-    }
-
-    var strDateTime = date.getFullYear() + seperator_day + dateArray[0] + seperator_day + dateArray[1] + " " + dateArray[2] + seperator_time + dateArray[3] + seperator_time + dateArray[4];
-    return strDateTime;
+    return dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
 };
 
 /**
@@ -210,5 +171,4 @@ exports.callbat = function(batfile,batPath,paramArray,callback) {
                 errMessage : stderr
             });
         });
-
 };

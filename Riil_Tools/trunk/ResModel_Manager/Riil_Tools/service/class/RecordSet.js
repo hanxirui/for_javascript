@@ -16,8 +16,5 @@ function RecordSet() {
     //是否有错误
     this.isError = false;
     //错误描述信息
-    this.errMessage ="";
+    this.errMessage = "";
 }
-
-
-

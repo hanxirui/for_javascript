@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Created by R04414 on 2014/9/1.
  */
@@ -9,4 +10,16 @@ var aduitLog = require('../AduitLogService');
 //    groupName: "testName111",
 //    groupDesc: "testDesc111"});
 
-aduitLog.insertLog({user:'huanfeng',content:'TestLog'});
+/*
+aduitLog.insertLog({userId:'huanfeng',info:'TestLog'}).then(function (rs){
+    console.log(rs);
+}).fail(function (err) {
+    console.error(err);
+});
+*/
+
+aduitLog.getAduitLogList().then(function (rs){
+    console.log(rs);
+}).fail(function (err) {
+    console.error(err);
+});

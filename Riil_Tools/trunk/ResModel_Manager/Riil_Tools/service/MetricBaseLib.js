@@ -10,19 +10,7 @@ var Q = require('q'),
  * @return {Object} 指标信息recordSet对象
  */
 exports.getMetricBaseList = function () {
-    var myQ = Q.defer();
-    commander.get('t_moni_metric_base.select', []).then(function (recordset) {
-        var jsonStr = JSON.stringify(recordset);
-        var obj = JSON.parse(jsonStr);
-        if (obj.isError) {
-            myQ.reject(obj);
-        } else {
-            myQ.resolve(obj);
-        }
-    }).fail(function (err) {
-        myQ.reject(err);
-    });
-    return myQ.promise;
+    return commander.get('t_moni_metric_base.select', []);
 };
 
 /**
@@ -34,14 +22,7 @@ exports.getMetricBaseList = function () {
  */
 exports.saveMetricBase = function (sqlparam) {
     var logContent = "指标库管理,添加自定义指标" + "metric_id" + sqlparam.metric_id;
-    var myQ = Q.defer();
-    console.log(sqlparam);
-    commander.save("t_moni_metric_base.insert", {metric_id: sqlparam.metric_id, metric_name: sqlparam.metric_name, metric_desc: sqlparam.metric_desc, metric_type: sqlparam.metric_type, metric_unit: sqlparam.metric_unit, metric_datatype: sqlparam.metric_datatype, metric_iscustom: sqlparam.metric_iscustom, userid: sqlparam.userid},{user:sqlparam.userid,info:logContent}).then(function (recordset) {
-        myQ.resolve(recordset);
-    }).fail(function (err) {
-        myQ.reject(err);
-    });
-    return myQ.promise;
+    return commander.save("t_moni_metric_base.insert", {metric_id: sqlparam.metric_id, metric_name: sqlparam.metric_name, metric_desc: sqlparam.metric_desc, metric_type: sqlparam.metric_type, metric_unit: sqlparam.metric_unit, metric_datatype: sqlparam.metric_datatype, metric_iscustom: sqlparam.metric_iscustom, userid: sqlparam.userid},{userId:sqlparam.userid,info:logContent});
 };
 
 /**
@@ -60,7 +41,7 @@ exports.saveMetricGroupRelation = function (sqlparam) {
     groupIdArray.forEach(function(group_id){
         logContent="";
         logContent="指标库管理,添加自定义指标组关系"+"groupid:" +group_id ;
-        commander.save("t_moni_metric_group_rel.insert", {groupid:group_id,metricid:metricId},{user:userId,info:logContent}).then(function (recordset) {
+        commander.save("t_moni_metric_group_rel.insert", {groupid:group_id,metricid:metricId},{userId:sqlparam.userid,info:logContent}).then(function (recordset) {
             myQ.resolve(recordset);
         }).fail(function (err) {
             myQ.reject(err);
@@ -96,16 +77,17 @@ exports.saveMetricGroupRelation = function (sqlparam) {
  *
  * @method deleteMetricBaseById
  * @param {string}  删除的指标ID
+ * @param {string}  操作员ID
  * @return {Object} 指标信息recordSet对象
  */
-exports.deleteMetricBaseById = function (metricId) {
-    var userId="liutong";
+exports.deleteMetricBaseById = function (metricId,userId) {
+    /*var userId="liutong";*/
     var myQ = Q.defer();
     var delJson ={
         ids:metricId
     };
     var logContent="指标库管理,删除自定义指标.";
-    commander.del("t_moni_metric_base.delete", delJson,{user:userId,info:logContent}).then(function (recordset) {
+    commander.del("t_moni_metric_base.delete", delJson,{userId:userId,info:logContent}).then(function (recordset) {
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);
@@ -150,19 +132,7 @@ exports.getMetricBaseByCondition = function (condition) {
  */
 
 exports.getMetricTypeList = function () {
-    var myQ = Q.defer();
-    commander.get('t_moni_metric_base.selectMetricType', []).then(function (recordset) {
-        var jsonStr = JSON.stringify(recordset);
-        var obj = JSON.parse(jsonStr);
-        if (obj.isError) {
-            myQ.reject(obj);
-        } else {
-            myQ.resolve(obj);
-        }
-    }).fail(function (err) {
-        myQ.reject(err);
-    });
-    return myQ.promise;
+    return commander.get('t_moni_metric_base_metric_type.select', []);
 };
 
 
@@ -174,19 +144,7 @@ exports.getMetricTypeList = function () {
  */
 
 exports.getMetricGroupList = function () {
-    var myQ = Q.defer();
-    commander.get('t_moni_metric_group.select', []).then(function (recordset) {
-        var jsonStr = JSON.stringify(recordset);
-        var obj = JSON.parse(jsonStr);
-        if (obj.isError) {
-            myQ.reject(obj);
-        } else {
-            myQ.resolve(obj);
-        }
-    }).fail(function (err) {
-        myQ.reject(err);
-    });
-    return myQ.promise;
+    return commander.get('t_moni_metric_group.select', []);
 };
 
 /**
@@ -200,7 +158,7 @@ exports.saveMetricBaseModify = function (sqlparam) {
     var userId="liutong";
     var myQ = Q.defer();
     var logContent="指标库管理,修改指标库指标" + "metricid:" + sqlparam.metric_id ;
-    commander.save("t_moni_metric_base.update", {metric_id: sqlparam.metric_id, metric_name: sqlparam.metric_name, metric_desc: sqlparam.metric_desc, metric_type: sqlparam.metric_type, metric_unit: sqlparam.metric_unit, metric_datatype: sqlparam.metric_datatype, metric_iscustom: sqlparam.metric_iscustom, metric_userid: sqlparam.userid},{user:userId,info:logContent}).then(function (recordset) {
+    commander.save("t_moni_metric_base.update", {metric_id: sqlparam.metric_id, metric_name: sqlparam.metric_name, metric_desc: sqlparam.metric_desc, metric_type: sqlparam.metric_type, metric_unit: sqlparam.metric_unit, metric_datatype: sqlparam.metric_datatype, metric_iscustom: sqlparam.metric_iscustom, metric_userid: sqlparam.userid},{userId:sqlparam.userid,info:logContent}).then(function (recordset) {
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);
@@ -213,16 +171,16 @@ exports.saveMetricBaseModify = function (sqlparam) {
  *
  * @method deleteMetricGroupRelByMetricId
  * @param {string}  指标id
+ * @param {string}  登录用户ID
  * @return {Object} 指标信息recordSet对象
  */
-exports.deleteMetricGroupRelByMetricId = function (metricId) {
-    var userId="liutong";
+exports.deleteMetricGroupRelByMetricId = function (metricId, userId) {
     var myQ = Q.defer();
     var delJson ={
         metric_ids:metricId
     };
     var logContent="指标库管理, 删除指标与指标组的关系" + "metricid:" + metricId[0] ;
-    commander.del("t_moni_metric_group_rel.delete", delJson,{user:userId,info:logContent}).then(function (recordset) {
+    commander.del("t_moni_metric_group_rel.delete", delJson,{userId:userId,info:logContent}).then(function (recordset) {
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);
@@ -241,7 +199,7 @@ exports.deleteMetricGroupRelByMetricId = function (metricId) {
 //metric.c_name=? and metric.c_metric_type=? and metric.c_id=?
 exports.getMetricBaseById = function (id) {
     var myQ = Q.defer();
-    commander.get("t_moni_metric_base.selectById", [id]).then(function (recordset) {
+    commander.get("t_moni_metric_base_by_id.select", [id]).then(function (recordset) {
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);

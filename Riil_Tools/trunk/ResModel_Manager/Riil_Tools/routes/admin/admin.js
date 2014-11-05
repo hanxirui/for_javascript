@@ -47,7 +47,7 @@ router.get('/userdata/:pageNow', function(req, res) {
 
 	};
 
-	userService.init();
+	
 	userService.queryAll(pageInfo, function(r) {
 		var info = {
 			user: $u.userName,
@@ -81,7 +81,7 @@ router.get('/userdata/query/:pageNow', function(req, res) {
 
 	};
 
-	userService.init();
+	
 	userService.queryAll(pageInfo, function(r) {
 
 		res.json({
@@ -104,7 +104,7 @@ router.get('/user/new', function(req, res) {
 router.get('/user/update/:acct_id', function(req, res) {
 	var acct_id = req.params.acct_id;
 	console.log(acct_id);
-	userService.init();
+	
 	userService.queryById(acct_id, function(r) {
 		res.render('user_update', {
 			data: r[0],
@@ -124,7 +124,7 @@ router.post('/user', function(req, res) {
     hmac.update(userInfo.cPassword);
     result = hmac.digest("hex");
 	userInfo.cPassword=result;
-	userService.init();
+	
 	userService.save(userInfo, function() {
 		res.json({
 			msg: '1'
@@ -139,7 +139,7 @@ router.post('/user', function(req, res) {
 router.post('/user/update', function(req, res) {
 
 	var userInfo = req.body;
-	userService.init();
+	
 	userService.update(userInfo, function() {
 		res.json({
 			msg: '1'
@@ -197,7 +197,7 @@ router.delete('/user', function(req, res) {
 
 	var acct_ids = req.body.acct_ids;
 
-	userService.init();
+	
 	userService.deleteById(acct_ids, function() {
 
 		res.json({
@@ -213,7 +213,7 @@ router.delete('/user', function(req, res) {
 ////////////////////////////////////////////////////////////////
 // 角色 导向
 router.get('/role/roleListMenu', function(req, res) {
-	roleService.init();
+	
 	roleService.queryAll(function(rows) {
 		var d = [];
 		for (var i = 0; i < rows.length; i++) {
@@ -249,7 +249,7 @@ router.get('/role/:role_id', function(req, res) {
 
 	var role_id = req.params.role_id;
 
-	roleService.init();
+	
 	roleService.queryById(role_id, function(rows) {
 
 		res.json({
@@ -276,7 +276,7 @@ router.get('/role/add/:role_id', function(req, res) {
 //加载没有分配角色的用户数据
 router.get('/role/load/users', function(req, res) {
 	//console.log(123123);
-	roleService.init();
+	
 	roleService.queryUsers(function(rows) {
 
 		res.json({
@@ -290,7 +290,7 @@ router.get('/role/load/users', function(req, res) {
 
 router.post('/role/reset', function(req, res) {
 	var role_id = req.body.role_id;
-	roleService.init();
+	
 	roleService.updateById(role_id, function() {
 
 		res.json({
@@ -305,7 +305,7 @@ router.post('/role/reset', function(req, res) {
 router.post('/role/add/users', function(req, res) {
 	var role_id = req.body.role_id;
 	var acct_id = req.body.acct_id;
-	roleService.init();
+	
 	console.log(req.body);
 	roleService.updateRoleById(role_id, acct_id, function() {
 

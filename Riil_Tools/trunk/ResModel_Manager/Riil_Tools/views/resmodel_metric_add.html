@@ -2,22 +2,20 @@
 <head >
   <title></title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Pragma" content="no-cache">
   <link href="/css/jquery.autocomplete.css" rel="stylesheet" type="text/css">
   <link href="/css/comm.css" rel="stylesheet" type="text/css">
+  <link href="/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" type="text/css" href="/css/table.css">
   <script type="text/javascript" src="/js/common/jquery-1.8.2.min.js"></script>
   <script type="text/javascript" src="/js/common/jquery.autocomplete.js"></script>
   <script type="text/javascript">
     var metric_id = '<%- data.metricId%>';
     if(metric_id !== ''){
+      var metric_bindingId = '<%- data.metricBindingId%>';
       $("#m_paramid").val(metric_id);
       $("#m_paramid").attr('readonly', 'readonly');
-      var metric_protocol = '<%- data.coltProtocol%>';
-      $("#pluginProtocol").val(metric_protocol);
-      if(metric_protocol !== 'SNMP'){
-        $("#tabs22").css('display', 'none');
-      }else{
-        $("#tabs22").css('display', 'block');
-      }
+      var metric_protocol = '<%- data.defaultProtocol%>';
       var metric_isInstance = '<%- data.isInstance%>';
       if (metric_isInstance === '1') {
         $('#isInstanceRD').attr('checked', 'checked');
@@ -36,12 +34,44 @@
       }else{
         $('#notDisplayNameRD').attr('checked', 'checked');
       }
-      var metric_commandName = '<%- data.commandName%>';
-      var metric_commandValue = '<%- data.commandValue%>';
-      if(metric_commandName !== '' && metric_commandValue !== ''){
-        $("#collectParameters").text(metric_commandName + "=" + metric_commandValue);
+      $("#collectCmds").val('<%- data.updateCmds%>');
+      $("#collectParameters").text('<%- data.updateCmdsProps%>');
+      var isCustom = '<%- data.isCustom%>';
+      if(isCustom === '0'){
+        /*$("#addMetricInfoBtn").css('display', 'none');*/
+        $("#addCmdDiv").css('display', 'none');
+        $("#defaultCmdDiv").css('display', 'block');
+        $("#addMetricInfoBtn").toggleClass('btn_dis');
+        $("#addMetricInfoBtn").removeAttr("onclick");
+        $("#pluginProtocol").css('display', 'none');
+        $("#sysPluginProtocol").css('display', 'block');
+        $("#sysPluginProtocol").val(metric_protocol);
+        $('#isInitValueRD').attr('disabled', 'disabled');
+        $('#notInstanceRD').attr('disabled', 'disabled');
+        $('#isInstanceRD').attr('disabled', 'disabled');
+        $('#notInitValueRD').attr('disabled', 'disabled');
+        $('#isDisplayNameRD').attr('disabled', 'disabled');
+        $('#notDisplayNameRD').attr('disabled', 'disabled');
+      }else{
+        /*$("#addMetricInfoBtn").css('display', 'block');*/
+        /*$("#addMetricInfoBtn").toggleClass('btn');*/
+        var cmdGroupId = '<%- data.metricCmds[0].cmdGroupId%>';
+        var isDefault = '<%- data.metricCmds[0].isDefault%>';
+        var isDynamic = '<%- data.metricCmds[0].isDynamic%>';
+        var cmdId = '<%- data.metricCmds[0].cmdId%>';
+        $("#addCmdDiv").css('display', 'block');
+        $("#defaultCmdDiv").css('display', 'none');
+        $("#pluginProtocol").css('display', 'block');
+        $("#sysPluginProtocol").css('display', 'none');
+        if(metric_protocol !== ''){
+          $("#pluginProtocol").val(metric_protocol);
+        }
+        if($("#pluginProtocol").val() !== 'SNMP'){
+          $("#tabs22").css('display', 'none');
+        }else{
+          $("#tabs22").css('display', 'block');
+        }
       }
-      var collCommandId = '<%- data.collCommandId%>';
     }
   </script>
 </head>
@@ -50,14 +80,14 @@
 <div class="con_t" style="margin:0px;">
   <ul>
    <!--  <li class="bg_gray con_b">添加指标</li> -->
-   <li class="bg_gray con_b"><a class="btn" onclick="closeWin()">取消</a><a class="btn" onclick="btnOk();">确定</a></li>
+   <li class="bg_gray con_b"><a class="btn" onclick="closeWin()">取消</a><a id="addMetricInfoBtn" class="btn" onclick="btnOk();">确定</a></li>
    <li class="m_14">
           <table style="width: '100%'; cellspacing: '0'; cellpadding: '0'" class="t_td">
             <tbody><tr height="30%">
               <td width="100">指标ID：</td>
               <td><input name="m_paramid" type="text" id="m_paramid" style="width: 350px" size="60" class="f_left">
               &nbsp;<span class="txt_red" style="">*</span><span class="txt_red" id="m_paramid_msg"></span>
-              <input type="hidden" id="resType" value="<%=: data.resType%>" /></td>
+              <input type="hidden" id="resType" value="<%=: data.resTypeId%>" /></td>
             </tr>
             <tr height="70%">
               <td>指标名称：</td>
@@ -84,12 +114,12 @@
               <td><input name="m_paramgroup" type="text" id="m_paramgroup" style="width: 350px" readonly="readonly" size="60" value="<%=: data.metricGroupId%>" /></td>
             </tr>
             <tr>
-              <td height="26">取值协议：</td>
+              <td height="26">默认取值协议：</td>
               <td><select name="pluginProtocol" id="pluginProtocol" onchange="changeProtocol();" style="width: 150px;">
                       <option value="SNMP">SNMP</option>
                       <option value="JDBC">JDBC</option>
                       <option value="WMI">WMI</option>
-              </select></td>
+              </select><input type="text" style="display:none;width: 350px;" disabled="disabled" id="sysPluginProtocol" /></td>
             </tr>
             <tr>
               <td height="26">是否初始化：</td>
@@ -137,10 +167,10 @@
         <a class="tabsa" id="tabs22" href="javascript:showTab1('tabs22','tabextContent2')">扩展指令</a>
       </div>
       <div id="tabextContent1" class="pos_real">
-        <table width="100%" cellspacing="0" cellpadding="0" class="t_td m_14">
+        <table id="addCmdDiv" width="100%" cellspacing="0" cellpadding="0" class="t_td m_14">
           <tbody><tr>
             <td width="100" height="26">采集指令：</td>
-            <td><input type="text" name="collectCmds" id="collectCmds" style="width: 350px" value="<%=: data.collCommand%>">&nbsp;<span class="txt_red" style="">*</span><span class="txt_red" id="collectCmds_msg"></span></td>
+            <td><input type="text" name="collectCmds" id="collectCmds" style="width: 350px" value="">&nbsp;<span class="txt_red" style="">*</span><span class="txt_red" id="collectCmds_msg"></span></td>
           </tr>
           <tr>
             <td height="26">采集参数：</td>
@@ -151,6 +181,25 @@
             <td><span class="txt_red" id="collectCmds_msg">采集参数格式为"参数名"="参数值"</span></td>
           </tr>
         </tbody></table>
+        <div id="defaultCmdDiv" style="height:180px;overflow-y:auto;overflow-x:hidden;display:none;">
+          <table width="90%" class="t_td table dataTable" cellSpacing="0" cellPadding="0">
+            <thead>
+              <tr bgColor="#ecf1f9"><td width="15%">协议</td><td width="65%">采集指令</td><td width="20%">采集参数</td><tr>
+            </thead>
+            <tbody>
+              <% if(data.metricCmds.length > 0) {%>
+                <% for(var i=0; i<data.metricCmds.length; i++) { %>
+                  <tr>
+                    <td><%= data.metricCmds[i].cmdProtocol%></td>
+                    <td><span title="<%= data.metricCmds[i].cmd%>"><%= data.metricCmds[i].cmd%></span></td>
+                    <td>
+                      <span title="<%= data.metricCmds[i].cmdPropsShow%>"><%= data.metricCmds[i].cmdPropsShow%></span>
+                    </td>
+                  </tr>
+                <% } %>
+              <% } %>
+          </tbody></table>
+        </div>
       </div>
       <div id="tabextContent2" style="display: none;">
         <iframe frameborder="0" width="100%" height="191px" scrolling="no" name="content" marginheight="0" marginwidth="0" id="extcmd" src="#">

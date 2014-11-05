@@ -35,7 +35,7 @@ console.log(dbURL);
        helper.callbat(bat_name,invoker_path,paramArray,function (dataresult){
        var jsonStr = JSON.stringify(dataresult);
        var obj = JSON.parse(jsonStr);
-       if (obj.isError) {
+       if (obj.error) {
            console.log(obj.errMessage);
            myQ.reject(obj);
        }

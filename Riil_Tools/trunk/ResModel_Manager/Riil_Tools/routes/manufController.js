@@ -46,10 +46,10 @@ router.post('/delete', function(req, res) {
 	});
 });
 //修改厂商 updatePre
-router.get('/updatePre/:manufId', function(req, res) {
+router.get('/updatePre', function(req, res) {
 	// 获取请求路径
     var pathname = url.parse(req.url).pathname;
-	var manufId = req.params.manufId;
+	var manufId = req.query.manufId;
 	manufService.queryManufInfoById(manufId, function(r) {
 		res.render('manuf_update', {
 			data: r[0],

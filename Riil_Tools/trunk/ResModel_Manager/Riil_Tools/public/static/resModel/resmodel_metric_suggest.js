@@ -33,23 +33,6 @@ var paramAddVar = {
           $("#m_paramunit").val(row.metricUnit);
           $("#m_paramdatatype").val(row.metricDataType);
           $("#m_paramgroup").val(row.metricGroupId);
-          $("#prefixName").val(row.modelPrefix);
-          if(row.isInstance === '1'){
-            $('#isInstanceRD').attr('checked', 'checked');
-          }else{
-            $('#notInstanceRD').attr('checked', 'checked');
-          }
-          if(row.isInitValue === '1'){
-            $('#isInitValueRD').attr('checked', 'checked');
-          }else{
-            $('#notInitValueRD').attr('checked', 'checked');
-          }
-          if(row.isDisplayName === '1'){
-            $('#isDisplayNameRD').attr('checked', 'checked');
-          }else{
-            $('#notDisplayNameRD').attr('checked', 'checked');
-          }
-          $('#pluginProtocol').val(row.coltProtocol);
         });
       }
     });

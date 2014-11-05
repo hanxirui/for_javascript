@@ -2,7 +2,7 @@ $(document).ready(function(){
 	var imageName = $("#fileText").attr('value');
 	if(imageName != ''){
 		var path = window.location.href;
-		var imagePath = path.substring(0, path.indexOf('/resmodel')) + "/manufImages/";
+		var imagePath = path.substring(0, path.indexOf('/resmodel')) + "/images/template/";
 		imagePath += imageName;
 		$("#image_display").attr("src", imagePath);
 	}
@@ -36,10 +36,18 @@ function submitMsg(){
 			//async:true,//表示该ajax为同步的方式
 			success:function(data){
 				if(data.msg=='1'){
-					var iframedom = $('#model_add', parent.document)[0];
-					//setSMsgContent("操作成功", 70, "45%");
-					alert('操作成功');
-					iframedom.src = ctx + "/resmodel/manufController/getManufManagement";
+					table.fnClearTable();
+		            $.ajax({
+		              type: 'get',
+		              url: ctx + "/resmodel/manufController/getAllManufInfos",
+		              success: function(data) {
+		                table.fnAddData(data.data);
+		              },
+		              error: function() {
+		                alert("操作失败");
+		              }
+		            });
+		            alert('操作成功');
 					closeWin();
 				}else{
 					alert("操作失败");
