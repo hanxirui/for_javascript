@@ -3,7 +3,6 @@
  * Created by R04419 on 2014/9/11.
  * 资源模型管理 策略事件管理
  */
-var mysql = require('mysql');
 var sqlConfig = require('../conf/config.json').sql;
 var SqlCommand = require('../service/class/SQLCommand.js');
 var AduitLogService = require('../service/AduitLogService');

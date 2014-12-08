@@ -24,8 +24,7 @@ exports.getMetricGroupList = function() {
 
 exports.saveMetricGroup = function (sqlparam,aduitJson) {
     var myQ = Q.defer();
-    var logContent = "指标组管理插入数据id:" + sqlparam.groupId;
-    commander.save("t_moni_metric_group.insert", sqlparam, {userId:sqlparam.operator,info:logContent}).then(function (recordset) {
+    commander.save("t_moni_metric_group.insert", sqlparam).then(function (recordset) {
         if(aduitJson){
             AduitLogService.insertLog(aduitJson);
         }
@@ -38,7 +37,6 @@ exports.saveMetricGroup = function (sqlparam,aduitJson) {
 
 exports.updataMetricGroup = function (sqlparam,aduitJson) {
     var myQ = Q.defer();
-    var logContent = "指标组管理修改数据id:" + sqlparam.groupId;
     commander.save("t_moni_metric_group.update",sqlparam, {userId:sqlparam.operator,info:logContent}).then(function (recordset) {
         if(aduitJson){
             AduitLogService.insertLog(aduitJson);
@@ -57,8 +55,7 @@ exports.deleteMetricGroupById = function (data,aduitJson) {
     var delJson ={
         groupIds:data.ids
     };
-    var logContent = "指标组管理删除数据";
-    commander.del("t_moni_metric_group.delete", delJson, {userId:data.operator,info:logContent}).then(function (recordset) {
+    commander.del("t_moni_metric_group.delete", delJson).then(function (recordset) {
         if(aduitJson){
             AduitLogService.insertLog(aduitJson);
         }

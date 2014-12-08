@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.riil.base.binding.pojo.MetricGroupExtendPojo;
 import com.riil.base.resmodel.pojo.base.MetricGroupPojo;
 import com.riil.core.dam.exception.DBException;
 import com.riil.core.dao.BaseDAO;
@@ -62,7 +63,7 @@ public class MetricGroupDao extends BaseDAO<MetricGroupPojo> {
 		}
 	}
 	
-	public void insert(List<MetricGroupPojo> pojos)  throws DAOException {
+	public void insert(List<MetricGroupExtendPojo> pojos)  throws DAOException {
 		try {
 			getDam().update("batchInsert", pojos);
 		} catch (DBException e) {

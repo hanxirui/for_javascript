@@ -2,6 +2,7 @@
 var Q = require('q'),
     SqlCommand = require('../service/class/SQLCommand.js'),
     commander = new SqlCommand();
+var AduitLogService = require('../service/AduitLogService');
 
 /**
  * 指标信息页面 指标数据列表
@@ -21,8 +22,13 @@ exports.getMetricBaseList = function () {
  * @return {Object} 指标信息recordSet对象
  */
 exports.saveMetricBase = function (sqlparam) {
-    var logContent = "指标库管理,添加自定义指标" + "metric_id" + sqlparam.metric_id;
-    return commander.save("t_moni_metric_base.insert", {metric_id: sqlparam.metric_id, metric_name: sqlparam.metric_name, metric_desc: sqlparam.metric_desc, metric_type: sqlparam.metric_type, metric_unit: sqlparam.metric_unit, metric_datatype: sqlparam.metric_datatype, metric_iscustom: sqlparam.metric_iscustom, userid: sqlparam.userid},{userId:sqlparam.userid,info:logContent});
+    var logInfo = "指标库管理,添加自定义指标" + "metric_id" + sqlparam.metric_id;
+    var logContent = {
+        userId: sqlparam.userid,
+        info: logInfo
+    };
+    AduitLogService.insertLog(logContent);
+    return commander.save("t_moni_metric_base.insert", {metric_id: sqlparam.metric_id, metric_name: sqlparam.metric_name, metric_desc: sqlparam.metric_desc, metric_type: sqlparam.metric_type, metric_unit: sqlparam.metric_unit, metric_datatype: sqlparam.metric_datatype, metric_iscustom: sqlparam.metric_iscustom, userid: sqlparam.userid});
 };
 
 /**
@@ -37,11 +43,14 @@ exports.saveMetricGroupRelation = function (sqlparam) {
     var myQ = Q.defer();
     var groupIdArray = sqlparam.groupid;
     var metricId = sqlparam.metric_id;
-    var logContent="";
     groupIdArray.forEach(function(group_id){
-        logContent="";
-        logContent="指标库管理,添加自定义指标组关系"+"groupid:" +group_id ;
-        commander.save("t_moni_metric_group_rel.insert", {groupid:group_id,metricid:metricId},{userId:sqlparam.userid,info:logContent}).then(function (recordset) {
+        var logInfo = "指标库管理,添加自定义指标组关系"+"groupid:" +group_id ;
+        var logContent = {
+            userId: sqlparam.userid,
+            info: logInfo
+        };
+        AduitLogService.insertLog(logContent);
+        commander.save("t_moni_metric_group_rel.insert", {groupid:group_id,metricid:metricId}).then(function (recordset) {
             myQ.resolve(recordset);
         }).fail(function (err) {
             myQ.reject(err);
@@ -86,8 +95,13 @@ exports.deleteMetricBaseById = function (metricId,userId) {
     var delJson ={
         ids:metricId
     };
-    var logContent="指标库管理,删除自定义指标.";
-    commander.del("t_moni_metric_base.delete", delJson,{userId:userId,info:logContent}).then(function (recordset) {
+    var logInfo="指标库管理,删除自定义指标.";
+    var logContent = {
+        userId: userId,
+        info: logInfo
+    };
+    AduitLogService.insertLog(logContent);
+    commander.del("t_moni_metric_base.delete", delJson).then(function (recordset) {
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);
@@ -157,8 +171,13 @@ exports.getMetricGroupList = function () {
 exports.saveMetricBaseModify = function (sqlparam) {
     var userId="liutong";
     var myQ = Q.defer();
-    var logContent="指标库管理,修改指标库指标" + "metricid:" + sqlparam.metric_id ;
-    commander.save("t_moni_metric_base.update", {metric_id: sqlparam.metric_id, metric_name: sqlparam.metric_name, metric_desc: sqlparam.metric_desc, metric_type: sqlparam.metric_type, metric_unit: sqlparam.metric_unit, metric_datatype: sqlparam.metric_datatype, metric_iscustom: sqlparam.metric_iscustom, metric_userid: sqlparam.userid},{userId:sqlparam.userid,info:logContent}).then(function (recordset) {
+    var logInfo="指标库管理,修改指标库指标" + "metricid:" + sqlparam.metric_id ;
+    var logContent = {
+        userId: sqlparam.userid,
+        info: logInfo
+    };
+    AduitLogService.insertLog(logContent);
+    commander.save("t_moni_metric_base.update", {metric_id: sqlparam.metric_id, metric_name: sqlparam.metric_name, metric_desc: sqlparam.metric_desc, metric_type: sqlparam.metric_type, metric_unit: sqlparam.metric_unit, metric_datatype: sqlparam.metric_datatype, metric_iscustom: sqlparam.metric_iscustom, metric_userid: sqlparam.userid}).then(function (recordset) {
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);
@@ -179,8 +198,13 @@ exports.deleteMetricGroupRelByMetricId = function (metricId, userId) {
     var delJson ={
         metric_ids:metricId
     };
-    var logContent="指标库管理, 删除指标与指标组的关系" + "metricid:" + metricId[0] ;
-    commander.del("t_moni_metric_group_rel.delete", delJson,{userId:userId,info:logContent}).then(function (recordset) {
+    var logInfo="指标库管理, 删除指标与指标组的关系" + "metricid:" + metricId[0] ;
+    var logContent = {
+        userId: userId,
+        info: logInfo
+    };
+    AduitLogService.insertLog(logContent);
+    commander.del("t_moni_metric_group_rel.delete", delJson).then(function (recordset) {
         myQ.resolve(recordset);
     }).fail(function (err) {
         myQ.reject(err);

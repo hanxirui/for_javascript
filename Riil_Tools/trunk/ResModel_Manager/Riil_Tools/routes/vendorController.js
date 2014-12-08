@@ -9,7 +9,7 @@ var resType = require('../service/func/Enum4ResType');
 var getUUIDService = require('../service/func/commonfunc.js');
 /**查询所有厂商信息*/
 router.get('/getAllManufInfos', function(req, res){
-	manufService.queryAllManufInfos(function(r) {
+	manufService.queryAllManufInfos().then(function(r) {
 		res.json({
 			data: r
 		});
@@ -21,7 +21,7 @@ router.get('/addVendorInfo', function(req, res) {
 });
 /**查询对应模型信息*/
 router.get('/getAllModelInfos', function(req, res){
-	vendorService.queryAllModelInfos(function(r) {
+	vendorService.queryAllModelInfos().then(function(r) {
 		res.json({
 			data: r
 		});
@@ -49,7 +49,7 @@ router.get('/check', function(req, res) {
 		'sysoid' : sysoid,
 		'vendorName': vendorName
 	};
-	vendorService.checkSysoidOrNameRepeat(vendorInfo, function(rows) {
+	vendorService.checkSysoidOrNameRepeat(vendorInfo).then(function(rows) {
 		if (rows.length > 0) {
 			res.json({
 				msg: '1'
@@ -66,7 +66,12 @@ router.post('/save', function(req, res){
 	var vendorInfo = req.body;
 	vendorInfo.id = getUUIDService.getUUID();
 	vendorInfo.operator = req.session.userInfo.userName;
-	vendorService.save(vendorInfo, function() {
+	var logInfo = "厂商型号管理插入数据oid:" + vendorInfo.sysoid;
+	var logContent = {
+		userId: req.session.userInfo.userId,
+		info: logInfo
+	};
+	vendorService.save(vendorInfo, logContent).then(function() {
 		res.json({
 			msg: '1'
 		});
@@ -74,7 +79,7 @@ router.post('/save', function(req, res){
 });
 /**取得所有厂商型号信息*/
 router.get('/getAllVendorInfos', function(req, res){
-	vendorService.queryAllVendorInfos(function(r) {
+	vendorService.queryAllVendorInfos().then(function(r) {
 		res.json({
 			data: r
 		});
@@ -92,7 +97,7 @@ router.get('/queryVendorInfos', function(req, res){
 		'manufID' : manufID,
 		'number' : number
 	};
-	vendorService.queryVendorInfos(vendorInfo, function(r) {
+	vendorService.queryVendorInfos(vendorInfo).then(function(r) {
 		res.json({
 			data: r
 		});
@@ -105,7 +110,12 @@ router.post('/delete', function(req, res) {
 		'vendorIds' : vendorIds,
 		'operator' : req.session.userInfo.userName
 	};
-	vendorService.deleteById(data, function() {
+	var logInfo = "厂商型号管理删除数据";
+	var logContent = {
+		userId: req.session.userInfo.userId,
+		info: logInfo
+	};
+	vendorService.deleteById(data, logContent).then(function() {
 		res.json({
 			msg: '1'
 		});
@@ -114,7 +124,7 @@ router.post('/delete', function(req, res) {
 //修改厂商型号 updatePre
 router.get('/updatePre/:vendorId', function(req, res) {
 	var vendorId = req.params.vendorId;
-	vendorService.queryVendorInfoById(vendorId, function(r) {
+	vendorService.queryVendorInfoById(vendorId).then(function(r) {
 		res.render('vendor_update', {
 			data: r[0],
 			msg: '1'
@@ -124,8 +134,13 @@ router.get('/updatePre/:vendorId', function(req, res) {
 //修改厂商型号 update
 router.post('/update', function(req, res) {
 	var vendorInfo = req.body;
+	var logInfo = "厂商型号管理修改数据 id:" + vendorInfo.sysoid;
+	var logContent = {
+		userId: req.session.userInfo.userId,
+		info: logInfo
+	};
 	vendorInfo.operator = req.session.userInfo.userName;
-	vendorService.update(vendorInfo, function() {
+	vendorService.update(vendorInfo, logContent).then(function() {
 		res.json({
 			msg: '1'
 		});

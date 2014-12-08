@@ -326,13 +326,13 @@ var vendorManager = {
 					msg = "操作成功";
 					/*var iframedom = $('#model_add', parent.document)[0];
 					iframedom.src = ctx + "/resmodel/manufController/getManufManagement";*/
+					vendorTable.fnClearTable();
 					alert(msg);
 					$.ajax({
 							type : 'get',
 							url : ctx+"/resmodel/vendorController/getAllVendorInfos",
 							//async:true,//表示该ajax为同步的方式
 							success : function(data){
-								vendorTable.fnClearTable();
 								if(data.data.length > 0){
 									vendorTable.fnAddData(data.data);
 								}

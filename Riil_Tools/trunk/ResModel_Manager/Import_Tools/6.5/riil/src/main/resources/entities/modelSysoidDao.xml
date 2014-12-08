@@ -11,24 +11,27 @@
 		<result property="sysOid" column="C_SYS_OID" javaType="string" jdbcType="VARCHAR" />
 		<result property="vendorModelId" column="C_VENDOR_MODEL_ID" javaType="string" jdbcType="VARCHAR" />
 		<result property="vendorId" column="C_VENDOR_ID" javaType="string" jdbcType="VARCHAR" />
+		<result property="series" column="C_SERIES" javaType="string" jdbcType="VARCHAR" />
+		<result property="modelNumber" column="C_MODEL_NUMBER" javaType="string" jdbcType="VARCHAR" />
 	</resultMap>
 
 	<!-- Insert POJO object -->
 	<insert id="insert" parameterType="com.riil.base.resmodel.pojo.vendor.ModelSysoidPojo">
 		INSERT INTO t_moni_model_sysoid ( C_MODEL_ID, 
-		C_RESTYPE_ID, C_OS_TYPE, C_DEV_TYPE,  C_SYS_OID, C_VENDOR_MODEL_ID,C_VENDOR_ID )
+		C_RESTYPE_ID, C_OS_TYPE, C_DEV_TYPE,  C_SYS_OID, C_VENDOR_MODEL_ID,C_VENDOR_ID,C_SERIES,C_MODEL_NUMBER )
 		VALUES( #{modelId ,jdbcType=VARCHAR},  #{resTypeId ,jdbcType=VARCHAR},
 		#{osType ,jdbcType=VARCHAR},#{devType ,jdbcType=VARCHAR},
-		#{sysOid ,jdbcType=VARCHAR}, #{vendorModelId ,jdbcType=VARCHAR}, #{vendorId ,jdbcType=VARCHAR} )
+		#{sysOid ,jdbcType=VARCHAR}, #{vendorModelId ,jdbcType=VARCHAR}, #{vendorId ,jdbcType=VARCHAR}, #{series ,jdbcType=VARCHAR} , #{modelNumber ,jdbcType=VARCHAR}  )
     </insert>
 	<!--batch Insert POJO object -->
 	<insert id="batchInsert" parameterType="list">
 		INSERT INTO t_moni_model_sysoid ( C_MODEL_ID,C_RESTYPE_ID, C_OS_TYPE, C_DEV_TYPE,  C_SYS_OID,
-		C_VENDOR_MODEL_ID,C_VENDOR_ID )
+		C_VENDOR_MODEL_ID,C_VENDOR_ID,C_SERIES,C_MODEL_NUMBER )
 		VALUES
 		<foreach collection="list" item="item" separator=",">
 			( #{item.modelId},
-			#{item.resTypeId}, #{item.osType}, #{item.devType}, #{item.sysOid}, #{item.vendorModelId}, #{item.vendorId ,jdbcType=VARCHAR}
+			#{item.resTypeId}, #{item.osType}, #{item.devType}, #{item.sysOid}, #{item.vendorModelId}, #{item.vendorId ,jdbcType=VARCHAR},
+			 #{item.series ,jdbcType=VARCHAR} , #{item.modelNumber ,jdbcType=VARCHAR}
 			)
         </foreach>
 	</insert>
@@ -41,7 +44,7 @@
 	<!-- Select All POJO object -->
 	<select id="select_all" parameterType="com.riil.base.resmodel.pojo.vendor.ModelSysoidPojo" resultMap="modelSysoidResultMap">
 		SELECT C_MODEL_ID, C_RESTYPE_ID,
-		C_OS_TYPE, C_DEV_TYPE,  C_SYS_OID, C_VENDOR_MODEL_ID,C_VENDOR_ID
+		C_OS_TYPE, C_DEV_TYPE,  C_SYS_OID, C_VENDOR_MODEL_ID,C_VENDOR_ID,C_SERIES,C_MODEL_NUMBER
 		FROM t_moni_model_sysoid
 		<trim prefix="ORDER BY">
 			<if test="orderBy != null and orderBy != ''">

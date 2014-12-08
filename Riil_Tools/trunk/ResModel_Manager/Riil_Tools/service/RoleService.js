@@ -1,6 +1,4 @@
 'use strict';
-var mysql = require('mysql');
-
 var SqlCommand = require('../service/class/SQLCommand.js');
 
 var RoleService = {

@@ -1,0 +1,36 @@
+<html>
+<head>
+	<title>Pub/Sub Test</title>
+	<script type="text/javascript" src="pubsubz.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+// 简单的消息记录器，记录素有通过订阅者接收到的主题（topic）和数据
+		var testSubscriber = function( topics , data ){
+		    console.log( topics + ": " + data );
+		};
+
+// 订阅者监听订阅的topic，一旦该topic广播一个通知，订阅者就调用回调函数
+		var testSubscription = pubsubz.subscribe( 'example1', testSubscriber );
+
+// 发布者负责发布程序感兴趣的topic或者通知
+		pubsubz.publish( 'example1', 'hello world!' );
+		pubsubz.publish( 'example1', ['test','a','b','c'] );
+		pubsubz.publish( 'example1', [{'color':'blue'},{'text':'hello'}] );
+
+// 取消订阅
+		setTimeout(function(){
+		    pubsubz.unsubscribe( testSubscription );
+		}, 0);
+		// 取消订阅后该消息将不被通知
+		pubsubz.publish( 'example1', 'hello again!' );
+		
+	</script>
+	<p>
+		<h1>pubsubz Test</h1>
+		<p>
+			Run with Firebug or a console simulator open.
+		</p>
+	</p>
+</body>
+</html>

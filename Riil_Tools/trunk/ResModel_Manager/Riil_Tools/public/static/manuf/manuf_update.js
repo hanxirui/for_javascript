@@ -37,9 +37,10 @@ function submitMsg(){
 			success:function(data){
 				if(data.msg=='1'){
 					table.fnClearTable();
+					var nowTime = new Date().getTime();
 		            $.ajax({
 		              type: 'get',
-		              url: ctx + "/resmodel/manufController/getAllManufInfos",
+		              url: ctx + "/resmodel/manufController/getAllManufInfos?date=" + nowTime,
 		              success: function(data) {
 		                table.fnAddData(data.data);
 		              },

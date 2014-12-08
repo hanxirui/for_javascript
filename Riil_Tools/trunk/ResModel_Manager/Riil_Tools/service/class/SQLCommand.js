@@ -217,7 +217,7 @@ function fetch(sqlKey, paramJson, msgPrefix, bySql) {
             .then(function (result) {
                 return success('SqlCommand.' + prefix + ' succeed', result);
             }, function (err) {
-                return Q.reject(error('SqlCommand.' + prefix + ' error, error message = ' + err));
+                return error('SqlCommand.' + prefix + ' failed with error message, ' + err);
             });
     });
 }

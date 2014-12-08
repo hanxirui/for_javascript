@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.junit.Test;
 import org.springframework.beans.BeanUtils;
 
 import com.riil.base.binding.pojo.CmdFilter;
@@ -24,6 +23,7 @@ import com.riil.base.binding.pojo.CollectCmdsPojo;
 import com.riil.base.binding.pojo.CollectCmdsProcessPara;
 import com.riil.base.binding.pojo.CollectCmdsProcessor;
 import com.riil.base.binding.pojo.MetricBindingPojo;
+import com.riil.base.binding.pojo.MetricGroupExtendPojo;
 import com.riil.base.binding.pojo.MetricProcessPara;
 import com.riil.base.binding.pojo.ResTypeExtendPojo;
 import com.riil.base.pojo.enums.EnumRoot.PolicyType;
@@ -212,8 +212,16 @@ public class ImportFile2Db {
 		t_service.removeAllMetricGroup();
 		
 		List<MetricGroupPojo> t_metricGroupList = getDictService().getDictPojo().getAllMetricGroup();
+		List<MetricGroupExtendPojo> t_metricGroupExtendList = new ArrayList<MetricGroupExtendPojo>();
+		for (MetricGroupPojo t_metricGroup : t_metricGroupList) {
+			MetricGroupExtendPojo t_pojo = new MetricGroupExtendPojo();
+			BeanUtils.copyProperties(t_metricGroup, t_pojo);
+			//iscustom默认是0
+			t_pojo.setIsCustom(0);
+			t_metricGroupExtendList.add(t_pojo);
+		}
 		
-		((MetricGroupService)t_service).importBatch(t_metricGroupList);
+		((MetricGroupService)t_service).importBatch(t_metricGroupExtendList);
 		
 		
 	}

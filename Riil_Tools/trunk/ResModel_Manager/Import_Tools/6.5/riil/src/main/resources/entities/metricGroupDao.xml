@@ -3,7 +3,7 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.riil.base.resmodel.impl.db.dao.MetricGroupDao">
 
-	<resultMap id="metricGroupResultMap" type="com.riil.base.resmodel.pojo.base.MetricGroupPojo">
+	<resultMap id="metricGroupResultMap" type="com.riil.base.binding.pojo.MetricGroupExtendPojo">
 		<result property="desc" column="C_DESC" javaType="string" jdbcType="VARCHAR" />
 		<result property="id" column="C_ID" javaType="string" jdbcType="VARCHAR" />
 		<result property="groupType" column="C_GROUP_TYPE" javaType="string" jdbcType="VARCHAR" />
@@ -13,6 +13,7 @@
 		<result property="tag2" column="C_TAG2" javaType="string" jdbcType="VARCHAR" />
 		<result property="tag3" column="C_TAG3" javaType="string" jdbcType="VARCHAR" />
 		<result property="tag4" column="C_TAG4" javaType="string" jdbcType="VARCHAR" />
+		<result property="isCustom" column="C_IS_CUSTOM" javaType="_int" jdbcType="TINYINT" />
 	</resultMap>
 
 	<sql id="Query_Where_Clause">
@@ -57,30 +58,30 @@
 	</sql>
 
 	<!-- Insert POJO object -->
-	<insert id="insert" parameterType="com.riil.base.resmodel.pojo.base.MetricGroupPojo">
+	<insert id="insert" parameterType="com.riil.base.binding.pojo.MetricGroupExtendPojo">
 		INSERT INTO
 		t_moni_metric_group ( C_DESC, C_ID, C_GROUP_TYPE, C_NAME,
 		C_SORT_ID,
-		C_TAG1, C_TAG2, C_TAG3, C_TAG4 )
+		C_TAG1, C_TAG2, C_TAG3, C_TAG4,C_IS_CUSTOM )
 		VALUES( #{desc}, #{id}, #{groupType},
 		#{name}, #{sortId}, #{tag1}, #{tag2},
-		#{tag3}, #{tag4} )
+		#{tag3}, #{tag4}, #{isCustom}  )
     </insert>
     
     <!--batch Insert POJO object -->
 	<insert id="batchInsert" parameterType="list">
 		INSERT INTO t_moni_metric_group( C_DESC, C_ID, C_GROUP_TYPE, C_NAME,C_SORT_ID,
-		C_TAG1, C_TAG2, C_TAG3, C_TAG4 )
+		C_TAG1, C_TAG2, C_TAG3, C_TAG4,C_IS_CUSTOM )
 		VALUES
 		<foreach collection="list" item="item" separator=",">
 			(  #{item.desc}, #{item.id}, #{item.groupType},
 		#{item.name}, #{item.sortId}, #{item.tag1}, #{item.tag2},
-		#{item.tag3}, #{item.tag4})
+		#{item.tag3}, #{item.tag4}, #{item.isCustom} )
         </foreach>
 	</insert>
 
 	<!-- Update POJO object by ID -->
-	<update id="update_by_id" parameterType="com.riil.base.resmodel.pojo.base.MetricGroupPojo">
+	<update id="update_by_id" parameterType="com.riil.base.binding.pojo.MetricGroupExtendPojo">
 		UPDATE
 		t_moni_metric_group
 		SET C_DESC = #{desc},
@@ -108,7 +109,7 @@
     </delete>
 
 	<!-- Delete POJO object by query -->
-	<delete id="delete_by_query" parameterType="com.riil.base.resmodel.pojo.base.MetricGroupPojo">
+	<delete id="delete_by_query" parameterType="com.riil.base.binding.pojo.MetricGroupExtendPojo">
 		DELETE FROM t_moni_metric_group
 		<include refid="Query_Where_Clause" />
 	</delete>
@@ -122,7 +123,7 @@
     </select>
 
 	<!-- Select POJO object by query -->
-	<select id="select_one_by_query" parameterType="com.riil.base.resmodel.pojo.base.MetricGroupPojo"
+	<select id="select_one_by_query" parameterType="com.riil.base.binding.pojo.MetricGroupExtendPojo"
 		resultMap="metricGroupResultMap">
 		SELECT C_DESC, C_ID, C_GROUP_TYPE, C_NAME, C_SORT_ID, C_TAG1, C_TAG2,
 		C_TAG3, C_TAG4
@@ -131,7 +132,7 @@
 	</select>
 
 	<!-- Select All POJO object -->
-	<select id="select_all" parameterType="com.riil.base.resmodel.pojo.base.MetricGroupPojo"
+	<select id="select_all" parameterType="com.riil.base.binding.pojo.MetricGroupExtendPojo"
 		resultMap="metricGroupResultMap">
 		SELECT C_DESC, C_ID, C_GROUP_TYPE, C_NAME, C_SORT_ID, C_TAG1, C_TAG2,
 		C_TAG3, C_TAG4
@@ -144,7 +145,7 @@
 	</select>
 
 	<!-- Select POJO object list by query -->
-	<select id="select_list_by_query" parameterType="com.riil.base.resmodel.pojo.base.MetricGroupPojo"
+	<select id="select_list_by_query" parameterType="com.riil.base.binding.pojo.MetricGroupExtendPojo"
 		resultMap="metricGroupResultMap">
 		SELECT C_DESC, C_ID, C_GROUP_TYPE, C_NAME, C_SORT_ID, C_TAG1, C_TAG2,
 		C_TAG3, C_TAG4
@@ -158,7 +159,7 @@
 	</select>
 
 	<!-- Select POJO object collection for page by query -->
-	<select id="select_pagelist_by_query" parameterType="com.riil.base.resmodel.pojo.base.MetricGroupPojo"
+	<select id="select_pagelist_by_query" parameterType="com.riil.base.binding.pojo.MetricGroupExtendPojo"
 		resultMap="metricGroupResultMap">
 		SELECT C_DESC, C_ID, C_GROUP_TYPE, C_NAME, C_SORT_ID, C_TAG1, C_TAG2,
 		C_TAG3, C_TAG4

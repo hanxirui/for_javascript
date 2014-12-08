@@ -23,7 +23,12 @@ router.get('/addMetricGroupInfo', function(req, res){
 router.post('/save', function(req, res) {
 	var metricGroupInfo = req.body;
 	metricGroupInfo.operator = req.session.userInfo.userName;
-	MetricGroupService.saveMetricGroup(metricGroupInfo).then(function(recordset) {
+	var logInfo = "指标组管理插入数据id:" + sqlparam.groupId;
+	var logContent = {
+		userId: req.session.userInfo.userId,
+		info: logInfo
+	};
+	MetricGroupService.saveMetricGroup(metricGroupInfo, logContent).then(function(recordset) {
 		res.json({
 			msg: '1'
 		});
@@ -36,7 +41,12 @@ router.post('/delete', function(req, res) {
 		'ids' : ids,
 		'operator' : req.session.userInfo.userName
 	}
-	MetricGroupService.deleteMetricGroupById(data).then(function() {
+	var logInfo = "指标组管理删除数据";
+	var logContent = {
+		userId: req.session.userInfo.userId,
+		info: logInfo
+	};
+	MetricGroupService.deleteMetricGroupById(data, logContent).then(function() {
 		res.json({
 			msg: '1'
 		});
@@ -56,7 +66,12 @@ router.get('/updatePre', function(req, res) {
 router.post('/update', function(req, res) {
 	var metricGroupInfo = req.body;
 	metricGroupInfo.operator = req.session.userInfo.userName;
-	MetricGroupService.updataMetricGroup(metricGroupInfo).then(function() {
+	var logInfo = "指标组管理修改数据id:" + sqlparam.groupId;
+	var logContent = {
+		userId: req.session.userInfo.userId,
+		info: logInfo
+	};
+	MetricGroupService.updataMetricGroup(metricGroupInfo, logContent).then(function() {
 		res.json({
 			msg: '1'
 		});

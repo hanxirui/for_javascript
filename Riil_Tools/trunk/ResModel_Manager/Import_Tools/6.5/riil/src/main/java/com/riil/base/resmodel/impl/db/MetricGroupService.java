@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.riil.base.binding.pojo.MetricGroupExtendPojo;
 import com.riil.base.resmodel.IMetricGroupService;
 import com.riil.base.resmodel.impl.db.dao.MetricGroupDao;
 import com.riil.base.resmodel.pojo.base.MetricGroupPojo;
@@ -280,7 +281,7 @@ public class MetricGroupService extends AbsService implements
 	}
 	
 	
-	public void importBatch(List<MetricGroupPojo> list) throws ServiceException {
+	public void importBatch(List<MetricGroupExtendPojo> list) throws ServiceException {
 		if (list == null || list.isEmpty()) {
 			return;
 		}

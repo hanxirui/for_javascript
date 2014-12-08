@@ -20,12 +20,18 @@ var AduitLogService = require('../service/AduitLogService');
 var ResTypeTree = {
     getResTypeTree: function (host) {
         return query(sqlConfig.t_moni_res_type_selectAll).then(function (rows) {
+            var result = [];
             if (rows && rows.length > 0) {
+                // 隐藏机房、脚本、trap、业务应用、业务服务
+                var modelIds = ['RIIL_RMT_MOTOROOM', 'RIIL_RMT_SCRIPT', 'RIIL_RMT_SCRIPT_ADV', 'RIIL_RMT_SCRIPT_TIMING', 'RIIL_RMT_SNMPTRAP', 'RIIL_RMT_BUSINESSAPPLICATION', 'RIIL_RMT_BUSINESSSERVICE'];
                 rows.forEach(function (row) {
-                    formatRow(row, host);
+                    if (!_.contains(modelIds, row.modelId)) {
+                        formatRow(row, host);
+                        result.push(row);
+                    }
                 });
             }
-            return rows;
+            return result;
         });
     },
     getResTypeById: function (typeId) {
