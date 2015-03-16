@@ -14,13 +14,15 @@
 		SELECT C_ID, C_CMDS_GROUP_ID,C_INDEX,C_PROTOCOL,C_CMD
 		FROM
 		t_moni_cmd
+		ORDER BY C_INDEX
     </select>
 
 	<select id="select_by_collectCmdsId" parameterType="string" resultMap="collectCmdResultMap">
 		SELECT C_ID, C_CMDS_GROUP_ID,C_INDEX,C_PROTOCOL,C_CMD
 		FROM
 		t_moni_cmd
-		WHERE C_CMDS_GROUP_ID = #{collectCmdsId ,jdbcType=VARCHAR}
+		WHERE C_CMDS_GROUP_ID = #{collectCmdsId ,jdbcType=VARCHAR} 
+		ORDER BY C_INDEX
     </select>
 	
 </mapper>
