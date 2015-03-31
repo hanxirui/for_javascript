@@ -25,6 +25,8 @@ var publish = function(topic){
 	if(!topics[topic]){
 		return false;
 	}
+	// arguments-函数执行环境变量，系统自带
+	// 等价于arguments.slice[1]
     args = Array.prototype.slice.call(arguments,1);
     for(var i=0,l=topics[topic].length;i<l;i++){
     	var subscription = topics[topic][i];
