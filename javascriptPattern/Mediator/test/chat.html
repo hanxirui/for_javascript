@@ -1,11 +1,12 @@
+<!DOCTYPE html>
+<html>
+
+
 <head>
-<script type="text/javascript" src="jquery-1.11.2.js"></script>
-<script type="text/javascript" src="mediator.js"></script>
-<script type="text/javascript" src="chat.js"></script>	
 </head>
 <body>
 <h1>Chat</h1>
-<form id="chatForm">
+
  <label for="fromBox">Your Name:</label>
  <input id="fromBox" type="text"/>
 <br/>
@@ -14,7 +15,11 @@
 <br/>
 <label for="chatBox">Message:</label>
 <input id="chatBox" type="text"/>
-<button action="submit">Chat</button>
-</form>
-<div id="chatResult"></div>
+<button id="beChat" name="Chat">Chat</button>
+
+<div id="chatResult" ></div>
 </body>
+</html>
+<script type="text/javascript" src="jquery-1.11.2.js"></script>
+<script type="text/javascript" src="mediator.js"></script>
+<script type="text/javascript" src="chat.js"></script>	
