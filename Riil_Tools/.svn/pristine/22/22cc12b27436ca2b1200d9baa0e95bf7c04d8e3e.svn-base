@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.riil.base.policy.impl.dao.PolicyMetricDAO">
-
-	<sql id="before_today_7d">date_add(CURRENT_TIMESTAMP(), interval -7 day)</sql>
-	<sql id="time_format_1">time_format( </sql><sql id="time_format_2"> ,'%H:%i:%s')</sql>
-
-</mapper>

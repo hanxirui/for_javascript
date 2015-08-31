@@ -1,8 +1,0 @@
-<!DOCTYPE html>
-<html>
- 
-  <body>
-	<h1>Error Page. <%= error.status %></h1>
-	<span><%= message %></span>
-  </body>
-</html>
