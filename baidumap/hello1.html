@@ -22,6 +22,20 @@ var map = new BMap.Map("container");          // 创建地图实例
 var point = new BMap.Point(116.404, 39.915);  // 创建点坐标  
 map.centerAndZoom(point, 12);                 // 初始化地图，设置中心点坐标和地图级别  
 
+map.addEventListener("click", function(e){    
+ alert("您点击了地图。");    
+ alert("地图缩放至：" + this.getZoom() + "级");   
+ alert(e.point.lng + ", " + e.point.lat);    
+});
+
+map.addEventListener("dragend", function(){    
+ var center = map.getCenter();    
+ alert("地图中心点变更为：" + center.lng + ", " + center.lat);    
+});
+
+map.addEventListener("zoomend", function(){    
+ alert("地图缩放至：" + this.getZoom() + "级");    
+});
 
 // 地图API中提供的控件有：
 // Control：控件的抽象基类，所有控件均继承此类的方法、属性。通过此类您可实现自定义控件。
@@ -32,15 +46,56 @@ map.centerAndZoom(point, 12);                 // 初始化地图，设置中心�
 // CopyrightControl：版权控件，默认位于地图左下方。
 // GeolocationControl：定位控件，针对移动端开发，默认位于地图左下方。
 // 可以向地图添加多个控件。在本例中我们向地图添加一个平移缩放控件、一个比例尺控件和一个缩略图控件。在地图中添加控件后，它们即刻生效。
-map.addControl(new BMap.NavigationControl());    
-map.addControl(new BMap.ScaleControl());    
+// map.addControl(new BMap.NavigationControl());    
+// map.addControl(new BMap.ScaleControl());    
 //map.addControl(new BMap.OverviewMapControl());    
 // map.addControl(new BMap.MapTypeControl());    
 map.setCurrentCity("北京"); 
 
+
+// 自定义控件
+function ZoomControl(){
+	// 设置默认停靠位置和偏移量
+	this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
+	this.defaultOffset = new BMap.Size(100,10);
+}
+// 通过javascript的prototype属性继承于BMap.Control
+ZoomControl.prototype = new BMap.Control();
+
+// 自定义控件必须实现initialize方法，并且将控件的DOM元素返回
+// 在本方法中创建个div元素作为控件的容器，并且将其添加到地图容器中
+ZoomControl.prototype.initialize = function(map){
+	// 创建一个DOM元素
+	var div = document.createElement("div");
+
+	// 添加文字说明
+	div.appendChild(document.createTextNode("放大2级"));
+
+	// 设置样式
+	div.style.cursor = "pointer";
+	div.style.border = "1px solid gray";
+	div.style.backgroundColor = "white";
+
+	// 绑定事件，点击一次放大两级
+	div.onclick = function(e){
+		map.zoomTo(map.getZoom() + 2);
+	}
+
+	// 添加DOM元素到地图中
+	map.getContainer().appendChild(div);
+
+	// 将DOM元素返回
+	return div;
+}
+// 创建控件实例    
+var myZoomCtrl = new ZoomControl();
+// 添加到地图当中 
+// 自定义组件
+map.addControl(myZoomCtrl);
+
  // 创建标注    
 
-for (var i = 0; i < 5000; i ++) {    
+for (var i = 0; i < 100; i ++) {    
 	if(i/2==0){
 	var point = new BMap.Point(116.404 + i * (Math.random() * 0.07), 39.915 + i * (Math.random() * 0.07));  
 	var marker = new BMap.Marker(point);   
@@ -97,6 +152,130 @@ var opts = {
 }    
 var infoWindow = new BMap.InfoWindow("World", opts);  // 创建信息窗口对象    
 // map.openInfoWindow(infoWindow, map.getCenter());      // 打开信息窗口
+
+
+// 定义自定义覆盖物的构造函数  
+function SquareOverlay(center, length, color){    
+ this._center = center;    
+ this._length = length;    
+ this._color = color;    
+}    
+// 继承API的BMap.Overlay    
+SquareOverlay.prototype = new BMap.Overlay();
+
+// 实现初始化方法  
+SquareOverlay.prototype.initialize = function(map){    
+// 保存map对象实例   
+ this._map = map;        
+ // 创建div元素，作为自定义覆盖物的容器   
+ var div = document.createElement("div");  
+ var lu = document.createElement("lu");  
+ var li1 = document.createElement("div");   
+ var li2 = document.createElement("div");   
+ var li3 = document.createElement("div");   
+
+ li1.appendChild(document.createTextNode("热点区域：北京王府井大街"));
+ li2.appendChild(document.createTextNode("AP数量：123")); 
+ li3.appendChild(document.createTextNode("用户数量数量：3250")); 
+ lu.appendChild(li1);
+ lu.appendChild(li2);
+ lu.appendChild(li3);
+ div.appendChild(lu);
+ div.style.position = "absolute";        
+ // 可以根据参数设置元素外观   
+ div.style.width = this._length + "px";    
+ div.style.height = this._length / 2 + "px";    
+ div.style.background = this._color;      
+// 将div添加到覆盖物容器中   
+ map.getPanes().markerPane.appendChild(div);      
+// 保存div实例   
+ this._div = div;      
+// 需要将div元素作为方法的返回值，当调用该覆盖物的show、   
+// hide方法，或者对覆盖物进行移除时，API都将操作此元素。   
+ return div;    
+}
+
+// 实现绘制方法   
+SquareOverlay.prototype.draw = function(){    
+// 根据地理坐标转换为像素坐标，并设置给容器    
+ var position = this._map.pointToOverlayPixel(this._center);    
+ this._div.style.left = position.x - this._length / 2 + "px";    
+ this._div.style.top = position.y - this._length / 2 + "px";    
+}
+
+// 实现显示方法    
+SquareOverlay.prototype.show = function(){    
+ if (this._div){    
+   this._div.style.display = "";    
+ }    
+}      
+// 实现隐藏方法  
+SquareOverlay.prototype.hide = function(){    
+ if (this._div){    
+   this._div.style.display = "none";    
+ }    
+}
+
+// 添加自定义方法   
+SquareOverlay.prototype.toggle = function(){    
+ if (this._div){    
+   if (this._div.style.display == ""){    
+     this.hide();    
+   }    
+   else {    
+     this.show();    
+   }    
+ }    
+}
+
+// 添加自定义覆盖物   
+var mySquare = new SquareOverlay(map.getCenter(), 300, "gray");    
+map.addOverlay(mySquare);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </script>  
 </body>  

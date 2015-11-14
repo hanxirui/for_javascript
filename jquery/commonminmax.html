@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link href="util.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="util.js"></script>
+	<script type="text/javascript">
+	function smallest(array){
+		return Math.min.apply(Math,array);
+	}
+
+	function largest(array){
+		return Math.max.apply(Math,array);
+	}
+
+	
+
+	window.onload = function(){
+		assert(smallest([0,1,3,4])==0,"Located the smallest value.");
+		assert(largest([0,1,3,4])==4,"Located the largest value.");
+	};
+	</script>
+</head>
+<body>
+<ul id="results"></ul>
+</body>
+</html>
+
