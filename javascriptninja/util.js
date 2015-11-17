@@ -15,4 +15,12 @@ function assert(value,desc){
 	li.className = value ? "pass":"fail";
 	li.appendChild(document.createTextNode(desc));
 	document.getElementById("results").appendChild(li);
+
+	return li;
 };
+
+function test(name,fn){
+	var results = document.getElementById("results");
+	results = assert(true,name).appendChild(document.createElement("ul"));
+	fn();
+}
