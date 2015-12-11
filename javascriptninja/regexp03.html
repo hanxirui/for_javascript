@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test Suite</title>
+	<link href="util.css" rel="stylesheet" type="text/css" />
+
+
+</head>
+<body>
+	<ul id="results"></ul>
+	<div id="opacity" style="opacity:0.5; filter:alpha(opacity=50);">
+	</div>
+</body>
+</html>
+<script type="text/javascript" src='jquery-2.1.4.js'></script>
+<script type="text/javascript" src="util.js"></script>
+<script type="text/javascript">
+// 小括号()既表示捕获又表示分组
+function getOpacity(elem){
+	var filter = elem.style.filter;
+
+	return filter?filter.indexOf("opacity=") >= 0?
+					(parseFolat(filter.match(/opacity=([^)])+/)[1])/100)+"":"":
+					elem.style.opacity;
+}
+window.onload = function(){
+	assert(getOpacity(document.getElementById("opacity"))=="0.5","The opacity of the element has been obtained.");
+};
+</script>

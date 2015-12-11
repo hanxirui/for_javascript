@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test Suite</title>
+	<link href="util.css" rel="stylesheet" type="text/css" />
+
+
+</head>
+<body>
+	<ul id="results"></ul>
+</body>
+</html>
+<script type="text/javascript" src='jquery-2.1.4.js'></script>
+<script type="text/javascript" src="util.js"></script>
+<script type="text/javascript">
+ var re1 = /test/i;//通过字面量创建正则； i表示不区分大小写
+ var re2 = new RegExp("test","i");//通过构造器
+
+ assert(re1.toString()=="/test/i","Verify the contents of the expression.");
+ assert(re1.test("TesT"),"Yes,it's case-insensitive.");
+ assert(re2.test("TesT"),"Yes,it's case-insensitive.");
+ assert(re1.toString()==re2.toString(),"The regular expressions are equal.");
+ assert(re1!=re2,"But they are different objects.");
+
+
+
+</script>

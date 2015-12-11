@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test Suite</title>
+	<link href="util.css" rel="stylesheet" type="text/css" />
+
+
+</head>
+<body>
+	<ul id="results"></ul>
+	<div class="samurai ninja"></div>
+	<div class="ninja samurai"></div>
+	<div></div>
+	<span class="samurai ninja ronin"></span>
+</body>
+</html>
+<script type="text/javascript" src='jquery-2.1.4.js'></script>
+<script type="text/javascript" src="util.js"></script>
+<script type="text/javascript">
+// 创建正则表达式有两种方式
+  function findClassInElements(className,type){
+		var elems = document.getElementsByTagName(type||"*");
+		var regex = new RegExp("(^|\\s)" + className + "(\\s|$)");
+		var results = [];
+
+		for(var i=0,length = elems.length;i<length;i++){
+			if(regex.test(elems[i].className)){
+				results.push(elems[i]);
+			}
+		}
+			return results;
+	}
+
+	assert(findClassInElements("ninja","div").length==2,"The right amount of div ninjas was found.");
+	assert(findClassInElements("ninja","span").length==1,"The right amount of span ninjas was found.");
+	assert(findClassInElements("ninja").length==3,"The right amount of ninjas ninjas was found.");
+
+</script>

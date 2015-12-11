@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test Suite</title>
+	<link href="util.css" rel="stylesheet" type="text/css" />
+	
+
+</head>
+<body>
+	<ul id="results"></ul>
+</body>
+</html>
+<script type="text/javascript" src='jquery-2.1.4.js'></script>
+<script type="text/javascript" src="util.js"></script>
+<script type="text/javascript">
+
+Object.prototype.keys = function(){
+	var keys = [];
+	for(var i in this)
+		if(this.hasOwnProperty(i))keys.push(i);
+	return keys;
+};
+
+var obj = {a:1,b:2,c:3};
+
+assert(obj.keys().length ==3,"There are three properties in this object.");
+</script>
