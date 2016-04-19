@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<title>Test Suite</title>
+
+	<link href="util.css" rel="stylesheet" type="text/css" />
+
+
+</head>
+<body>
+	<ul id="results"></ul>
+	<div title="Click me">点我就变色</div>
+	<div title="but only once">但是只变一次</div>
+</body>
+</html>
+<script type="text/javascript" src='jquery-2.1.4.js'></script>
+<script type="text/javascript" src="util.js"></script>
+<script type="text/javascript">
+// 为事件设置正确的上下文
+if(document.addEventListener){
+	this.addEvent = function(elem,type,fn){
+		elem.addEventListener(type,fn,false);
+		return fn;
+	};
+	this.removeEvent = function(elem,type,fn){
+		elem.removeEventListener(type,fn,false);
+	};
+}else if(document.attachEvent){
+	this.addEvent = function(elem,type,fn){
+		var bound = function(){
+			return fn.apply(elem,arguments);
+		};
+		elem.attachEvent("on"+type,bound);
+		return bound;
+	};
+	this.removeEvent = function (elem,type,fn) {
+		elem.detachEvent("on"+type,fn);
+	};
+}
+
+// -------------------------------------
+addEvent(window,"load",function(){
+	var elems = document.getElementsByTagName("div");
+	for (var i = 0; i < elems.length; i++) (function(elem){
+		var handler = addEvent(elem,"click",function(){
+			this.style.backgroundColor = this.style.backgroundColor==''?'green':'';
+			removeEvent(elem,'click',handler);
+		});
+	})(elems[i]);
+});
+</script>

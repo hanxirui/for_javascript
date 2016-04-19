@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Listing 3.4</title>
+    <script type="text/javascript" src="../scripts/assert.js"></script>
+    <link href="../styles/assert.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <script type="text/javascript">
+    // 将函数作为构造器调用时：
+// 创建一个新对象
+// 传递给构造器的对象是this参数，从而成为构造器的函数上下文
+// 如果没有显式的返回值，新创建的对象则作为构造器的返回值返回
+      function Ninja() {                                 //#1
+        this.skulk = function() { return this; };        //#1
+      }                                                  //#1
+
+      var ninja1 = new Ninja();                          //#2
+      var ninja2 = new Ninja();                          //#2
+
+      assert(ninja1.skulk() === ninja1,                  //#3
+             "The 1st ninja is skulking");               //#3
+      assert(ninja2.skulk() === ninja2,                  //#3
+             "The 2nd ninja is skulking");               //#3
+
+    </script>
+  </body>
+</html>

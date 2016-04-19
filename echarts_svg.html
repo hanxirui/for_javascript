@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="utf-8">
+<title>Echarts地图扩展_SVG</title>
+ <script type="text/javascript"src="js/jquery.min.js"></script>
+ <script type="text/javascript"src="js/Echarts/esl.js"></script>
+</head>
+<body>
+<div id="main"style="height: 400px; width: 45%; min-width: 600px; float: left;"></div>
+ <script type="text/javascript">
+ // 路径配置
+require.config({
+ paths: {
+ 'echarts': 'js/Echarts/echarts',
+ 'echarts/chart/map': 'js/Echarts/echarts-map'
+}
+});
+
+ // 使用
+require(
+[
+'echarts',
+ 'echarts/chart/map' // 使用柱状图就加载bar模块，按需加载
+],
+
+ function (ec) {
+ require('echarts/util/mapData/params').params.ship = {
+ getGeoJson: function (callback) {
+$.ajax({
+ url:"js/Echarts/ship.svg",
+ dataType: 'xml',
+ success: function (xml) {
+callback(xml)
+}
+});
+}
+}
+ // 基于准备好的dom，初始化echarts图表
+ var myChart = ec.init(document.getElementById('main'));
+
+ var option = {
+ 
+ title: {
+ text: 'XXX监测系统',
+ x: 'center',
+ textStyle: {
+ color: '#000'
+}
+},
+ tooltip: {
+ trigger: 'item',
+ formatter: function (v) {
+ return v[1];
+}
+},
+ color: ['rgba(218, 70, 214, 1)', 'rgba(100, 149, 237, 1)'],
+ legend: {
+ orient: 'vertical',
+ x: 'right',
+ y: '40px',
+ data: ['xxx电位监测器', 'xxx阻抗测试仪']
+
+},
+ toolbox: {
+ show: true,
+ feature: {
+ dataView: { show: true, readOnly: false },
+ restore: { show: true },
+ saveAsImage: { show: true }
+}
+},
+ series: [
+{
+ name: 'xxx阻抗测试仪',
+ type: 'map',
+ mapType: 'ship',
+ roam: true,
+ itemStyle: {
+ normal: { label: { show: true } },
+ emphasis: { label: { show: true } }
+},
+ data: [],
+ geoCoord: {
+ 'CST800_1#': [130, 415],
+ 'CST800_2#': [410, 530],
+ 'CST800_3#': [760, 420],
+ 'CST800_4#': [465, 335]
+},
+ markPoint: {
+ symbolSize: 3,
+ data: [
+ { name: 'CST800_1#' },
+ { name: 'CST800_2#' },
+ { name: 'CST800_3#' },
+ { name: 'CST800_4#' }
+]
+},
+ markLine: {
+ smooth: true,
+ effect: {
+ show: true,
+ scaleSize: 1,
+ period: 20,
+ color: '#fff',
+ shadowBlur: 5
+},
+ symbol: ['none'],
+ itemStyle: {
+ normal: {
+ borderWidth: 1,
+ lineStyle: {
+ type: 'solid'
+}
+}
+},
+ data: [
+[
+ { name: 'CST800_1#' },
+ { name: 'xxx阻抗测试仪' }
+],
+[
+ { name: 'CST800_2#' },
+ { name: 'xxx阻抗测试仪' }
+],
+[
+ { name: 'CST800_3#' },
+ { name: 'xxx阻抗测试仪' }
+],
+[
+ { name: 'CST800_4#' },
+ { name: 'xxx阻抗测试仪' }
+]
+]
+}
+},
+{
+ name: 'xxx电位监测器',
+ type: 'map',
+ mapType: 'ship',
+ roam: true,
+ itemStyle: {
+ normal: { label: { show: true } },
+ emphasis: { label: { show: true } }
+},
+ data: [],
+ geoCoord: {
+ 'CST616_1#': [78, 450],
+ 'CST616_2#': [171, 355],
+ 'CST616_3#': [408, 485],
+ 'CST616_4#': [702, 470],
+ 'CST616_5#': [795, 345],
+ 'CST616_6#': [465, 290]
+},
+ markPoint: {
+ symbolSize: 3,
+ data: [
+ { name: 'CST616_1#' },
+ { name: 'CST616_2#' },
+ { name: 'CST616_3#' },
+ { name: 'CST616_4#' },
+ { name: 'CST616_5#' },
+ { name: 'CST616_6#' }
+]
+},
+ markLine: {
+
+ 
+ symbol: ['none'],
+ itemStyle: {
+ normal: {
+ borderWidth: 1,
+}
+},
+ data: [
+[
+ { name: 'CST616_1#' },
+ { name: 'xxx电位监测器' }
+],
+[
+ { name: 'CST616_2#' },
+ { geoCoord: [171, 220] },
+],
+[
+ { geoCoord: [171, 220] },
+ { geoCoord: [98, 220] }
+],
+[
+ { geoCoord: [98, 220] },
+ { geoCoord: [98, 140] },
+
+],
+[
+ { name: 'CST616_3#' },
+ {geoCoord: [408, 318] }
+],
+[
+ { geoCoord: [408, 318] },
+ { geoCoord: [86, 318] }
+],
+[
+ { geoCoord: [86, 318] },
+ { geoCoord: [86, 140] },
+
+],
+[
+ { name: 'CST616_4#' },
+ { geoCoord: [702, 310] }
+],
+[
+ { geoCoord: [702, 310] },
+ { geoCoord: [92, 310] }
+],
+[
+ { geoCoord: [92, 310] },
+ { geoCoord: [92, 140] }
+],
+[
+ { name: 'CST616_5#' },
+ { geoCoord: [795, 202] }
+],
+[
+ { geoCoord: [795, 202] },
+ { geoCoord: [110, 202] }
+],
+[
+ { geoCoord: [110, 202] },
+ { geoCoord: [110, 140] }
+],
+[
+ { name: 'CST616_6#' },
+ { geoCoord: [465, 212] }
+],[
+ { geoCoord: [465, 212] },
+ { geoCoord: [104, 212] }
+],
+[
+ { geoCoord: [104, 212] },
+ { geoCoord: [104, 140] }
+],
+]
+}
+},
+{
+ type: 'map',
+ mapType: 'ship',
+ data: [],
+ geoCoord: {
+ 'xxx阻抗测试仪': [200, 140]
+},
+ markPoint: {
+ symbol: 'emptyCircle',
+ symbolSize: 15,
+ effect: {
+ show: true,
+ color: 'rgba(100, 149, 237, 1)'
+},
+ data: [
+ { name: 'xxx阻抗测试仪' }
+]
+}
+},
+{
+ type: 'map',
+ mapType: 'ship',
+ data: [],
+ geoCoord: {
+ 'xxx电位监测器': [80, 140]
+},
+ markPoint: {
+ symbol: 'emptyCircle',
+ symbolSize: 15,
+ effect: {
+ show: true,
+ color: 'rgba(218, 70, 214, 1)'
+},
+ data: [
+ { name: 'xxx电位监测器' }
+]
+}
+}
+]
+};
+
+ // 为echarts对象加载数据 
+myChart.setOption(option);
+}
+);
+</script>
+</body>
+</html>

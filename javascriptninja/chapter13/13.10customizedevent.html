@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<title>Test Suite</title>
+	<link href="util.css" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+	#whirlyThing{display: none}
+	</style>
+
+</head>
+<body>
+	<button type="button" id="clickMe">Start</button>              <!--4-->
+
+  <img id="whirlyThing" src="whirly-thing.gif">
+</body>
+</html>
+<script type="text/javascript" src='../jquery-2.1.4.js'></script>
+<script type="text/javascript" src="../util.js"></script>
+<script type="text/javascript" src="event.js"></script>
+<script type="text/javascript">
+
+function performAjaxOperation(target) {
+
+  triggerEvent(target,'ajax-start');
+
+  window.setTimeout(function(){
+    triggerEvent(target,'ajax-complete')
+  },5000);
+
+}
+
+addEvent(window,'load',function(){
+
+	var button = document.getElementById('clickMe');         //#1
+	addEvent(button,'click',function(){
+		performAjaxOperation(this);
+	});
+
+	var body = document.getElementsByTagName('body')[0];
+
+	addEvent(body,'ajax-start',function(e){                   //#2
+		document.getElementById('whirlyThing')
+			.style.display = 'inline-block';
+	});
+
+	addEvent(body,'ajax-complete',function(e){                //#3
+		document.getElementById('whirlyThing')
+			.style.display = 'none';
+	});
+
+});
+
+
+</script>

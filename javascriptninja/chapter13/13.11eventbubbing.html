@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<title>Test Suite</title>
+	<link href="../util.css" rel="stylesheet" type="text/css" />
+  <style>.over { background: yellow; }</style>
+
+</head>
+<body>
+	<ul id="results"></ul>
+  <div>Hover <strong>over</strong> me!</div>
+</body>
+</html>
+<script type="text/javascript" src='../jquery-2.1.4.js'></script>
+<script type="text/javascript" src="../util.js"></script>
+<script type="text/javascript" src="event.js"></script>
+<script type="text/javascript">
+
+function isEventSupported(eventName) {
+// 创建一个新的div元素
+	var element = document.createElement('div'),          //#1
+			isSupported;
+
+	eventName = 'on' + eventName;                         //#2
+	// 通过检测一个属性，来判断是否支持该事件
+	isSupported = (eventName in element);                 //#2
+
+// 如果上述检测失败，创建一个同名特性并检查其是否可以支持该事件
+	if (!isSupported) {                                   //#3
+		element.setAttribute(eventName, 'return;');
+		isSupported = typeof element[eventName] == 'function';
+	}
+
+	element = null;                                        //#4
+
+	return isSupported;
+}
+
+// 借道click或keypress对submit进行冒泡
+(function(){
+
+  var isSubmitEventSupported = isEventSupported("submit");
+
+  function isInForm(elem) {                                      //#1 Function that checks if the passed element is in a form.
+    var parent = elem.parentNode;
+    while (parent) {
+      if (parent.nodeName.toLowerCase() === "form") {
+        return true;
+      }
+      parent = parent.parentNode;
+    }
+    return false;
+  }
+
+  function triggerSubmitOnClick(e) {                              //#2 Handler that will trigger a submit event for clicks on controls with submit semantics.
+    var type = e.target.type;
+    if ((type === "submit" || type === "image") &&
+        isInForm(e.target)) {
+      return triggerEvent(this,"submit");
+    }
+  }
+
+  function triggerSubmitOnKey(e) {                                //#3 Handler that will trigger a submit event for key presses on controls with submit semantics.
+    var type = e.target.type;
+    if ((type === "text" || type === "password") &&
+        isInForm(e.target) && e.keyCode === 13) {
+      return triggerEvent(this,"submit");
+    }
+  }
+
+  this.addSubmit = function (elem, fn) {                        //#4 Defines the special binding function
+
+    addEvent(elem, "submit", fn);                               //#5 Normal binding
+    if (isSubmitEventSupported) return;                     //#5 Short-circuit if browser support is adequate
+
+    // But we need to add extra handlers if we're not on a form
+    // Only add the handlers for the first handler bound
+    if (elem.nodeName.toLowerCase() !== "form" &&               //#6 Checks isf we need piggybacking
+        getData(elem).handlers.submit.length === 1) {
+      addEvent(elem, "click", triggerSubmitOnClick);
+      addEvent(elem, "keypress", triggerSubmitOnKey);
+    }
+
+  };
+
+  this.removeSubmit = function (elem, fn) {                    //#7 Defines the special unbinding function
+
+    removeEvent(elem, "submit", fn);                           //#8 Unbinds as usual
+    if (isEventSupported("submit")) return;                    //#8 Shirt-circuit if browser is adquate
+
+    var data = getData(elem);
+
+    if (elem.nodeName.toLowerCase() !== "form" &&             //#9 Remove piggybacking if all submit handlers gone
+        !data || !data.events || !data.events.submit) {
+      removeEvent(elem, "click", triggerSubmitOnClick);
+      removeEvent(elem, "keypress", triggerSubmitOnKey);
+    }
+  };
+
+})();
+
+// 跨浏览器可冒泡change事件的一个实现
+(function(){
+
+ this.addChange = function (elem, fn) {                          //#A
+
+	 addEvent(elem, "change", fn);                                 //#B
+	 if (isEventSupported("change")) return;                       //#B
+
+	 if (getData(elem).events.change.length === 1) {               //#C Piggyback on first binding
+		 addEvent(elem, "focusout", triggerChangeIfValueChanged);
+		 addEvent(elem, "click", triggerChangeOnClick);
+		 addEvent(elem, "keydown", triggerChangeOnKeyDown);
+		 addEvent(elem, "beforceactivate", triggerChangeOnBefore);
+	 }
+ };
+
+ this.removeChange = function (elem, fn) {                       //#D
+
+	 removeEvent(elem, "change", fn);                              //#E
+	 if (isEventSupported("change")) return;                       //#E
+
+	 var data = getData(elem);
+	 if (!data || !data.events || !data.events.submit) {           //#F Remove piggybacks on last unbind
+		 addEvent(elem, "focusout", triggerChangeIfValueChanged);
+		 addEvent(elem, "click", triggerChangeOnClick);
+		 addEvent(elem, "keydown", triggerChangeOnKeyDown);
+		 addEvent(elem, "beforceactivate", triggerChangeOnBefore);
+	 }
+ };
+
+ function triggerChangeOnClick(e) {                               //#G
+	 var type = e.target.type;
+	 if (type === "radio" || type === "checkbox" ||
+			 e.target.nodeName.toLowerCase() === "select") {
+		 return triggerChangeIfValueChanged.call(this, e);
+	 }
+ }
+
+ function triggerChangeOnKeyDown(e) {                             //#H
+	 var type = e.target.type,
+			 key = e.keyCode;
+	 if (key === 13 && e.target.nodeName.toLowerCase() !== "textarea" ||
+			 key === 32 && (type === "checkbox" || type === "radio") ||
+			 type === "select-multiple") {
+		 return triggerChangeIfValueChanged.call(this, e);
+	 }
+ }
+
+ function triggerChangeOnBefore(e) {                               //#I Stores target value for later checking
+	 getData(e.target)._change_data = getVal(e.target);
+ }
+
+ function getVal(elem) {                                           //#J Utility to get element value
+	 var type = elem.type,
+			 val = elem.value;
+	 if (type === "radio" || type === "checkbox") {
+		 val = elem.checked;
+	 } else if (type === "select-multiple") {
+		 val = "";
+		 if (elem.selectedIndex > -1) {
+			 for (var i = 0; i < elem.options.length; i++) {
+				 val += "-" + elem.options[i].selected;
+			 }
+		 }
+	 } else if (elem.nodeName.toLowerCase() === "select") {
+		 val = elem.selectedIndex;
+	 }
+	 return val;
+ }
+
+ function triggerChangeIfValueChanged(e) {                            //#K Checks to see if a change in the value has occurred
+	 var elem = e.target, data, val;
+	 var formElems = /textarea|input|select/i;
+	 if (!formElems.test(elem.nodeName) || elem.readOnly) {
+		 return;
+	 }
+	 data = getData(elem)._change_data;
+	 val = getVal(elem);
+	 if (e.type !== "focusout" || elem.type !== "radio") {
+		 getData(elem)._change_data = val;
+	 }
+	 if (data === undefined || val === data) {
+		 return;
+	 }
+	 if (data != null || val) {
+		 return triggerEvent(elem, "change");
+	 }
+ }
+
+})();
+
+(function() {
+
+  if (isEventSupported("mouseenter")) {                    //#A Test if the browser supports the mouseenter and mouseleave events
+
+    this.hover = function (elem, fn) {                     //#B In supporting browsers,  add handlers for the supporting events that simply trigger the handler
+      addEvent(elem, "mouseenter", function () {
+        fn.call(elem, "mouseenter");
+      });
+
+      addEvent(elem, "mouseleave", function () {
+        fn.call(elem, "mouseleave");
+      });
+    };
+
+  }
+  else {
+
+    this.hover = function (elem, fn) {                     //#C In non-supporting browsers handle mouseover and mouseout using a handler that detects the "within" condition
+      addEvent(elem, "mouseover", function (e) {
+        withinElement(this, e, "mouseenter", fn);
+      });
+
+      addEvent(elem, "mouseout", function (e) {
+        withinElement(this, e, "mouseleave", fn);
+      });
+    };
+
+  }
+
+  function withinElement(elem, event, type, handle) {      //#D Handler that mimics non-standard behavior
+
+    var parent = event.relatedTarget;                      //#E Get the element we are entering from, or exiting to.
+
+    while (parent && parent != elem) {                     //#F Traverse upward until we hit the top or the hovered element
+      try {
+        parent = parent.parentNode;
+      }
+      catch (e) {                                          //#G In case of error (Firefox XUL elements)
+        break;
+      }
+    }
+    if (parent != elem) {                                  //#H If not exiting or entering the hovered element trigger the handler
+      handle.call(elem, type);
+    }
+  }
+
+})();
+
+window.onload = function () {
+  var div = document.getElementsByTagName("div")[0];
+
+  hover(div, function (type) {
+    if (type === "mouseenter") {
+      this.className = "over";
+    }
+    else {
+      this.className = "";
+    }
+  });
+};
+</script>

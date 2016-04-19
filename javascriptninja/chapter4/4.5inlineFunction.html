@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Listing 4.5</title>
+    <script type="text/javascript" src="../scripts/assert.js"></script>
+    <link href="../styles/assert.css" rel="stylesheet" type="text/css">
+  </head>
+
+  <body>
+
+    <script type="text/javascript">
+
+      var ninja = {
+        // 有名字的“匿名函数”叫内联函数
+        chirp: function signal(n) {                              //#1
+          return n > 1 ? signal(n - 1) + "-chirp" : "chirp";
+        }
+      };
+
+      assert(ninja.chirp(3) == "chirp-chirp-chirp",             //#2
+             "Works as we would expect it to!");
+
+      var samurai = { chirp: ninja.chirp };                     //#3
+// 这个是改变了原来的对象？ 还是保留了原来的对象，又重新创建了一个对象，将ninja指向了他？？
+// String or StringBuffer？？
+      ninja = {};                                               //#4
+
+      assert(samurai.chirp(3) == "chirp-chirp-chirp",           //#5
+             "The method correctly calls itself.");
+
+// 4.6验证内联函数的标识
+var ninja = function myNinja(){                                  //#1
+       assert(ninja == myNinja,                                       //#2
+              "This function is named two things at once!");          //#2
+     };
+
+     ninja();                                                         //#3
+
+     assert(typeof myNinja == "undefined",                            //#4
+            "But myNinja isn't defined outside of the function.");    //#4
+    </script>
+  </body>
+</html>
