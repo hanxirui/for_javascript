@@ -35,11 +35,28 @@
         resizeEnable: true,
         zoom:17,
         center:[117.170383,39.110144],
-        mapStyle:'normal',
+        mapStyle:'dark',
         //normal（默认样式）、dark（深色样式）、light（浅色样式）、fresh
         features:['bg','point','building','road']
         // 支持bg（地图背景）、point（兴趣点）、road（道路）、building（建筑物）
     });
+
+      // 实例化3D楼块图层
+        var buildings = new AMap.Buildings();
+        console.log(buildings);
+        // 在map中添加3D楼块图层
+        // buildings.setMap(map);
+        
+
+     if (document.createElement('canvas') && document.createElement('canvas').getContext && document.createElement('canvas').getContext('2d')) {
+        // 实例化3D楼块图层
+        var buildings = new AMap.Buildings();
+        // 在map中添加3D楼块图层
+        buildings.setMap(map);
+    } else {
+        document.getElementById('tip').innerHTML = "对不起，运行该示例需要浏览器支持HTML5！";
+    }
+    
 
     map.plugin(["AMap.Scale"],function(){
     var scale = new AMap.Scale();

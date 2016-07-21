@@ -1,0 +1,186 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>根据城市名称设置中心点</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+    <style>
+        input[type="text"] {
+            height: 25px;
+            outline: none;
+            border: 0;
+            border: 1px solid #CCCCCC;
+            padding: 0 4px;
+        };
+        #test {width:300px; height: 180px; border: 3px;}  
+    </style>
+    <script src="http://webapi.amap.com/maps?v=1.3&key=e3e6909bc1c3e28f7ef3f5e3d172a330"></script>
+    <script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
+</head>
+<body>
+<div id="container"></div>
+<div class="button-group">
+    <input id="cityName" class="inputtext" placeholder="请输入城市的名称" type="text"/>
+    <input id="query" class="button" value="到指定的城市" type="button"/>
+</div>
+<div id="test">
+    <input id="cityName" class="inputtext" placeholder="请输入城市的名称" type="text"/>
+    <input id="query" class="button" value="到指定的城市" type="button"/>
+</div>
+ <div id="main" style="height:300px;width:400px"></div>
+<script>
+    var map = new AMap.Map('container', {
+        resizeEnable: true,
+        zoom:17,
+        center:[117.170383,39.110144],
+        mapStyle:'normal',
+        //normal（默认样式）、dark（深色样式）、light（浅色样式）、fresh
+        features:['bg','point','building','road']
+        // 支持bg（地图背景）、point（兴趣点）、road（道路）、building（建筑物）
+    });
+
+    map.plugin(["AMap.Scale"],function(){
+    var scale = new AMap.Scale();
+    map.addControl(scale);  
+});
+
+     //为地图注册click事件获取鼠标点击出的经纬度坐标
+    var clickEventListener = map.on('click', function(e) {
+        alert(e.lnglat.getLng() + ',' + e.lnglat.getLat());
+       // document.getElementById("lnglat").value = e.lnglat.getLng() + ',' + e.lnglat.getLat()
+    });
+    var auto = new AMap.Autocomplete({
+        input: "tipinput"
+    });
+    AMap.event.addListener(auto, "select", select);//注册监听，当选中某条记录时会触发
+    function select(e) {
+        if (e.poi && e.poi.location) {
+            map.setZoom(15);
+            map.setCenter(e.poi.location);
+        }
+    }
+
+    //设置城市
+    // AMap.event.addDomListener(document.getElementById('query'), 'click', function() {
+    //     var cityName = document.getElementById('cityName').value;
+    //     if (!cityName) {
+    //         cityName = '北京市';
+    //     }
+    //     map.setCity(cityName);
+    // });
+
+// 点标记
+    var marker = new AMap.Marker({
+        position: [117.170393,39.110154],
+        map:map
+    });
+
+    // var marker = new AMap.Marker();
+    // marker.setMap(map);
+
+
+//     信息窗体的创建与设定
+
+// 信息窗体一样可以在创建的时候设定内容、偏移量、大小等属性，offset是信息窗体的锚点以position为基准位置的像素偏移量，content除了使用字符串的形式外也可以直接设定为某个创建好的DOM节点：
+
+ var infowindow = new AMap.InfoWindow({
+     // content: '<h3>高德地图</h1><div>高德是中国领先的数字地图内容、导航和位置服务解决方案提供商。</div>',
+     offset: new AMap.Pixel(0, -30),
+     // size:new AMap.Size(230,0),
+     isCustom:true
+})
+// 也可以在创建之后按需更改这些属性:
+
+    // infowindow.setSize(new AMap.Size(150,50));
+    // var contentDiv = document.createElement('div');
+    // contentDiv.innerText='我是信息窗体';
+    infowindow.setContent(document.getElementById('main'));
+// 如何打开信息窗体
+
+// 我们可以在信息窗体创建之后立即调用其open方法将它显示在需要的位置：
+
+infowindow.open(map,new AMap.LngLat(117.171393,39.111154));
+// 也可以通过事件监听，在需要的时候才将信息窗体显示出来,比如在marker被单击的时候显示
+
+// var clickHandle = AMap.event.addListener(marker, 'click', function() {
+//     infowindow2.open(map, marker.getPosition())
+// })
+// 当不再需要点击marker显示信息窗体这个功能的时候，可以通过如下方式移除事件绑定
+
+// AMap.event.removeListener(clickHandle);
+
+// 覆盖物
+    // var marker = new AMap.Marker({
+    //     position: [117.169393,39.109154]
+    // });
+    // marker.setMap(map);
+    var circle = new AMap.Circle({
+        center: [117.169393,39.110154],
+        radius: 100,
+        fillOpacity:0.2,
+        strokeWeight:1
+    })
+    circle.setMap(map);
+    map.setFitView()
+    // var info = new AMap.InfoWindow({
+    //     content:"信息窗体<br>这里是方恒科技大厦",
+    //     offset:new AMap.Pixel(0,-28)
+    // })
+    // info.open(map,marker.getPosition())
+
+</script>
+<script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
+    <script type="text/javascript">
+        // 路径配置
+        require.config({
+            paths: {
+                echarts: 'http://echarts.baidu.com/build/dist'
+            }
+        });
+        
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar' // 使用柱状图就加载bar模块，按需加载
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('main')); 
+                
+                var option = {
+                    tooltip: {
+                        show: true
+                    },
+                    legend: {
+                        data:['销量']
+                    },
+                    xAxis : [
+                        {
+                            type : 'category',
+                            data : ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+                        }
+                    ],
+                    yAxis : [
+                        {
+                            type : 'value'
+                        }
+                    ],
+                    series : [
+                        {
+                            "name":"销量",
+                            "type":"bar",
+                            "data":[5, 20, 40, 10, 10, 20]
+                        }
+                    ]
+                };
+        
+                // 为echarts对象加载数据 
+                myChart.setOption(option); 
+            }
+        );
+    </script>
+</body>
+</html>

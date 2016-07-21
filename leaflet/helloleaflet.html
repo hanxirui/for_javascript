@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hello Leaflet</title>
+	 <!-- Bootstrap -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+
+
+	<link rel="stylesheet" href="leaflet/leaflet.css" />
+	<script type="text/javascript" src="leaflet/leaflet.js"></script>
+    <script type="text/javascript" src="leaflet-bing-layer-gh-pages/leaflet-bing-layer.js"></script>
+
+    <script type="text/javascript" src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Promise"></script>
+
+    <script type="text/javascript" src='Leaflet.ChineseTmsProviders-master/src/leaflet.ChineseTmsProviders.js'></script>
+
+    <script type="text/javascript" src='L.TileLayer.PixelFilter-master/leaflet-tileLayerPixelFilter.js'></script>
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+    }
+    </style>
+</head>
+<body>
+<div id="map">		
+</div>
+</body>
+<script type="text/javascript">
+	// initialize the map on the "map" div with a given center and zoom
+var map = L.map('map', {
+    center: [39.110144,117.170383],
+    zoom: 12,
+    minZoom: 12,
+    maxZoom: 20
+    //imagerySet: 'AerialWithLabels'
+});
+
+//微软卫星图
+var BING_KEY = 'AuhiCJHlGzhg93IqUH_oCpl_-ZUrIE6SPftlyGYUvr9Amx5nzA-WqGcPquyFZl4L';
+var bingLayer = L.tileLayer.bing(BING_KEY).addTo(map);
+
+// 高德地图
+//var normalm = L.tileLayer.chinaProvider('GaoDe.Normal.Map',{}).addTo(map);
+
+
+// var OVERLAY = L.tileLayerPixelFilter('http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+//         tms: true, // I used gdal2tiles.py so these tiles use TMS numbering, not WMS-c numbering
+//         matchRGBA: null, // preserve whatever color was in the pixel previously
+//         missRGBA:  [ 255, 255, 255, 255 ], // fill non-matching pixels with solid white
+//     }).addTo(map);
+
+// OVERLAY.setPixelCodes([ [45,161,85], [81,27,150] ]);
+
+
+console.log(map.getBounds());
+map.setMaxBounds(map.getBounds());
+</script>
+</html>
