@@ -1,0 +1,21 @@
+{
+	"source": {
+		"include": ["src/"],
+		"exclude": ["test-main.js"],
+		"excludePattern": "\\.spec\\.js"
+	},
+	"plugins": [
+		"plugins/markdown",
+		"node_modules/angular-jsdoc/common/plugins/ngdoc"
+	],
+	"opts": {
+		"template": "node_modules/angular-jsdoc/angular-template",
+		"encoding": "utf8",
+		"destination": "./doc/api",
+		"recurse": true
+	},
+	"templates": {
+		"cleverLinks": true,
+		"monospaceLinks": true
+	}
+}

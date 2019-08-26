@@ -22,10 +22,14 @@ var map = new BMap.Map("container");          // 创建地图实例
 var point = new BMap.Point(116.404, 39.915);  // 创建点坐标  
 map.centerAndZoom(point, 12);                 // 初始化地图，设置中心点坐标和地图级别  
 
+window.setTimeout(function(){  
+    map.panTo(new BMap.Point(116.409, 39.918));    
+}, 2000);
+
 map.addEventListener("click", function(e){    
  alert("您点击了地图。");    
- alert("地图缩放至：" + this.getZoom() + "级");   
- alert(e.point.lng + ", " + e.point.lat);    
+//  alert("地图缩放至：" + this.getZoom() + "级");   
+//  alert(e.point.lng + ", " + e.point.lat);    
 });
 
 map.addEventListener("dragend", function(){    
@@ -46,10 +50,10 @@ map.addEventListener("zoomend", function(){
 // CopyrightControl：版权控件，默认位于地图左下方。
 // GeolocationControl：定位控件，针对移动端开发，默认位于地图左下方。
 // 可以向地图添加多个控件。在本例中我们向地图添加一个平移缩放控件、一个比例尺控件和一个缩略图控件。在地图中添加控件后，它们即刻生效。
-// map.addControl(new BMap.NavigationControl());    
-// map.addControl(new BMap.ScaleControl());    
-//map.addControl(new BMap.OverviewMapControl());    
-// map.addControl(new BMap.MapTypeControl());    
+map.addControl(new BMap.NavigationControl());    
+map.addControl(new BMap.ScaleControl());    
+map.addControl(new BMap.OverviewMapControl());    
+map.addControl(new BMap.MapTypeControl());    
 map.setCurrentCity("北京"); 
 
 
@@ -153,7 +157,15 @@ var opts = {
 var infoWindow = new BMap.InfoWindow("World", opts);  // 创建信息窗口对象    
 // map.openInfoWindow(infoWindow, map.getCenter());      // 打开信息窗口
 
-
+// 地图API提供了如下几种覆盖物：
+// Overlay：覆盖物的抽象基类，所有的覆盖物均继承此类的方法。
+// Marker：标注表示地图上的点，可自定义标注的图标。
+// Label：表示地图上的文本标注，您可以自定义标注的文本内容。
+// Polyline：表示地图上的折线。
+// Polygon：表示地图上的多边形。多边形类似于闭合的折线，另外您也可以为其添加填充颜色。
+// Circle: 表示地图上的圆。
+// InfoWindow：信息窗口也是一种特殊的覆盖物，它可以展示更为丰富的文字和多媒体信息。注意：同一时刻只能有一个信息窗口在地图上打开。
+// 可以使用map.addOverlay方法向地图添加覆盖物，使用map.removeOverlay方法移除覆盖物，注意此方法不适用于InfoWindow。
 // 定义自定义覆盖物的构造函数  
 function SquareOverlay(center, length, color){    
  this._center = center;    

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh" ng-app="phonecatApp">
+
+<head>
+    <script type="text/javascript" src="/bower_components/angular/angular.js"></script>
+    <script src="js/demo/phonecat.js">
+    </script>
+    <style>
+        .odd {
+            background-color: yellow;
+        }
+
+        .even {
+            background-color: green;
+        }
+    </style>
+</head>
+
+<body ng-controller="PhoneListController">
+    Your name: <input type="text" ng-model="yourname" placeholder="World"> Hello {{yourname || 'World'}}
+    <p></p>
+
+    Search:<input ng-model="query">
+
+    <p>Total number of phones:{{phones.length}}</p>
+    <p>Total money of phones:{{order.cash}}</p>
+    <ul>
+        <li ng-repeat="phone in phones | filter:query">
+            <span>{{phone.name}}</span>
+            <p>{{phone.snippet}}</p>
+        </li>
+    </ul>
+
+    <div style="width:100px;height:10px;background-color:yellowgreen" ng-style="style"></div>
+    <input type="text" name="width" ng-model="style.width">
+
+    <script type="text/ng-template" id="tpl">
+        here, {{ 1 + 1 }}
+    </script>
+    <p/>
+    <a ng-click="v='tpl'">Load</a>
+    <div ng-include src="v"></div>
+
+    <ul ng-init="l=[1,2,3,4]">
+        <li ng-class-odd="'odd'" ng-class-even="'even'" ng-repeat="m in l">{{ m }}</li>
+    </ul>
+
+    <div ng-init="as=2">
+        <ul ng-switch on="as">
+            <li ng-switch-when="1">1</li>
+            <li ng-switch-when="2">2</li>
+            <li ng-switch-default>other</li>
+        </ul>
+    </div>
+
+    <form name="test_form">
+        <input type="text" name="a" required ng-model="a" />
+        <input type="text" name="b" required ng-model="b" ng-minlength="2" />
+        <input type="checkbox" name="bb" ng-model="b" ng-true-value="'B'" ng-false-value="'BB'" />
+        <input type="radio" name="aa" ng-model="a" value="AA" />
+        <input type="radio" name="aa" ng-model="a" value="A" />
+        <select ng-model="aselect" ng-init="o=[{name: 'AA'}, {name: 'BB'}]; a=o[1];" ng-options="x.v as x.name for x in o" ng-change="show()">
+      <option value="">可以加这个空值</option>
+    </select>
+        <span ng-click="see()">{{ test_form.$error }}</span>
+    </form>
+</body>
+
+</html>

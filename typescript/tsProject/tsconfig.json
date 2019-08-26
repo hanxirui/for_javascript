@@ -1,0 +1,7 @@
+{
+	"files": [ "src/*.ts" ],
+	"comilerOptions": {
+		"noImplilcitAny": true,
+		"target": "es6"
+	}
+}
